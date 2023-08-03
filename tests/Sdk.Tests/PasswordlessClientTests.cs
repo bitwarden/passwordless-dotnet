@@ -25,6 +25,13 @@ public class PasswordlessClientTests
         _sut = (PasswordlessClient)provider.GetRequiredService<IPasswordlessClient>();
     }
 
+    /// Exists so test results are created
+    [Fact]
+    public void AlwaysTrue()
+    {
+        Assert.True(true);
+    }
+
     [Fact(Skip = SkipReason)]
     public async Task CreateRegisterToken_ThrowsExceptionWhenBad()
     {
