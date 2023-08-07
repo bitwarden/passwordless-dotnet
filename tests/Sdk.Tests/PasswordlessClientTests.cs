@@ -25,17 +25,10 @@ public class PasswordlessClientTests
         _sut = (PasswordlessClient)provider.GetRequiredService<IPasswordlessClient>();
     }
 
-    /// Exists so test results are created
-    [Fact]
-    public void AlwaysTrue()
-    {
-        Assert.True(true);
-    }
-
     [Fact(Skip = SkipReason)]
     public async Task CreateRegisterToken_ThrowsExceptionWhenBad()
     {
-        var exception = await Assert.ThrowsAnyAsync<HttpRequestException>(async () => await _sut.CreateRegisterToken(new RegisterOptions
+        var exception = await Assert.ThrowsAnyAsync<HttpRequestException>(async () => await _sut.CreateRegisterTokenAsync(new RegisterOptions
         {
             UserId = null!,
             Username = null!,
@@ -45,7 +38,7 @@ public class PasswordlessClientTests
     [Fact(Skip = SkipReason)]
     public async Task VerifyToken_DoesNotThrowOnBadToken()
     {
-        var verifiedUser = await _sut.VerifyToken("bad_token");
+        var verifiedUser = await _sut.VerifyTokenAsync("bad_token");
 
         Assert.Null(verifiedUser);
     }
@@ -61,13 +54,13 @@ public class PasswordlessClientTests
     public async Task ListAsiases_BadUserId_ThrowsException()
     {
         var exception = await Assert.ThrowsAnyAsync<HttpRequestException>(
-            async () => await _sut.ListAliases(null!));
+            async () => await _sut.ListAliasesAsync(null!));
     }
 
     [Fact(Skip = SkipReason)]
     public async Task ListCredentials_BadUserId_ThrowsException()
     {
         var exception = await Assert.ThrowsAnyAsync<HttpRequestException>(
-            async () => await _sut.ListCredentials(null!));
+            async () => await _sut.ListCredentialsAsync(null!));
     }
 }
