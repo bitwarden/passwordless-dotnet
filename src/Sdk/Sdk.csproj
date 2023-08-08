@@ -8,7 +8,7 @@
     <Nullable>enable</Nullable>
     <RootNamespace>Passwordless.Net</RootNamespace>
     <AssemblyName>Passwordless.Net</AssemblyName>
-    <VersionPrefix>0.0.11</VersionPrefix>    
+    <VersionPrefix>0.0.12</VersionPrefix>    
     <PackageId>Passwordless</PackageId>
     <Authors>Bitwarden</Authors>
     <RepositoryUrl>https://github.com/passwordless/passwordless-dotnet</RepositoryUrl>
