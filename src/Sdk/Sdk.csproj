@@ -13,6 +13,7 @@
     <Authors>Bitwarden</Authors>
     <RepositoryUrl>https://github.com/passwordless/passwordless-dotnet</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,6 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
     <None Remove="Models\" />
   </ItemGroup>
 
