@@ -9,6 +9,11 @@
     <RootNamespace>Passwordless.Net</RootNamespace>
     <AssemblyName>Passwordless.Net</AssemblyName>
     <VersionPrefix>0.0.11</VersionPrefix>
+    <VersionSuffix>beta1</VersionSuffix>
+    <PackageId>Passwordless</PackageId>
+    <Authors>Bitwarden</Authors>
+    <RepositoryUrl>https://github.com/passwordless/passwordless-dotnet</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>
