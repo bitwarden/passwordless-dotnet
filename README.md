@@ -4,7 +4,7 @@ The official [Bitwarden Passwordless.dev](https://passwordless.dev/) .NET librar
 
 ## Installation
 
-[Nuget Package](nuget-package)  
+[Nuget Package][nuget-package]  
 
 Using the [.NET Core command-line interface (CLI) tools][dotnet-core-cli-tools]:
 
