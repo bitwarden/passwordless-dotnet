@@ -8,11 +8,12 @@
     <Nullable>enable</Nullable>
     <RootNamespace>Passwordless.Net</RootNamespace>
     <AssemblyName>Passwordless.Net</AssemblyName>
-    <VersionPrefix>0.0.11</VersionPrefix>    
+    <VersionPrefix>0.0.12</VersionPrefix>    
     <PackageId>Passwordless</PackageId>
     <Authors>Bitwarden</Authors>
     <RepositoryUrl>https://github.com/passwordless/passwordless-dotnet</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,6 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="\" />
     <None Remove="Models\" />
   </ItemGroup>
 
