@@ -50,19 +50,6 @@ jobs:
           reporter: dotnet-trx
           fail-on-error: true
 
-      - name: Clean Branch Name
-        run: echo "CLEAN_BRANCH_NAME=${BRANCH_NAME/\//-}" >> $GITHUB_ENV
-        env:
-          BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
-
-      - name: Pack NuGet Packages
-        run: dotnet pack --no-build --version-suffix "ci-${{ env.CLEAN_BRANCH_NAME }}-${{ github.run_id }}"
-      
-      - name: Publish NuGet Packages
-        run: dotnet nuget push **/*.nupkg --source https://nuget.pkg.github.com/passwordless/index.json --api-key ${GITHUB_TOKEN}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   build-framework:
     runs-on: windows-latest
 
@@ -79,11 +66,13 @@ jobs:
         run: dotnet restore --locked-mode
 
       - name: Build
-        run: dotnet build --framework net462 --verbosity minimal --no-restore
+        # Don't specify a framework here so we build both .NET and .NET Framework so we can pack both
+        run: dotnet build --verbosity minimal --no-restore
 
       # Don't bother running formatting for this build
 
       - name: Test with the dotnet CLI
+        # We will have already ran the tests on ubuntu, so only do .NET Framework ones here
         run: dotnet test --no-build --no-restore --framework net462 --logger "trx;LogFileName=pw-framework-test-results.trx"
 
       - name: Report test results
@@ -94,3 +83,16 @@ jobs:
           path: "**/*-test-results.trx"
           reporter: dotnet-trx
           fail-on-error: true
+  
+      - name: Clean Branch Name
+        run: echo "CLEAN_BRANCH_NAME=${BRANCH_NAME/\//-}" >> $GITHUB_ENV
+        env:
+            BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+  
+      - name: Pack NuGet Packages
+        run: dotnet pack --no-build --version-suffix "ci-${{ env.CLEAN_BRANCH_NAME }}-${{ github.run_id }}"
+        
+      - name: Publish NuGet Packages
+        run: dotnet nuget push **/*.nupkg --source https://nuget.pkg.github.com/passwordless/index.json --api-key ${GITHUB_TOKEN}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
