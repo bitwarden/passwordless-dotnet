@@ -85,7 +85,7 @@ jobs:
           fail-on-error: true
   
       - name: Clean Branch Name
-        run: echo "CLEAN_BRANCH_NAME=${BRANCH_NAME/\//-}" >> $GITHUB_ENV
+        run: echo "CLEAN_BRANCH_NAME=${BRANCH_NAME/\//-}" >> $env:GITHUB_ENV
         env:
           BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
   
