@@ -13,8 +13,9 @@ namespace Passwordless.Net;
 /// TODO: FILL IN
 /// </summary>
 [DebuggerDisplay("{DebuggerToString()}")]
-public class PasswordlessClient : IPasswordlessClient
+public sealed class PasswordlessClient : IPasswordlessClient, IDisposable
 {
+    private readonly bool _needsDisposing;
     private readonly HttpClient _client;
 
     public static PasswordlessClient Create(PasswordlessOptions options, IHttpClientFactory factory)
@@ -25,8 +26,19 @@ public class PasswordlessClient : IPasswordlessClient
         return new PasswordlessClient(client);
     }
 
+    public PasswordlessClient(PasswordlessOptions passwordlessOptions)
+    {
+        _needsDisposing = true;
+        _client = new HttpClient
+        {
+            BaseAddress = new Uri(passwordlessOptions.ApiUrl),
+        };
+        _client.DefaultRequestHeaders.Add("ApiSecret", passwordlessOptions.ApiSecret);
+    }
+
     public PasswordlessClient(HttpClient client)
     {
+        _needsDisposing = false;
         _client = client;
     }
 
@@ -122,6 +134,14 @@ public class PasswordlessClient : IPasswordlessClient
         }
 
         return sb.ToString();
+    }
+
+    public void Dispose()
+    {
+        if (_needsDisposing)
+        {
+            _client.Dispose();
+        }
     }
 
     public class ListResponse<T>
