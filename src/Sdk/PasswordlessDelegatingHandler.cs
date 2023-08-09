@@ -1,5 +1,6 @@
 using System.Net.Http;
 using System.Net.Http.Json;
+
 using Passwordless.Net.Helpers;
 
 namespace Passwordless.Net;
