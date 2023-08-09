@@ -13,7 +13,7 @@ permissions:
   packages: write
 
 jobs:
-  build:
+  build-dotnet:
     runs-on: ubuntu-latest
     # strategy:
     #   matrix:
@@ -33,13 +33,13 @@ jobs:
         run: dotnet restore --locked-mode
 
       - name: Build
-        run: dotnet build --verbosity minimal --no-restore
+        run: dotnet build -f net6.0 --verbosity minimal --no-restore
 
       - name: Check Format
         run: dotnet format --verify-no-changes --no-restore
 
       - name: Test with the dotnet CLI
-        run: dotnet test --no-build --no-restore --logger "trx;LogFileName=pw-test-results.trx"
+        run: dotnet test --no-build --no-restore --framework net6.0 --logger "trx;LogFileName=pw-test-results.trx"
 
       - name: Report test results
         uses: dorny/test-reporter@c9b3d0e2bd2a4e96aaf424dbaa31c46b42318226 # v1.6.0
@@ -62,3 +62,35 @@ jobs:
         run: dotnet nuget push **/*.nupkg --source https://nuget.pkg.github.com/passwordless/index.json --api-key ${GITHUB_TOKEN}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-framework:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
+      # - name: Setup dotnet
+      #   uses: setup msbuild?
+      - name: Display dotnet version
+        run: | 
+          dotnet --version
+          dotnet --info
+
+      - name: Install dependencies
+        run: dotnet restore --locked-mode
+
+      - name: Build
+        run: dotnet build --framework net462 --verbosity minimal --no-restore
+
+      # Don't bother running formatting for this build
+
+      - name: Test with the dotnet CLI
+        run: dotnet test --no-build --no-restore --framework net462 --logger "trx;LogFileName=pw-framework-test-results.trx"
+
+      - name: Report test results
+        uses: dorny/test-reporter@c9b3d0e2bd2a4e96aaf424dbaa31c46b42318226 # v1.6.0
+        if: always()
+        with:
+          name: Test Results
+          path: "**/*-test-results.trx"
+          reporter: dotnet-trx
+          fail-on-error: true
