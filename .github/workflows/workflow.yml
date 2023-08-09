@@ -54,6 +54,9 @@ jobs:
     runs-on: windows-latest
 
     permissions:
+      id-token: write
+      contents: read
+      checks: write
       packages: write
 
     steps:
