@@ -1,3 +1,5 @@
+using System.Net.Http;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Passwordless.Net.Tests;
@@ -28,11 +30,8 @@ public class PasswordlessClientTests
     [Fact(Skip = SkipReason)]
     public async Task CreateRegisterToken_ThrowsExceptionWhenBad()
     {
-        var exception = await Assert.ThrowsAnyAsync<HttpRequestException>(async () => await _sut.CreateRegisterTokenAsync(new RegisterOptions
-        {
-            UserId = null!,
-            Username = null!,
-        }));
+        var exception = await Assert.ThrowsAnyAsync<HttpRequestException>(
+            async () => await _sut.CreateRegisterTokenAsync(new RegisterOptions(null!, null!)));
     }
 
     [Fact(Skip = SkipReason)]
