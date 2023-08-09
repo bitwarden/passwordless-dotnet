@@ -93,7 +93,7 @@ jobs:
           fail-on-error: true
 
       - name: Pack NuGet Packages
-        run: dotnet pack --no-build --version-suffix "ci-$CLEAN_BRANCH_NAME-${{ github.run_id }}"
+        run: dotnet pack --no-build --version-suffix "ci-${{ env.CLEAN_BRANCH_NAME }}-${{ github.run_id }}"
         env:
           CLEAN_BRANCH_NAME: ${{needs.build-dotnet.outputs.clean_name}}
 
