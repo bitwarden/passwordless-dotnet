@@ -13,38 +13,27 @@ public static class ServiceCollectionExtensions
             .PostConfigure(options => options.ApiUrl ??= PasswordlessOptions.CloudApiUrl)
             .Validate(options => !string.IsNullOrEmpty(options.ApiSecret), "Passwordless: Missing ApiSecret");
 
-        services.AddPasswordlessClientCore<IPasswordlessClient, PasswordlessClient>((sp, client) =>
+        services.AddPasswordlessClientCore((sp, client) =>
         {
             var options = sp.GetRequiredService<IOptions<PasswordlessOptions>>().Value;
 
             client.BaseAddress = new Uri(options.ApiUrl);
             client.DefaultRequestHeaders.Add("ApiSecret", options.ApiSecret);
-        });
-
-        // TODO: Get rid of this service, all consumers should use the interface
-        services.AddTransient(sp => (PasswordlessClient)sp.GetRequiredService<IPasswordlessClient>());
-
+        }).AddHttpMessageHandler<PasswordlessDelegatingHandler>();
         return services;
     }
 
     /// <summary>
-    /// Helper method for making custom typed HttpClient implementations that also have
-    /// the inner handler for throwing fancy exceptions. Not intended for public use,
-    /// hence the hiding of it in IDE's.
+    /// Not intended for public use.
     /// </summary>
     /// <remarks>
     /// This method signature is subject to change without major version bump/announcement.
     /// </remarks>
-    internal static IServiceCollection AddPasswordlessClientCore<TClient, TImplementation>(this IServiceCollection services, Action<IServiceProvider, HttpClient> configureClient)
-        where TClient : class
-        where TImplementation : class, TClient
+    public static IHttpClientBuilder AddPasswordlessClientCore(this IServiceCollection services, Action<IServiceProvider, HttpClient> configureClient)
     {
         services.AddTransient<PasswordlessDelegatingHandler>();
+        services.AddTransient<IPasswordlessClient, PasswordlessClient>();
 
-        services
-            .AddHttpClient<TClient, TImplementation>(configureClient)
-            .AddHttpMessageHandler<PasswordlessDelegatingHandler>();
-
-        return services;
+        return services.AddHttpClient<IPasswordlessClient, PasswordlessClient>(configureClient);
     }
 }
