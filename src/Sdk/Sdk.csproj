@@ -14,6 +14,7 @@
     <RepositoryUrl>https://github.com/passwordless/passwordless-dotnet</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Version>0.0.13</Version>
   </PropertyGroup>
 
   <ItemGroup>
