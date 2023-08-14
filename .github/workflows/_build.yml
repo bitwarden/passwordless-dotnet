@@ -1,0 +1,67 @@
+---
+name: _build
+run-name: Build - ${{ inputs.project-name }}
+
+on:
+  workflow_call:
+    inputs:
+      project-name:
+        type: string
+        required: true
+      project-path:
+        type: string
+        required: true
+
+jobs:
+  build:
+    name: Build ${{ inputs.project-name }}
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Get pinned .NET version
+        id: dotnet-version
+        run: echo "value=$(cat global.json | jq -r '.sdk.version')" >> $GITHUB_OUTPUT
+
+      - name: Set up dotnet
+        uses: actions/setup-dotnet@3447fd6a9f9e57506b15f895c5b76d3b197dc7c2  # v3.2.0
+        with:
+          dotnet-version: ${{ steps.dotnet-version.outputs.value }}
+
+      - name: Checkout Repo
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9  # v3.5.3
+        with:
+          fetch-depth: 0
+
+      - uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8 # v3.3.1
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Install dependencies
+        run: dotnet restore ${{ inputs.project-path }}/${{ inputs.project-name }}.csproj
+
+      - name: Build
+        run: dotnet build --verbosity minimal ${{ inputs.project-path }}/${{ inputs.project-name }}.csproj
+
+      - name: .NET Publish ${{ inputs.project-name }}
+        run: |
+          echo "Publish"
+          dotnet publish ${{ inputs.project-path }}/${{ inputs.project-name }}.csproj \
+            -c Release --no-restore \
+            -o ./tmp/publish-${{ inputs.project-name }}
+
+      - name: Zip ${{ inputs.project-name }} Artifact
+        run: |
+          cd ./tmp/publish-${{ inputs.project-name }}
+          zip -r ${{ inputs.project-name }}.zip .
+          mv ${{ inputs.project-name }}.zip ../../
+          pwd
+          ls -atlh ../../
+
+      - name: Upload project artifact
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce  # v3.1.2
+        with:
+          name: ${{ inputs.project-name }}.zip
+          path: ./${{ inputs.project-name }}.zip
+          if-no-files-found: error

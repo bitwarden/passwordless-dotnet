@@ -1,0 +1,91 @@
+---
+name: Bump version
+
+on:
+  workflow_call:
+    inputs:
+      bump_type:
+        description: 'The type of bump to perform'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - 'major'
+          - 'minor'
+          - 'patch'
+
+
+permissions:
+  pull-requests: write
+  contents: write
+  deployments: write
+
+jobs:
+  pr:
+    name: Deploy PR
+    runs-on: ubuntu-22.04
+    needs:
+      - setup
+      - diff
+      - acr-digest
+      - branch
+      - update
+    env:
+      _ENVIRONMENT: ${{ github.event.inputs.environment }}
+      _KEY_VAULT: bitwarden-ci
+      _SOURCE: ${{ needs.setup.outputs.source_name }}
+      _BASE_BRANCH: main
+      _HEAD_BRANCH: ${{ needs.branch.outputs.deploy_branch_name }}
+      _PR_TITLE: "Version bump ${{ needs.branch.outputs.deploy_branch_name }} to ${{ github.event.inputs.environment }}"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+        with:
+          fetch-depth: 0
+
+      - name: Login to Azure - Prod Subscription
+        uses: Azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2 # v1.4.7
+        with:
+          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+
+      - name: Retrieve secrets
+        id: retrieve-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@a30e9c3d658dc97c4c2e61ec749fdab64b83386c
+        with:
+          keyvault: ${{ env._KEY_VAULT }}
+          secrets: "github-pat-bitwarden-devops-bot-repo-scope"
+
+      - name: Create PR for ${{ env._HEAD_BRANCH }}
+        id: create-pr
+        env:
+          GH_TOKEN: ${{ steps.retrieve-secrets.outputs.github-pat-bitwarden-devops-bot-repo-scope }}
+        run: |
+          SHA_DIGESTS="- ${{ inputs.image-name }}: ${{ needs.acr-digest.outputs.SERVICE_SHA }}"
+
+          PR_URL=$(gh pr create --title "${{ env._PR_TITLE }}" \
+            --base "${{ env._BASE_BRANCH }}" \
+            --head "${{ env._HEAD_BRANCH }}" \
+            --label "ArgoCD Deployment" \
+            --label "automated pr" \
+            --body "
+              ## Automated GitOps Deployment
+              - Base Branch: ${{ env._BASE_BRANCH }}
+              - Head Branch: ${{ env._HEAD_BRANCH }}
+              - Image Tag: ${{ env._SOURCE }}
+
+              ## SHA Digests
+              $SHA_DIGESTS
+              ")
+          echo "pr_number=${PR_URL##*/}" >> $GITHUB_OUTPUT
+
+      - name: Approve PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ steps.create-pr.outputs.pr_number }}
+        run: gh pr review $PR_NUMBER --approve
+
+      - name: Merge PR
+        env:
+          GH_TOKEN: ${{ steps.retrieve-secrets.outputs.github-pat-bitwarden-devops-bot-repo-scope }}
+          PR_NUMBER: ${{ steps.create-pr.outputs.pr_number }}
+        run: gh pr merge $PR_NUMBER --merge --auto --delete-branch
