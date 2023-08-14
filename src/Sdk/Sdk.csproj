@@ -8,13 +8,12 @@
     <Nullable>enable</Nullable>
     <RootNamespace>Passwordless.Net</RootNamespace>
     <AssemblyName>Passwordless.Net</AssemblyName>
-    <VersionPrefix>0.0.12</VersionPrefix>    
+    <VersionPrefix>0.0.13</VersionPrefix>    
     <PackageId>Passwordless</PackageId>
     <Authors>Bitwarden</Authors>
     <RepositoryUrl>https://github.com/passwordless/passwordless-dotnet</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <Version>0.0.13</Version>
   </PropertyGroup>
 
   <ItemGroup>
