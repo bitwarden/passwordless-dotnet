@@ -13,7 +13,7 @@ namespace Passwordless.Net;
 /// TODO: FILL IN
 /// </summary>
 [DebuggerDisplay("{DebuggerToString()}")]
-public sealed class PasswordlessClient : IPasswordlessClient, IDisposable
+public class PasswordlessClient : IPasswordlessClient, IDisposable
 {
     private readonly bool _needsDisposing;
     private readonly HttpClient _client;
