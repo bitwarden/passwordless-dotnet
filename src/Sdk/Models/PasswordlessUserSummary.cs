@@ -1,4 +1,4 @@
-﻿namespace Passwordless.Net;
+namespace Passwordless.Net;
 
 public class PasswordlessUserSummary
 {
@@ -6,5 +6,5 @@ public class PasswordlessUserSummary
     public List<string> Aliases { get; set; }
     public int CredentialsCount { get; set; }
     public int AliasCount { get; set; }
-    public DateTime LastUsedAt { get; set; }
+    public DateTime? LastUsedAt { get; set; }
 }
