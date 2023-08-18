@@ -1,4 +1,4 @@
-﻿namespace Passwordless.Net;
+namespace Passwordless.Net;
 
 public class PasswordlessUserSummary
 {

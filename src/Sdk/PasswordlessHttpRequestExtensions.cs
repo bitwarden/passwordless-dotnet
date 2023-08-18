@@ -1,3 +1,5 @@
+using System.Net.Http;
+
 namespace Passwordless.Net;
 
 internal static class PasswordlessHttpRequestExtensions

@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -10,9 +11,10 @@ namespace Passwordless.Net;
 /// <summary>
 /// TODO: FILL IN
 /// </summary>
-[DebuggerDisplay("{DebuggerToString()}")]
-public class PasswordlessClient : IPasswordlessClient
+[DebuggerDisplay("{DebuggerToString(),nq}")]
+public class PasswordlessClient : IPasswordlessClient, IDisposable
 {
+    private readonly bool _needsDisposing;
     private readonly HttpClient _client;
 
     public static PasswordlessClient Create(PasswordlessOptions options, IHttpClientFactory factory)
@@ -23,8 +25,19 @@ public class PasswordlessClient : IPasswordlessClient
         return new PasswordlessClient(client);
     }
 
+    public PasswordlessClient(PasswordlessOptions passwordlessOptions)
+    {
+        _needsDisposing = true;
+        _client = new HttpClient
+        {
+            BaseAddress = new Uri(passwordlessOptions.ApiUrl),
+        };
+        _client.DefaultRequestHeaders.Add("ApiSecret", passwordlessOptions.ApiSecret);
+    }
+
     public PasswordlessClient(HttpClient client)
     {
+        _needsDisposing = false;
         _client = client;
     }
 
@@ -120,6 +133,23 @@ public class PasswordlessClient : IPasswordlessClient
         }
 
         return sb.ToString();
+    }
+
+    public void Dispose()
+    {
+        if (_needsDisposing)
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _client.Dispose();
+        }
     }
 
     public class ListResponse<T>
