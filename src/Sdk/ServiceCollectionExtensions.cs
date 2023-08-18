@@ -1,7 +1,5 @@
 using System.Net.Http;
-
 using Microsoft.Extensions.Options;
-
 using Passwordless.Net;
 
 // This is a trick to always show up in a class when people are registering services
