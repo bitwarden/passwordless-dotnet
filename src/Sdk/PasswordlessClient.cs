@@ -12,7 +12,7 @@ namespace Passwordless.Net;
 /// <summary>
 /// TODO: FILL IN
 /// </summary>
-[DebuggerDisplay("{DebuggerToString()}")]
+[DebuggerDisplay("{DebuggerToString(),nq}")]
 public class PasswordlessClient : IPasswordlessClient, IDisposable
 {
     private readonly bool _needsDisposing;
@@ -139,6 +139,15 @@ public class PasswordlessClient : IPasswordlessClient, IDisposable
     public void Dispose()
     {
         if (_needsDisposing)
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
         {
             _client.Dispose();
         }
