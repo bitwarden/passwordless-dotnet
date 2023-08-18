@@ -1,3 +1,66 @@
 ---
 name: Create GitHub Release
 
+on:
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: "Dry run release"
+        required: true
+        default: false
+        type: boolean
+
+jobs:
+  setup:
+    name: Setup
+    runs-on: ubuntu-22.04
+    outputs:
+      release_version: ${{ steps.version.outputs.version }}
+      branch-name: ${{ steps.branch.outputs.branch-name }}
+    steps:
+      - name: Branch check
+        if: ${{ github.event.inputs.dry-run == 'false' }}
+        run: |
+          if [[ "$GITHUB_REF" != "refs/heads/main" ]]; then
+            echo "==================================="
+            echo "[!] Can only release from the 'main' branches"
+            echo "==================================="
+            exit 1
+          fi
+
+  version:
+    name: Get project version
+    uses: ./.github/workflows/_version.yml
+    needs:
+      - setup
+    with:
+      project-name: Sdk
+      project-path: ./src/Sdk
+      bump-type: ""
+
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-22.04
+    needs:
+      - setup
+      - version
+    steps:
+      - name: Download latest main build
+        uses: bitwarden/gh-actions/download-artifacts@f096207b7a2f31723165aee6ad03e91716686e78
+        with:
+          workflow: ci.yml
+          workflow_conclusion: success
+          branch: main
+          artifacts: "Sdk.zip"
+
+      - name: Create release
+        if: ${{ github.event.inputs.dry-run == 'false' }}
+        uses: ncipollo/release-action@a2e71bdd4e7dab70ca26a852f29600c98b33153e # v1.12.0
+        with:
+          artifacts: "Sdk.zip"
+          commit: ${{ github.sha }}
+          tag: "v${{ needs.version.outputs.current-version }}"
+          name: "Version ${{ needs.version.outputs.current-version }}"
+          body: "<insert release notes here>"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          draft: true
