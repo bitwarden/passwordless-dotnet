@@ -5,20 +5,30 @@ run-name: Get Version
 on:
   workflow_call:
     inputs:
-      is-release:
-        type: boolean
-        default: false
+      project-name:
+        type: string
+        required: true
+      project-path:
+        type: string
+        required: true
+      bump-type:
+        type: string
+        required: false
     outputs:
       version:
-        description: "version to be built"
+        description: "bumped version"
         value: ${{ jobs.version.outputs.version }}
+      current-version:
+        description: "Version read from file"
+        value: ${{ jobs.version.outputs.current-version }}
 
 jobs:
   version:
     name: Get Version
     runs-on: ubuntu-22.04
     outputs:
-      version: ${{ steps.version.outputs.value }}
+      current-version: ${{ steps.version.outputs.current-version }}
+      version: ${{ steps.bump-version.outputs.value }}
     steps:
       - name: Checkout Repo
         uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9  # v3.5.3
@@ -27,43 +37,49 @@ jobs:
 
       - name: Get Version
         id: version
+        env:
+          _PROJECT_NAME: ${{ inputs.project-name }}
+          _PROJECT_PATH: ${{ inputs.project-path }}
+          _BUMP_TYPE: ${{ inputs.bump-type }}
         run: |
           ls -la
           git fetch --prune --tags
 
+          base_version=$(cat ${_PROJECT_PATH}/${_PROJECT_NAME}.csproj |
+            grep -o "<VersionPrefix>.*</VersionPrefix>" |
+            grep -Eo "[0-9]+\.[0-9]+\.[0-9]+"
+          )
+
+          echo "   current version: $base_version"
+          echo "current-version=$base_version" >> $GITHUB_OUTPUT
+
+      - name: Bump Version
+        id: bump-version
+        env:
+          _PROJECT_NAME: ${{ inputs.project-name }}
+          _PROJECT_PATH: ${{ inputs.project-path }}
+          _BUMP_TYPE: ${{ inputs.bump-type }}
+          _BASE_VERSION: ${{ steps.version.outputs.current-version }}
+        run: |
+
           echo "Calculating next version..."
 
-          base_version=$(cat Directory.build.props |
-            grep -o "<BaseVersion>.*</BaseVersion>" |
-            grep -Eo "[0-9]+\.[0-9]+"
-          )
-          major_version=$(echo $base_version | grep -Eo "[0-9]+" | head -1)
-          minor_version=$(echo $base_version | grep -Eo "[0-9]+" | sed -n 2p)
+          major_version=$(echo $_BASE_VERSION | grep -Eo "[0-9]+" | head -1)
+          minor_version=$(echo $_BASE_VERSION | grep -Eo "[0-9]+" | sed -n 2p)
+          patch_version=$(echo $_BASE_VERSION | grep -Eo "[0-9]+" | sed -n 3p)
 
-          latest_tag_version=$(git tag --sort=committerdate --list | tail -1)
-          echo "  latest_tag_version: $latest_tag_version"
-
-          major_latest_tag_version=$(echo $latest_tag_version | grep -Eo "[0-9]+" | head -1)
-          echo "  major_latest_tag_version: $major_latest_tag_version"
-
-          minor_latest_tag_version=$(echo $latest_tag_version | grep -Eo "[0-9]+" | sed -n 2p)
-          echo "  minor_latest_tag_version: $minor_latest_tag_version"
-
-          if [[ "$major_latest_tag_version" != "$major_version" ]] || \
-          [[ "$minor_latest_tag_version" != "$minor_version" ]]; then
+          if[[ "$_BUMP_TYPE" == "major" ]]; then
+            major_version=$((${major_version##*.} + 1))
+            minor_version="0"
             patch_version="0"
-          else
-            patch_version=$((${latest_tag_version##*.} + 1))
+          elif[[ "$_BUMP_TYPE" == "minor" ]]; then
+            minor_version=$((${minor_version##*.} + 1))
+            patch_version="0"
+          elif[[ "$_BUMP_TYPE" == "patch" ]]; then
+            patch_version=$((${patch_version##*.} + 1))
           fi
 
-          echo "  patch_version: $patch_version"
 
-          version_suffix=$patch_version
-
-          if [[ "${{ inputs.is-release }}" == "false" ]]; then
-            version_suffix=$version_suffix-${GITHUB_SHA:0:7}
-          fi
-
-          echo "  version: $base_version.$version_suffix"
-          echo "value=$base_version.$version_suffix" >> $GITHUB_OUTPUT
+          echo "   version: $major_version.$minor_version.$patch_version"
+          echo "value=$major_version.$minor_version.$patch_version" >> $GITHUB_OUTPUT
           echo "Done"
