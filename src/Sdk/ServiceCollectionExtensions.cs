@@ -1,4 +1,5 @@
 using System.Net.Http;
+using System.Net.Http.Headers;
 using Microsoft.Extensions.Options;
 using Passwordless.Net;
 
@@ -20,6 +21,8 @@ public static class ServiceCollectionExtensions
 
             client.BaseAddress = new Uri(options.ApiUrl);
             client.DefaultRequestHeaders.Add("ApiSecret", options.ApiSecret);
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/problem+details"));
         });
 
         // TODO: Get rid of this service, all consumers should use the interface
