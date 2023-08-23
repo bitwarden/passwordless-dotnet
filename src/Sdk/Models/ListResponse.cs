@@ -1,6 +1,6 @@
 namespace Passwordless.Net.Models;
 
-public class ListResponse<T>
+internal class ListResponse<T>
 {
     public ListResponse(IReadOnlyList<T> values)
     {
