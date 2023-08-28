@@ -2,8 +2,6 @@ using System.Diagnostics;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using Passwordless.Net.Models;
 
 namespace Passwordless.Net;
@@ -41,6 +39,7 @@ public class PasswordlessClient : IPasswordlessClient, IDisposable
         _client = client;
     }
 
+    /// <inheritdoc/>
     public async Task<RegisterTokenResponse> CreateRegisterTokenAsync(RegisterOptions registerOptions, CancellationToken cancellationToken = default)
     {
         var res = await _client.PostAsJsonAsync("register/token", registerOptions, cancellationToken);
@@ -48,6 +47,7 @@ public class PasswordlessClient : IPasswordlessClient, IDisposable
         return (await res.Content.ReadFromJsonAsync<RegisterTokenResponse>(options: null, cancellationToken))!;
     }
 
+    /// <inheritdoc/>
     public async Task<VerifiedUser?> VerifyTokenAsync(string verifyToken, CancellationToken cancellationToken = default)
     {
         var request = new HttpRequestMessage(HttpMethod.Post, "signin/verify")
@@ -71,35 +71,40 @@ public class PasswordlessClient : IPasswordlessClient, IDisposable
         return null;
     }
 
+    /// <inheritdoc/>
     public async Task DeleteUserAsync(string userId, CancellationToken cancellationToken = default)
     {
         await _client.PostAsJsonAsync("users/delete", new { UserId = userId }, cancellationToken);
     }
 
-    public async Task<List<PasswordlessUserSummary>?> ListUsersAsync(CancellationToken cancellationToken = default)
+    /// <inheritdoc/>
+    public async Task<IReadOnlyList<PasswordlessUserSummary>?> ListUsersAsync(CancellationToken cancellationToken = default)
     {
         var response = await _client.GetFromJsonAsync<ListResponse<PasswordlessUserSummary>>("users/list", cancellationToken);
         return response!.Values;
     }
 
-    public async Task<List<AliasPointer>> ListAliasesAsync(string userId, CancellationToken cancellationToken = default)
+    /// <inheritdoc/>
+    public async Task<IReadOnlyList<AliasPointer>> ListAliasesAsync(string userId, CancellationToken cancellationToken = default)
     {
         var response = await _client.GetFromJsonAsync<ListResponse<AliasPointer>>($"alias/list?userid={userId}", cancellationToken);
         return response!.Values;
     }
 
-
-    public async Task<List<Credential>> ListCredentialsAsync(string userId, CancellationToken cancellationToken = default)
+    /// <inheritdoc/>
+    public async Task<IReadOnlyList<Credential>> ListCredentialsAsync(string userId, CancellationToken cancellationToken = default)
     {
         var response = await _client.GetFromJsonAsync<ListResponse<Credential>>($"credentials/list?userid={userId}", cancellationToken);
         return response!.Values;
     }
 
+    /// <inheritdoc/>
     public async Task DeleteCredentialAsync(string id, CancellationToken cancellationToken = default)
     {
         await _client.PostAsJsonAsync("credentials/delete", new { CredentialId = id }, cancellationToken);
     }
 
+    /// <inheritdoc/>
     public async Task DeleteCredentialAsync(byte[] id, CancellationToken cancellationToken = default)
     {
         await DeleteCredentialAsync(Base64Url.Encode(id), cancellationToken);
@@ -149,28 +154,6 @@ public class PasswordlessClient : IPasswordlessClient, IDisposable
         if (disposing)
         {
             _client.Dispose();
-        }
-    }
-
-    public class ListResponse<T>
-    {
-        public List<T> Values { get; set; } = null!;
-    }
-
-    public sealed class Base64UrlConverter : JsonConverter<byte[]>
-    {
-        public override byte[] Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            if (!reader.HasValueSequence)
-            {
-                return Base64Url.DecodeUtf8(reader.ValueSpan);
-            }
-            return Base64Url.Decode(reader.GetString().AsSpan());
-        }
-
-        public override void Write(Utf8JsonWriter writer, byte[] value, JsonSerializerOptions options)
-        {
-            writer.WriteStringValue(Base64Url.Encode(value));
         }
     }
 }
