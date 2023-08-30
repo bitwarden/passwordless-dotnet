@@ -1,4 +1,5 @@
-#define RUNNING_API
+// Uncomment line while running API in mock mode to run tests
+// #define RUNNING_API
 
 namespace Passwordless.Net.Tests;
 

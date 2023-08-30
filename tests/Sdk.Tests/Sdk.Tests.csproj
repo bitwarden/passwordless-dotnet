@@ -5,7 +5,8 @@
     <IsTestProject>true</IsTestProject>
     <RootNamespace>Passwordless.Net.Tests</RootNamespace>
     <AssemblyName>Passwordless.Net.Tests</AssemblyName>
-    <TargetFrameworks>net6.0;net7.0;net462</TargetFrameworks>
+    <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(OS)' == 'Windows_NT'">$(TargetFrameworks);net462</TargetFrameworks>
     <TargetFrameworks Condition="'$(IncludePreview)' == 'true'">$(TargetFrameworks);$(CurrentPreviewTfm)</TargetFrameworks>
   </PropertyGroup>
 
