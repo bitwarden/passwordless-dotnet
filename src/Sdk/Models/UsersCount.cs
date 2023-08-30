@@ -2,5 +2,10 @@ namespace Passwordless.Net;
 
 public class UsersCount
 {
-    public int Count { get; set; }
+    public UsersCount(int count)
+    {
+        Count = count;
+    }
+
+    public int Count { get; }
 }

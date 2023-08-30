@@ -2,18 +2,38 @@
 
 public class Credential
 {
-    public CredentialDescriptor Descriptor { get; set; }
-    public byte[] PublicKey { get; set; }
-    public byte[] UserHandle { get; set; }
-    public uint SignatureCounter { get; set; }
-    public string AttestationFmt { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public Guid AaGuid { get; set; }
-    public DateTime LastUsedAt { get; set; }
-    public string RPID { get; set; }
-    public string Origin { get; set; }
-    public string Country { get; set; }
-    public string Device { get; set; }
-    public string Nickname { get; set; }
-    public string UserId { get; set; }
+    public Credential(CredentialDescriptor descriptor, byte[] publicKey, byte[] userHandle, uint signatureCounter,
+        string attestationFmt, DateTime createdAt, Guid aaGuid, DateTime lastUsedAt, string rpid,
+        string origin, string country, string device, string nickname, string userId)
+    {
+        Descriptor = descriptor;
+        PublicKey = publicKey;
+        UserHandle = userHandle;
+        SignatureCounter = signatureCounter;
+        AttestationFmt = attestationFmt;
+        CreatedAt = createdAt;
+        AaGuid = aaGuid;
+        LastUsedAt = lastUsedAt;
+        RPID = rpid;
+        Origin = origin;
+        Country = country;
+        Device = device;
+        Nickname = nickname;
+        UserId = userId;
+    }
+
+    public CredentialDescriptor Descriptor { get; }
+    public byte[] PublicKey { get; }
+    public byte[] UserHandle { get; }
+    public uint SignatureCounter { get; }
+    public string AttestationFmt { get; }
+    public DateTime CreatedAt { get; }
+    public Guid AaGuid { get; }
+    public DateTime LastUsedAt { get; }
+    public string RPID { get; }
+    public string Origin { get; }
+    public string Country { get; }
+    public string Device { get; }
+    public string Nickname { get; }
+    public string UserId { get; }
 }

@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using Microsoft.Extensions.Options;
 using Passwordless.Net;
@@ -36,7 +37,7 @@ public static class ServiceCollectionExtensions
     /// <remarks>
     /// This method signature is subject to change without major version bump/announcement.
     /// </remarks>
-    internal static IServiceCollection AddPasswordlessClientCore<TClient, TImplementation>(this IServiceCollection services, Action<IServiceProvider, HttpClient> configureClient)
+    internal static IServiceCollection AddPasswordlessClientCore<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TClient, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TImplementation>(this IServiceCollection services, Action<IServiceProvider, HttpClient> configureClient)
         where TClient : class
         where TImplementation : class, TClient
     {

@@ -2,9 +2,19 @@ namespace Passwordless.Net;
 
 public class PasswordlessUserSummary
 {
-    public string UserId { get; set; }
-    public List<string> Aliases { get; set; }
-    public int CredentialsCount { get; set; }
-    public int AliasCount { get; set; }
-    public DateTime? LastUsedAt { get; set; }
+    public PasswordlessUserSummary(string userId, IReadOnlyList<string> aliases, int credentialsCount,
+        int aliasCount, DateTime? lastUsedAt)
+    {
+        UserId = userId;
+        Aliases = aliases;
+        CredentialsCount = credentialsCount;
+        AliasCount = aliasCount;
+        LastUsedAt = lastUsedAt;
+    }
+
+    public string UserId { get; }
+    public IReadOnlyList<string> Aliases { get; }
+    public int CredentialsCount { get; }
+    public int AliasCount { get; }
+    public DateTime? LastUsedAt { get; }
 }

@@ -59,7 +59,7 @@ public interface IPasswordlessClient
     /// <param name="cancellationToken"></param>
     /// <returns>A task object representing the asynchronous operation containing the <see cref="IReadOnlyList{PasswordlessUserSummary}" />.</returns>
     /// <exception cref="PasswordlessApiException">An exception containing details abaout the reason for failure.</exception>
-    Task<IReadOnlyList<PasswordlessUserSummary>?> ListUsersAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<PasswordlessUserSummary>> ListUsersAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Verifies that the given token is valid and returns information packed into it. The token should have been generated
