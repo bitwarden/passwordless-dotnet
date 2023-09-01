@@ -1,4 +1,6 @@
-﻿namespace Passwordless.Net;
+﻿using System.Text.Json.Serialization;
+
+namespace Passwordless.Net;
 
 /// <summary>
 /// 

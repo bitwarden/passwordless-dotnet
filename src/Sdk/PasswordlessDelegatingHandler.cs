@@ -19,7 +19,9 @@ internal class PasswordlessDelegatingHandler : DelegatingHandler
             && string.Equals(response.Content.Headers.ContentType?.MediaType, "application/problem+json", StringComparison.OrdinalIgnoreCase))
         {
             // Attempt to read problem details
-            var problemDetails = await response.Content.ReadFromJsonAsync<ProblemDetails>(Json.Options, cancellationToken: cancellationToken);
+            var problemDetails = await response.Content.ReadFromJsonAsync(
+                PasswordlessSerializerContext.Default.PasswordlessProblemDetails,
+                cancellationToken);
 
             // Throw exception
             throw new PasswordlessApiException(problemDetails!);

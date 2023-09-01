@@ -15,7 +15,7 @@ internal static class Base64Url
 
 #if NET5_0_OR_GREATER
         Convert.TryToBase64Chars(arg, array, out var charsWritten);
-#elif NET462
+#elif NET462 || NETSTANDARD2_0
         var charsWritten = Convert.ToBase64CharArray(arg.ToArray(), 0, minimumLength, array, 0);
 #endif
         Span<char> span = array.AsSpan(0, charsWritten);
@@ -42,7 +42,7 @@ internal static class Base64Url
 
 #if NET5_0_OR_GREATER
         string result = new string(span);
-#elif NET462
+#elif NET462 || NETSTANDARD2_0
         string result = new string(span.ToArray());
 #endif
         ArrayPool<char>.Shared.Return(array, clearArray: true);

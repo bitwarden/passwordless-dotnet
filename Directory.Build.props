@@ -1,7 +1,9 @@
 <Project>
   <!-- See https://aka.ms/dotnet/msbuild/customize for more details on customizing your build -->
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net462</TargetFrameworks>
+    <CurrentPreviewTfm>net8.0</CurrentPreviewTfm>
+    <!--<IncludePreview>true</IncludePreview>-->
+    <IncludePreview Condition=" '$(IncludePreview)' == ''">false</IncludePreview>
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -10,7 +12,7 @@
   <PropertyGroup>
     <PasswordlessMajorVersion>1</PasswordlessMajorVersion>
     <PasswordlessMinorVersion>0</PasswordlessMinorVersion>
-    <PasswordlessPatchVersion>1</PasswordlessPatchVersion>
+    <PasswordlessPatchVersion>2</PasswordlessPatchVersion>
     <PasswordlessMajorMinorVersion>$(PasswordlessMajorVersion).$(PasswordlessMinorVersion)</PasswordlessMajorMinorVersion>
     <VersionPrefix>$(PasswordlessMajorMinorVersion).$(PasswordlessPatchVersion)</VersionPrefix>
   </PropertyGroup>
