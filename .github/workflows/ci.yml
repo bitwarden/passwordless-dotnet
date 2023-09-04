@@ -1,0 +1,21 @@
+---
+name: CI
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  contents: read
+  checks: write
+
+jobs:
+  build:
+    uses: ./.github/workflows/_build.yml
+    with:
+      project-name: Sdk
+      project-path: ./src/Sdk

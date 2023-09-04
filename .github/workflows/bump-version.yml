@@ -1,0 +1,143 @@
+---
+name: Bump version
+
+on:
+  workflow_call:
+    inputs:
+      bump-type:
+        description: 'The type of bump to perform'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - 'major'
+          - 'minor'
+          - 'patch'
+
+
+permissions:
+  pull-requests: write
+  contents: write
+  deployments: write
+
+jobs:
+
+  version:
+    name: Get bumped project version
+    uses: ./.github/workflows/_version.yml
+    with:
+      project-name: Sdk
+      project-path: ./src/Sdk
+      bump-type: ${{ inputs.bump-type }}
+
+  branch:
+    name: Create version bump branch
+    runs-on: ubuntu-22.04
+    needs:
+      - version
+    env:
+      _VERSION: ${{ needs.version.outputs.version }}
+    outputs:
+      version_bump_branch_name: ${{ steps.branch_name.outputs.branch_name }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+        with:
+          ref: master
+
+      - name: Generate branch name
+        id: branch_name
+        run: |
+          BRANCH=version-bump/$_VERSION
+          echo "branch_name=$BRANCH" >> $GITHUB_OUTPUT
+
+      - name: "Create version bump branch"
+        env:
+          BRANCH: ${{ steps.branch_name.outputs.branch_name }}
+        run: |
+          git switch -c $BRANCH
+          git push -u origin $BRANCH --force
+
+  update:
+    name: Update version
+    runs-on: ubuntu-22.04
+    needs:
+      - version
+      - branch
+    env:
+      _DEPLOY_BRANCH: ${{ needs.branch.outputs.version_bump_branch_name }}
+      _PROJECT_NAME: Sdk
+      _PROJECT_PATH: ./src/Sdk
+      _VERSION: ${{ needs.version.outputs.version }}
+    outputs:
+      PR_NEEDED: ${{ steps.commit.outputs.pr_needed }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+        with:
+          ref: ${{ env._DEPLOY_BRANCH }}
+          fetch-depth: 0
+
+      - name: Update version
+        run: |
+          CSPROJ_FILE="${_PROJECT_PATH}/${_PROJECT_NAME}.csproj"
+
+          xmlstarlet ed --inplace \
+            -u '//Project/PropertyGroup/VersionPrefix' \
+            -v $_VERSION $CSPROJ_FILE
+
+          tail -n +2 $CSPROJ_FILE > "$CSPROJ_FILE.tmp"
+
+          mv "$CSPROJ_FILE.tmp" "$CSPROJ_FILE"
+
+      - name: Commit and push changes
+        id: commit
+        run: |
+          git config --local user.email "106330231+passwordless-bot@users.noreply.github.com"
+          git config --local user.name "passwordless-bot"
+          if [ -n "$(git status --porcelain)" ]; then
+            git commit -m "Update to version ${{ env._VERSION }}" -a
+            git push -u origin ${{ env._DEPLOY_BRANCH }}
+            echo "pr_needed=true" >> $GITHUB_OUTPUT
+          else
+            echo "No changes to commit!";
+            echo "pr_needed=false" >> $GITHUB_OUTPUT
+            echo "### :mega: No changes to commit! PR was ommited." >> $GITHUB_STEP_SUMMARY
+          fi
+
+  pr:
+    name: Create PR
+    runs-on: ubuntu-22.04
+    needs:
+      - version
+      - branch
+      - update
+    env:
+      _VERSION: ${{ needs.version.outputs.version }}
+      _BASE_BRANCH: main
+      _HEAD_BRANCH: ${{ needs.branch.outputs.version_bump_branch_name }}
+      _PR_TITLE: "Version bump to ${{ needs.version.outputs.version }}"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+        with:
+          fetch-depth: 0
+
+      - name: Create PR for ${{ env._HEAD_BRANCH }}
+        id: create-pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_URL=$(gh pr create --title "${{ env._PR_TITLE }}" \
+            --base "${{ env._BASE_BRANCH }}" \
+            --head "${{ env._HEAD_BRANCH }}" \
+            --label "automated pr" \
+            --body "
+              ## Automated PR
+              - Base Branch: ${{ env._BASE_BRANCH }}
+              - Head Branch: ${{ env._HEAD_BRANCH }}
+              - Version: ${{ env._VERSION }}
+
+              ")
+          echo "pr_number=${PR_URL##*/}" >> $GITHUB_OUTPUT
