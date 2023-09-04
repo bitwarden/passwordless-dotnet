@@ -2,9 +2,9 @@ name: Build,Format,Test,Publish
 
 on:
   push:
-    branches: []
+    branches: [test]
   pull_request:
-    branches: [ ]
+    branches: [ test ]
 
 permissions:
   id-token: write

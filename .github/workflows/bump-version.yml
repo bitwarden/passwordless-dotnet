@@ -71,13 +71,7 @@ jobs:
         run: |
           _FILE="./${_FILE}"
 
-          xmlstarlet ed --inplace \
-            -u '//Project/PropertyGroup/VersionPrefix' \
-            -v $_VERSION $_FILE
-
-          tail -n +2 $_FILE > "$_FILE.tmp"
-
-          mv "$_FILE.tmp" "$_FILE"
+          sed -i -e "s|<VersionPrefix>.*</VersionPrefix>|<VersionPrefix>$_VERSION</VersionPrefix>|g" $_FILE
 
       - name: Commit and push changes
         id: commit
