@@ -45,7 +45,7 @@ jobs:
     
     outputs:
       PR_NEEDED: ${{ steps.commit.outputs.pr_needed }}
-      BRANCH: ${{ steps.branch_name.outputs.pr_needed }}
+      BRANCH_NAME: ${{ steps.branch_name.outputs.branch_name }}
 
     steps:
       - name: Checkout
@@ -99,7 +99,7 @@ jobs:
     env:
       _VERSION: ${{ needs.version.outputs.version }}
       _BASE_BRANCH: main
-      _HEAD_BRANCH: ${{ needs.update.outputs.branch }}
+      _HEAD_BRANCH: ${{ needs.update.outputs.BRANCH_NAME }}
       _PR_TITLE: "Version bump to ${{ needs.version.outputs.version }}"
     steps:
       - name: Checkout
