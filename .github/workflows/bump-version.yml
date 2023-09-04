@@ -3,17 +3,24 @@ name: Bump version
 
 on:
   workflow_dispatch:
-  workflow_call:
     inputs:
       bump-type:
         description: 'The type of bump to perform'
         required: true
-        default: 'patch'
-        type: choice
+        default: patch
+        type: 'choice'
         options:
-          - 'major'
-          - 'minor'
-          - 'patch'
+        - major
+        - minor
+        - patch
+  workflow_call:
+    inputs:
+      bump-type:
+          type: string
+          default: patch
+
+  
+
 
 
 permissions:
