@@ -47,7 +47,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
         with:
-          ref: master
+          ref: main
 
       - name: Generate branch name
         id: branch_name
@@ -60,7 +60,7 @@ jobs:
           BRANCH: ${{ steps.branch_name.outputs.branch_name }}
         run: |
           git switch -c $BRANCH
-          git push -u origin $BRANCH --force
+          git push -u origin $BRANCH
 
   update:
     name: Update version
