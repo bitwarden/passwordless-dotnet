@@ -17,9 +17,7 @@ on:
     inputs:
       bump-type:
           type: string
-          default: patch
-
-  
+          default: patch 
 
 
 
@@ -33,9 +31,7 @@ jobs:
   version:
     name: Get bumped project version
     uses: ./.github/workflows/_version.yml
-    with:
-      project-name: Sdk
-      project-path: ./src/Sdk
+    with:      
       bump-type: ${{ inputs.bump-type }}
 
   branch:
