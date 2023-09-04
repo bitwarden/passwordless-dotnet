@@ -70,8 +70,7 @@ jobs:
       - branch
     env:
       _DEPLOY_BRANCH: ${{ needs.branch.outputs.version_bump_branch_name }}
-      _PROJECT_NAME: Sdk
-      _PROJECT_PATH: ./src/Sdk
+      _FILE: Directory.Build.props
       _VERSION: ${{ needs.version.outputs.version }}
     outputs:
       PR_NEEDED: ${{ steps.commit.outputs.pr_needed }}
@@ -85,15 +84,15 @@ jobs:
 
       - name: Update version
         run: |
-          CSPROJ_FILE="${_PROJECT_PATH}/${_PROJECT_NAME}.csproj"
+          _FILE="./${_FILE}"
 
           xmlstarlet ed --inplace \
             -u '//Project/PropertyGroup/VersionPrefix' \
-            -v $_VERSION $CSPROJ_FILE
+            -v $_VERSION $_FILE
 
-          tail -n +2 $CSPROJ_FILE > "$CSPROJ_FILE.tmp"
+          tail -n +2 $_FILE > "$_FILE.tmp"
 
-          mv "$CSPROJ_FILE.tmp" "$CSPROJ_FILE"
+          mv "$_FILE.tmp" "$_FILE"
 
       - name: Commit and push changes
         id: commit
