@@ -14,7 +14,7 @@
     <PasswordlessMinorVersion>0</PasswordlessMinorVersion>
     <PasswordlessPatchVersion>2</PasswordlessPatchVersion>
     <PasswordlessMajorMinorVersion>$(PasswordlessMajorVersion).$(PasswordlessMinorVersion)</PasswordlessMajorMinorVersion>
-    <VersionPrefix>$(PasswordlessMajorMinorVersion).$(PasswordlessPatchVersion)</VersionPrefix>
+    <VersionPrefix>1.0.2</VersionPrefix>
   </PropertyGroup>
 
   <ItemGroup>

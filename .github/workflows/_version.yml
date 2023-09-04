@@ -4,13 +4,11 @@ run-name: Get Version
 
 on:
   workflow_call:
-    inputs:
-      project-name:
+    inputs:      
+      file:
         type: string
-        required: true
-      project-path:
-        type: string
-        required: true
+        required: false
+        default: 'Directory.Build.props'
       bump-type:
         type: string
         required: false
@@ -37,15 +35,14 @@ jobs:
 
       - name: Get Version
         id: version
-        env:
-          _PROJECT_NAME: ${{ inputs.project-name }}
-          _PROJECT_PATH: ${{ inputs.project-path }}
+        env:          
+          _FILE: ${{ inputs.file }}
           _BUMP_TYPE: ${{ inputs.bump-type }}
         run: |
           ls -la
           git fetch --prune --tags
 
-          base_version=$(cat ${_PROJECT_PATH}/${_PROJECT_NAME}.csproj |
+          base_version=$(cat ./${_FILE} |
             grep -o "<VersionPrefix>.*</VersionPrefix>" |
             grep -Eo "[0-9]+\.[0-9]+\.[0-9]+"
           )
@@ -56,8 +53,6 @@ jobs:
       - name: Bump Version
         id: bump-version
         env:
-          _PROJECT_NAME: ${{ inputs.project-name }}
-          _PROJECT_PATH: ${{ inputs.project-path }}
           _BUMP_TYPE: ${{ inputs.bump-type }}
           _BASE_VERSION: ${{ steps.version.outputs.current-version }}
         run: |
