@@ -63,14 +63,14 @@ jobs:
           minor_version=$(echo $_BASE_VERSION | grep -Eo "[0-9]+" | sed -n 2p)
           patch_version=$(echo $_BASE_VERSION | grep -Eo "[0-9]+" | sed -n 3p)
 
-          if[[ "$_BUMP_TYPE" == "major" ]]; then
+          if [[ "$_BUMP_TYPE" == "major" ]]; then
             major_version=$((${major_version##*.} + 1))
             minor_version="0"
             patch_version="0"
-          elif[[ "$_BUMP_TYPE" == "minor" ]]; then
+          elif [[ "$_BUMP_TYPE" == "minor" ]]; then
             minor_version=$((${minor_version##*.} + 1))
             patch_version="0"
-          elif[[ "$_BUMP_TYPE" == "patch" ]]; then
+          elif [[ "$_BUMP_TYPE" == "patch" ]]; then
             patch_version=$((${patch_version##*.} + 1))
           fi
 
