@@ -12,7 +12,7 @@
   <PropertyGroup>
     <PasswordlessMajorVersion>1</PasswordlessMajorVersion>
     <PasswordlessMinorVersion>0</PasswordlessMinorVersion>
-    <PasswordlessPatchVersion>2</PasswordlessPatchVersion>
+    <PasswordlessPatchVersion>3</PasswordlessPatchVersion>
     <PasswordlessMajorMinorVersion>$(PasswordlessMajorVersion).$(PasswordlessMinorVersion)</PasswordlessMajorMinorVersion>
     <VersionPrefix>$(PasswordlessMajorMinorVersion).$(PasswordlessPatchVersion)</VersionPrefix>
   </PropertyGroup>

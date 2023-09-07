@@ -8,6 +8,14 @@ namespace Passwordless.Net;
 public interface IPasswordlessClient
 {
     /// <summary>
+    /// Adds one or more aliases to an existing user.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task AddAliasAsync(AddAliasRequest request, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Creates a <see cref="RegisterTokenResponse" /> which will be used by your frontend to negotiate
     /// the creation of a WebAuth credential.
     /// </summary>

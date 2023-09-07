@@ -1,8 +1,6 @@
 using System.Diagnostics;
-using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
-using Passwordless.Net.Helpers;
 using Passwordless.Net.Models;
 using JsonContext = Passwordless.Net.Helpers.PasswordlessSerializerContext;
 
@@ -39,6 +37,15 @@ public class PasswordlessClient : IPasswordlessClient, IDisposable
     {
         _needsDisposing = false;
         _client = client;
+    }
+
+    public async Task AddAliasAsync(AddAliasRequest request, CancellationToken cancellationToken)
+    {
+        var res = await _client.PostAsJsonAsync("alias",
+            request,
+            JsonContext.Default.AddAliasRequest,
+            cancellationToken);
+        res.EnsureSuccessStatusCode();
     }
 
     /// <inheritdoc/>
