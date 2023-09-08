@@ -39,6 +39,7 @@ public class PasswordlessClient : IPasswordlessClient, IDisposable
         _client = client;
     }
 
+    /// <inheritdoc/>
     public async Task AddAliasAsync(AddAliasRequest request, CancellationToken cancellationToken)
     {
         var res = await _client.PostAsJsonAsync("alias",
