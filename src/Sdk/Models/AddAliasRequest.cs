@@ -5,19 +5,19 @@ public class AddAliasRequest
     public AddAliasRequest(string userId, string alias, bool hashing = true)
         : this(userId, hashing)
     {
-        if (string.IsNullOrWhiteSpace(alias)) throw new ArgumentException($"'{nameof(alias)}' cannot be null, empty or whitespace.");
-        Aliases = new HashSet<string>
+        Aliases = new();
+        if (!string.IsNullOrWhiteSpace(alias))
         {
-            alias ?? throw new ArgumentNullException(nameof(alias))
-        };
+            Aliases = new() { alias };
+        }
     }
 
     public AddAliasRequest(string userId, HashSet<string> aliases, bool hashing = true)
         : this(userId, hashing)
     {
-        if (aliases == null || !aliases.Any()) throw new ArgumentException($"'{nameof(aliases)}' cannot be null or empty.");
-        if (aliases.Any(string.IsNullOrWhiteSpace)) throw new ArgumentException("One of the aliases is null, empty or whitespace");
-        Aliases = aliases;
+        if (aliases == null) return;
+
+        Aliases = new HashSet<string>(aliases.Where(x => !string.IsNullOrWhiteSpace(x)));
     }
 
     private AddAliasRequest(string userId, bool hashing = true)
@@ -32,5 +32,5 @@ public class AddAliasRequest
     /// <summary>
     /// If you want your aliases to be available in plain text, set the <see cref="bool"/> false.
     /// </summary>
-    public bool Hashing { get; } = true;
+    public bool Hashing { get; }
 }
