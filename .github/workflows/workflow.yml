@@ -22,11 +22,14 @@ jobs:
       clean_name: ${{steps.clean_branch_name.outputs.CLEAN_BRANCH_NAME}}
 
     steps:
-      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
+      - name: Checkout
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
+
       - name: Setup dotnet
-        uses: actions/setup-dotnet@607fce577a46308457984d59e4954e075820f10a #v3.0.3
+        uses: actions/setup-dotnet@607fce577a46308457984d59e4954e075820f10a # v3.0.3
          # with:
         #   dotnet-version: ${{ matrix.dotnet-version }}
+
       # You can test your matrix by printing the current dotnet version
       - name: Display dotnet version
         run: dotnet --version
@@ -35,13 +38,27 @@ jobs:
         run: dotnet restore --locked-mode
 
       - name: Build
-        run: dotnet build -f net6.0 --verbosity minimal --no-restore
+        run: >
+          dotnet build
+          --no-restore
+          --framework net6.0
+          --configuration Release
+          --verbosity minimal
 
       - name: Check Format
         run: dotnet format --verify-no-changes --no-restore
 
       - name: Test with the dotnet CLI
-        run: dotnet test --no-build --no-restore --framework net6.0 --logger "trx;LogFileName=pw-test-results.trx"
+        run: >
+          dotnet test
+          --no-build
+          --no-restore
+          --framework net6.0
+          --configuration Release
+          --logger "trx;LogFileName=pw-test-results.trx"
+          --logger "GitHubActions;summary.includePassedTests=true;summary.includeSkippedTests=true"
+          --
+          RunConfiguration.CollectSourceInformation=true
 
       - id: clean_branch_name
         name: Clean Branch Name
@@ -62,9 +79,12 @@ jobs:
     runs-on: windows-latest
     needs: build-dotnet
     steps:
-      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
+      - name: Checkout
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
+
       # - name: Setup dotnet
       #   uses: setup msbuild?
+
       - name: Display dotnet version
         run: | 
           dotnet --version
@@ -75,13 +95,26 @@ jobs:
 
       - name: Build
         # Don't specify a framework here so we build both .NET and .NET Framework so we can pack both
-        run: dotnet build --verbosity minimal --no-restore
+        run: >
+          dotnet build
+          --no-restore
+          --configuration Release
+          --verbosity minimal
 
       # Don't bother running formatting for this build
 
       - name: Test with the dotnet CLI
         # We will have already ran the tests on ubuntu, so only do .NET Framework ones here
-        run: dotnet test --no-build --no-restore --framework net462 --logger "trx;LogFileName=pw-framework-test-results.trx"
+        run: >
+          dotnet test
+          --no-build
+          --no-restore
+          --framework net462
+          --configuration Release
+          --logger "trx;LogFileName=pw-framework-test-results.trx"
+          --logger "GitHubActions;summary.includePassedTests=true;summary.includeSkippedTests=true"
+          --
+          RunConfiguration.CollectSourceInformation=true
 
       - name: Report test results
         uses: dorny/test-reporter@c9b3d0e2bd2a4e96aaf424dbaa31c46b42318226 # v1.6.0
