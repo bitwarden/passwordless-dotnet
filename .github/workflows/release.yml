@@ -24,7 +24,6 @@ jobs:
         --no-build
         --framework net462
         --configuration Release
-        --logger "trx;LogFileName=pw-framework-test-results.trx"
         --logger "GitHubActions;summary.includePassedTests=true;summary.includeSkippedTests=true"
         --
         RunConfiguration.CollectSourceInformation=true
