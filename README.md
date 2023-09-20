@@ -4,21 +4,21 @@ The official [Bitwarden Passwordless.dev](https://passwordless.dev) .NET library
 
 ## Installation
 
-Install the [NuGet Package][https://nuget.org/packages/Passwordless]:
+Install the [NuGet Package](https://nuget.org/packages/Passwordless):
 
-- Using the [.NET CLI][https://docs.microsoft.com/en-us/dotnet/core/tools]:
+- Using the [.NET CLI](https://docs.microsoft.com/en-us/dotnet/core/tools):
 
     ```sh
     dotnet add package Passwordless
     ```
 
-- Using the [NuGet CLI][https://docs.microsoft.com/en-us/nuget/tools/nuget-exe-cli-reference]:
+- Using the [NuGet CLI](https://docs.microsoft.com/en-us/nuget/tools/nuget-exe-cli-reference):
 
     ```sh
     nuget install Passwordless
     ```
 
-- Using the [Package Manager Console][https://docs.microsoft.com/en-us/nuget/tools/package-manager-console]:
+- Using the [Package Manager Console](https://docs.microsoft.com/en-us/nuget/tools/package-manager-console):
 
     ```powershell
     Install-Package Passwordless
