@@ -3,10 +3,11 @@
   <PropertyGroup>
     <CurrentPreviewTfm>net8.0</CurrentPreviewTfm>
     <!--<IncludePreview>true</IncludePreview>-->
-    <IncludePreview Condition=" '$(IncludePreview)' == ''">false</IncludePreview>
+    <IncludePreview Condition="'$(IncludePreview)' == ''">false</IncludePreview>
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <WarningsAsErrors>nullable</WarningsAsErrors>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -19,7 +20,7 @@
 
   <ItemGroup>
     <!--
-      The .NET Framework target doesn't seem to like this implicit using so we 
+      The .NET Framework target doesn't seem to like this implicit using so we
       have to bring it in for each file, so might as well remove it for .NET targets too.
     -->
     <Using Remove="System.Net.Http" />
