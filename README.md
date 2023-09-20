@@ -35,7 +35,7 @@ Install the [NuGet Package](https://nuget.org/packages/Passwordless):
 
 ## Getting started
 
-💡 See the full [Getting started guide](https://docs.passwordless.dev/guide/get-started.htm) in the official documentation.
+💡 See the full [Getting started guide](https://docs.passwordless.dev/guide/get-started.html) in the official documentation.
 
 #### Register using Dependency Injection
 
