@@ -1,13 +1,17 @@
 <Project>
-  <!-- See https://aka.ms/dotnet/msbuild/customize for more details on customizing your build -->
+
   <PropertyGroup>
     <CurrentPreviewTfm>net8.0</CurrentPreviewTfm>
     <!--<IncludePreview>true</IncludePreview>-->
     <IncludePreview Condition="'$(IncludePreview)' == ''">false</IncludePreview>
+  </PropertyGroup>
+    
+  <PropertyGroup>
     <LangVersion>latest</LangVersion>
-    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <WarningsAsErrors>nullable</WarningsAsErrors>
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -25,4 +29,5 @@
     -->
     <Using Remove="System.Net.Http" />
   </ItemGroup>
+
 </Project>
