@@ -1,41 +1,41 @@
 # Passwordless .NET SDK
 
-The official [Bitwarden Passwordless.dev](https://passwordless.dev/) .NET library, supporting .NET Standard 2.0+, .NET Core 2.0+, and .NET Framework 4.6.2+.
+The official [Bitwarden Passwordless.dev](https://passwordless.dev) .NET library, supporting .NET Standard 2.0+, .NET Core 2.0+, and .NET Framework 4.6.2+.
 
 ## Installation
 
-[Nuget Package][nuget-package]
+Install the [NuGet Package][https://nuget.org/packages/Passwordless]:
 
-Using the [.NET Core command-line interface (CLI) tools][dotnet-core-cli-tools]:
+- Using the [.NET CLI][https://docs.microsoft.com/en-us/dotnet/core/tools]:
 
-```sh
-dotnet add package Passwordless
-```
+    ```sh
+    dotnet add package Passwordless
+    ```
 
-Using the [NuGet Command Line Interface (CLI)][nuget-cli]:
+- Using the [NuGet CLI][https://docs.microsoft.com/en-us/nuget/tools/nuget-exe-cli-reference]:
 
-```sh
-nuget install Passwordless
-```
+    ```sh
+    nuget install Passwordless
+    ```
 
-Using the [Package Manager Console][package-manager-console]:
+- Using the [Package Manager Console][https://docs.microsoft.com/en-us/nuget/tools/package-manager-console]:
 
-```powershell
-Install-Package Passwordless
-```
+    ```powershell
+    Install-Package Passwordless
+    ```
 
-From within Visual Studio:
+- From within Visual Studio:
 
-1. Open the Solution Explorer.
-2. Right-click on a project within your solution.
-3. Click on *Manage NuGet Packages...*
-4. Click on the *Browse* tab and search for "Passwordless".
-5. Click on the Passwordless package, select the appropriate version in the
-   right-tab and click *Install*.
+  1. Open the Solution Explorer.
+  2. Right-click on a project within your solution.
+  3. Click on *Manage NuGet Packages...*
+  4. Click on the *Browse* tab and search for "Passwordless".
+  5. Click on the Passwordless package, select the appropriate version in the
+     right-tab and click *Install*.
 
 ## Getting started
 
-Follow the [Get started guide](https://docs.passwordless.dev/guide/get-started.html)
+💡 See the full [Getting started guide](https://docs.passwordless.dev/guide/get-started.htm) in the official documentation.
 
 #### Register using Dependency Injection
 
@@ -91,7 +91,7 @@ public async Task<IActionResult> VerifySignInToken(string token)
     {
         var verifiedUser = await _passwordlessClient.VerifyTokenAsync(token);
 
-        // Sign the user in, set a cookie, etc,
+        // Sign the user in, set a cookie, etc
         return Ok(verifiedUser);
     }
     catch (PasswordlessApiException e)
@@ -103,13 +103,3 @@ public async Task<IActionResult> VerifySignInToken(string token)
     }
 }
 ```
-
-## Documentation
-
-For a comprehensive list of examples, check out the [API documentation][api-docs].
-
-[nuget-package]:https://www.nuget.org/packages/Passwordless/
-[api-docs]:https://docs.passwordless.dev/guide/get-started.html
-[dotnet-core-cli-tools]: https://docs.microsoft.com/en-us/dotnet/core/tools/
-[nuget-cli]: https://docs.microsoft.com/en-us/nuget/tools/nuget-exe-cli-reference
-[package-manager-console]: https://docs.microsoft.com/en-us/nuget/tools/package-manager-console
