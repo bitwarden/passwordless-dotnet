@@ -8,8 +8,8 @@ indent_style = space
 [*.xml]
 indent_size = 2
 
-# Csproj/fsproj/vbproj files
-[*.{csproj,fsproj,vbproj}]
+# Props/targets/Csproj/fsproj/vbproj files
+[*.{props,targets,csproj,fsproj,vbproj}]
 indent_size = 2
 
 # C# files

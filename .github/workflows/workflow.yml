@@ -110,10 +110,7 @@ jobs:
           dotnet pack
           --no-build
           --configuration Release
-          --version-suffix "ci-${{ env.CLEAN_BRANCH_NAME }}-${{ github.run_id }}"
-          -p:ContinuousIntegrationBuild=true
-        env:
-          CLEAN_BRANCH_NAME: ${{needs.build-dotnet.outputs.clean_name}}
+          --version-suffix "ci-${{ needs.build-dotnet.outputs.clean_name }}-${{ github.run_id }}"
 
       - name: Publish NuGet Packages
         run: >

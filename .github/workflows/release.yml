@@ -34,7 +34,6 @@ jobs:
         --configuration Release
         --no-build
         --output .
-        -p:ContinuousIntegrationBuild=true
 
     - name: Push to NuGet
       run: >
