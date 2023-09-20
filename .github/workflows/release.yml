@@ -1,0 +1,42 @@
+name: Release to NuGet
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+    - name: Checkout
+      uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
+
+    - name: Setup dotnet
+      uses: actions/setup-dotnet@607fce577a46308457984d59e4954e075820f10a # v3.0.3
+
+    - name: Build
+      run: dotnet build --configuration Release
+
+    - name: Test
+      run: >
+        dotnet test
+        --no-build
+        --framework net462
+        --configuration Release
+        --logger "GitHubActions;summary.includePassedTests=true;summary.includeSkippedTests=true"
+        --
+        RunConfiguration.CollectSourceInformation=true
+
+    - name: Pack nugets
+      run: >
+        dotnet pack
+        --configuration Release
+        --no-build
+        --output .
+
+    - name: Push to NuGet
+      run: >
+        dotnet nuget push *.nupkg
+        --source https://api.nuget.org/v3/index.json
+        --api-key ${{secrets.nuget_api_key}}
