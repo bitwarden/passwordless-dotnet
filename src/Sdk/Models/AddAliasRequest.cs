@@ -24,6 +24,7 @@ public class AddAliasRequest
     {
         UserId = userId ?? throw new ArgumentNullException(nameof(userId));
         Hashing = hashing;
+        Aliases = new HashSet<string>();
     }
 
     public string UserId { get; }
