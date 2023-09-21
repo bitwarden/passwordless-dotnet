@@ -52,7 +52,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       actions: read
-      contents: read
       
     env:
       TERM: xterm
@@ -88,7 +87,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       actions: write
-      contents: read
       
     env:
       TERM: xterm
@@ -133,7 +131,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       actions: read
-      contents: read
       packages: write
 
     env:
@@ -156,9 +153,7 @@ jobs:
         run: >
           dotnet nuget push **/*.nupkg
           --source https://nuget.pkg.github.com/passwordless/index.json
-          --api-key ${{ env.GITHUB_TOKEN }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          --api-key ${{ secrets.GITHUB_TOKEN }}
           
       - name: Publish packages (NuGet Registry)
         run: >
