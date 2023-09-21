@@ -37,7 +37,7 @@ Install the [NuGet Package](https://nuget.org/packages/Passwordless):
 
 💡 See the full [Getting started guide](https://docs.passwordless.dev/guide/get-started.html) in the official documentation.
 
-#### Register using Dependency Injection
+### Register using Dependency Injection
 
 ```csharp
 // In Program.cs or Startup.cs
@@ -46,8 +46,8 @@ services.AddPasswordlessSdk(options =>
     options.ApiKey = "your_api_key";
     options.ApiSecret = "your_api_secret";
 });
-
 ```
+
 ### Register a passkey
 
 ```csharp
