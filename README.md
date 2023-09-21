@@ -1,4 +1,4 @@
-# Passwordless .NET SDK
+# <img src="favicon.png" width="24" height="24" alt="Icon" /> Passwordless .NET SDK
 
 The official [Bitwarden Passwordless.dev](https://passwordless.dev) .NET library, supporting .NET Standard 2.0+, .NET Core 2.0+, and .NET Framework 4.6.2+.
 
