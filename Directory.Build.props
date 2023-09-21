@@ -1,12 +1,19 @@
 <Project>
-  <!-- See https://aka.ms/dotnet/msbuild/customize for more details on customizing your build -->
+
   <PropertyGroup>
     <CurrentPreviewTfm>net8.0</CurrentPreviewTfm>
     <!--<IncludePreview>true</IncludePreview>-->
-    <IncludePreview Condition=" '$(IncludePreview)' == ''">false</IncludePreview>
+    <IncludePreview Condition="'$(IncludePreview)' == ''">false</IncludePreview>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+    
+  <PropertyGroup>
     <LangVersion>latest</LangVersion>
-    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <WarningsAsErrors>nullable</WarningsAsErrors>
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -19,7 +26,7 @@
 
   <ItemGroup>
     <!--
-      The .NET Framework target doesn't seem to like this implicit using so we 
+      The .NET Framework target doesn't seem to like this implicit using so we
       have to bring it in for each file, so might as well remove it for .NET targets too.
     -->
     <Using Remove="System.Net.Http" />
