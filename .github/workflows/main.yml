@@ -20,21 +20,23 @@ env:
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
 
-# Note that as much as we'd love to avoid repetitive work, splitting the pipeline in separate jobs
+# Note that as much as we'd love to avoid repetitive work, splitting the pipeline into separate jobs
 # makes it very difficult to share artifacts between them. Even if we succeed, we'll still end up
 # pushing and pulling gigabytes worth of data, which makes the jobs so much slower that we might as
 # well just repeat the checkout-restore-build steps instead.
+
 # Having a setup that involves separate jobs gives us significant benefits, on the other hand, namely:
-# - Most of them can run in parallel, which reduces the overall execution time significantly, despite
-#   the repetitive work.
+# - Most of the jobs can run in parallel, which reduces the overall execution time significantly,
+#   despite the repetitive work.
 # - We can catch more issues this way, for example if the formatting job fails, we can still see the
 #   the test results too.
 # - If one of the jobs fails due to reasons unrelated to our code (e.g. NuGet server is down), we get
-#   the option to rerun only that job, saving time.
+#   the option to rerun only that job, saving us time.
 # - It's easier to understand what each job does (and later, read its output) because the scope is much
 #   more narrow.
 
 jobs:
+  # Check formatting
   format:
     runs-on: ubuntu-latest
     permissions:
@@ -50,6 +52,7 @@ jobs:
       - name: Validate format
         run: dotnet format --verify-no-changes
 
+  # Run tests
   test:
     runs-on: ${{ matrix.os }}
     permissions:
@@ -76,6 +79,7 @@ jobs:
           --
           RunConfiguration.CollectSourceInformation=true
 
+  # Pack the output into NuGet packages
   pack:
     runs-on: ubuntu-latest
     permissions:
@@ -90,7 +94,7 @@ jobs:
         uses: actions/setup-dotnet@607fce577a46308457984d59e4954e075820f10a # v3.0.3
 
       # When triggered by `push` or `pull_request` events, generate a prerelease version
-      # for the package, so as to clearly indicate that it's not a stabel version release.
+      # for the package, so as to clearly indicate that it's not a stable version release.
       - name: Generate prerelease version
         id: prerelease-version
         if: ${{ github.event_name != 'release' }}
@@ -112,6 +116,7 @@ jobs:
           name: packages
           path: "**/*.nupkg"
 
+  # Deploy the NuGet packages to the corresponding registries
   deploy:
     needs:
       # Technically, it's not required for the format job to succeed for us to push the package,
