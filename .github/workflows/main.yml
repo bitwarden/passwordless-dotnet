@@ -34,6 +34,8 @@ env:
 #   the option to rerun only that job, saving us time.
 # - It's easier to understand what each job does (and later, read its output) because the scope is much
 #   more narrow.
+# - We can set permissions on a more granular (per-job) level, which allows us to expose only a few select
+#   steps to more sensitive access scopes.
 
 jobs:
   # Check formatting
