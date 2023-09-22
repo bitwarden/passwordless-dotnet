@@ -11,19 +11,36 @@ on:
     types:
       - published
 
+env:
+  TERM: xterm
+  DOTNET_SYSTEM_CONSOLE_ALLOW_ANSI_COLOR_REDIRECTION: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     permissions:
-      actions: write
       contents: read
       
-    env:
-      TERM: xterm
-      DOTNET_SYSTEM_CONSOLE_ALLOW_ANSI_COLOR_REDIRECTION: true
-      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
-      DOTNET_NOLOGO: true
-      DOTNET_CLI_TELEMETRY_OPTOUT: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
+
+      - name: Install .NET
+        uses: actions/setup-dotnet@607fce577a46308457984d59e4954e075820f10a # v3.0.3
+
+      - name: Run build
+        run: dotnet build --configuration Release
+
+      - name: Validate format
+        run: dotnet format --no-restore --verify-no-changes
+  
+  test:
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
       
     strategy:
       fail-fast: false
@@ -38,68 +55,23 @@ jobs:
       - name: Install .NET
         uses: actions/setup-dotnet@607fce577a46308457984d59e4954e075820f10a # v3.0.3
       
-      - name: Run build
-        run: dotnet build --configuration Release
-        
-      - name: Upload artifacts
-        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
-        with:
-          name: build
-          path: .
-          
-  test:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      
-    env:
-      TERM: xterm
-      DOTNET_SYSTEM_CONSOLE_ALLOW_ANSI_COLOR_REDIRECTION: true
-      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
-      DOTNET_NOLOGO: true
-      DOTNET_CLI_TELEMETRY_OPTOUT: true
-
-    steps:
-      - name: Download artifacts
-        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
-        with:
-          name: build
-
-      - name: Install .NET
-        uses: actions/setup-dotnet@607fce577a46308457984d59e4954e075820f10a # v3.0.3
-        
-      - name: Validate format
-        run: dotnet format --no-restore --verify-no-changes
-
       - name: Run tests
         run: >
           dotnet test
-          --no-build
-          --no-restore
           --configuration Release
           --logger "GitHubActions;summary.includePassedTests=true;summary.includeSkippedTests=true"
           --
           RunConfiguration.CollectSourceInformation=true
-  
+          
   pack:
-    needs: test
     runs-on: ubuntu-latest
     permissions:
       actions: write
-      
-    env:
-      TERM: xterm
-      DOTNET_SYSTEM_CONSOLE_ALLOW_ANSI_COLOR_REDIRECTION: true
-      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
-      DOTNET_NOLOGO: true
-      DOTNET_CLI_TELEMETRY_OPTOUT: true
+      contents: read
       
     steps:
-      - name: Download artifacts
-        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
-        with:
-          name: build
+      - name: Checkout
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
 
       - name: Install .NET
         uses: actions/setup-dotnet@607fce577a46308457984d59e4954e075820f10a # v3.0.3
@@ -116,7 +88,6 @@ jobs:
       - name: Create packages
         run: >
           dotnet pack
-          --no-build
           --configuration Release
           ${{ env.steps.set-version.outputs.version-suffix && format('--version-suffix {0}', env.steps.set-version.outputs.version-suffix) || '' }}
 
@@ -127,18 +98,14 @@ jobs:
           path: "**/*.nupkg"
           
   deploy:
-    needs: pack
+    needs:
+      - build
+      - test
+      - pack
     runs-on: ubuntu-latest
     permissions:
       actions: read
       packages: write
-
-    env:
-      TERM: xterm
-      DOTNET_SYSTEM_CONSOLE_ALLOW_ANSI_COLOR_REDIRECTION: true
-      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
-      DOTNET_NOLOGO: true
-      DOTNET_CLI_TELEMETRY_OPTOUT: true
 
     steps:
       - name: Download artifacts
