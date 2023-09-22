@@ -12,11 +12,27 @@ on:
       - published
 
 env:
+  # Setting these variables allows .NET CLI to use rich color codes in console output
   TERM: xterm
   DOTNET_SYSTEM_CONSOLE_ALLOW_ANSI_COLOR_REDIRECTION: true
+  # Skip boilerplate output
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+# Note that as much as we'd love to avoid repetitive work, splitting the pipeline in separate jobs
+# makes it very difficult to share artifacts between them. Even if we succeed, we'll still end up
+# pushing and pulling gigabytes worth of data, which makes the jobs so much slower that we might as
+# well just repeat the checkout-restore-build steps instead.
+# Having a setup that involves separate jobs gives us significant benefits, on the other hand, namely:
+# - Most of them can run in parallel, which reduces the overall execution time significantly, despite
+#   the repetitive work.
+# - We can catch more issues this way, for example if the formatting job fails, we can still see the
+#   the test results too.
+# - If one of the jobs fails due to reasons unrelated to our code (e.g. NuGet server is down), we get
+#   the option to rerun only that job, saving time.
+# - It's easier to understand what each job does (and later, read its output) because the scope is much
+#   more narrow.
 
 jobs:
   format:
@@ -73,6 +89,8 @@ jobs:
       - name: Install .NET
         uses: actions/setup-dotnet@607fce577a46308457984d59e4954e075820f10a # v3.0.3
 
+      # When triggered by `push` or `pull_request` events, generate a prerelease version
+      # for the package, so as to clearly indicate that it's not a stabel version release.
       - name: Generate prerelease version
         id: prerelease-version
         if: ${{ github.event_name != 'release' }}
@@ -96,6 +114,8 @@ jobs:
 
   deploy:
     needs:
+      # Technically, it's not required for the format job to succeed for us to push the package,
+      # so we may consider removing it as a prerequisite here.
       - format
       - test
       - pack
@@ -113,12 +133,15 @@ jobs:
       - name: Install .NET
         uses: actions/setup-dotnet@607fce577a46308457984d59e4954e075820f10a # v3.0.3
 
+      # Publish to GitHub package registry every time, whether it's a prerelease
+      # version or a stable release version.
       - name: Publish packages (GitHub Registry)
         run: >
           dotnet nuget push **/*.nupkg
           --source https://nuget.pkg.github.com/passwordless/index.json
           --api-key ${{ secrets.GITHUB_TOKEN }}
 
+      # Only publish to NuGet on stable releases
       - name: Publish packages (NuGet Registry)
         if: ${{ github.event_name == 'release' }}
         run: >
