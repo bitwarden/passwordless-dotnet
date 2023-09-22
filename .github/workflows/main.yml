@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      
+
     steps:
       - name: Checkout
         uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
@@ -36,25 +36,25 @@ jobs:
 
       - name: Validate format
         run: dotnet format --no-restore --verify-no-changes
-  
+
   test:
     runs-on: ${{ matrix.os }}
     permissions:
       contents: read
-      
+
     strategy:
       fail-fast: false
       max-parallel: 3
       matrix:
         os: [ ubuntu-latest, windows-latest ]
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
-        
+
       - name: Install .NET
         uses: actions/setup-dotnet@607fce577a46308457984d59e4954e075820f10a # v3.0.3
-      
+
       - name: Run tests
         run: >
           dotnet test
@@ -62,13 +62,13 @@ jobs:
           --logger "GitHubActions;summary.includePassedTests=true;summary.includeSkippedTests=true"
           --
           RunConfiguration.CollectSourceInformation=true
-          
+
   pack:
     runs-on: ubuntu-latest
     permissions:
       actions: write
       contents: read
-      
+
     steps:
       - name: Checkout
         uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
@@ -96,7 +96,7 @@ jobs:
         with:
           name: packages
           path: "**/*.nupkg"
-          
+
   deploy:
     needs:
       - build
@@ -121,7 +121,7 @@ jobs:
           dotnet nuget push **/*.nupkg
           --source https://nuget.pkg.github.com/passwordless/index.json
           --api-key ${{ secrets.GITHUB_TOKEN }}
-          
+
       - name: Publish packages (NuGet Registry)
         run: >
           dotnet nuget push **/*.nupkg
