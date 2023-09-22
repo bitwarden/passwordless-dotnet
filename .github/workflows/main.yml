@@ -73,20 +73,20 @@ jobs:
       - name: Install .NET
         uses: actions/setup-dotnet@607fce577a46308457984d59e4954e075820f10a # v3.0.3
 
-      - name: Set version
-        id: set-version
+      - name: Generate prerelease version
+        id: prerelease-version
         if: ${{ github.event_name != 'release' }}
         run: |
           ref="${{ github.head_ref || github.ref_name }}"
           ref_clean="${ref/\//-}"
-          version_suffix="ci-${ref_clean}-${{ github.run_id }}"
-          echo "version-suffix=${version_suffix}" >> $GITHUB_OUTPUT
+          suffix="ci-${ref_clean}-${{ github.run_id }}"
+          echo "suffix=${suffix}" >> $GITHUB_OUTPUT
 
       - name: Create packages
         run: >
           dotnet pack
           --configuration Release
-          ${{ env.steps.set-version.outputs.version-suffix && format('--version-suffix {0}', env.steps.set-version.outputs.version-suffix) || '' }}
+          ${{ steps.prerelease-version.outputs.suffix && format('--version-suffix {0}', steps.prerelease-version.outputs.suffix) || '' }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
