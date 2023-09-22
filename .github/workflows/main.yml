@@ -120,7 +120,8 @@ jobs:
           --api-key ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish packages (NuGet Registry)
+        if: ${{ github.event_name == 'release' }}
         run: >
           dotnet nuget push **/*.nupkg
           --source https://api.nuget.org/v3/index.json
-          --api-key ${{secrets.nuget_api_key}}
+          --api-key ${{ secrets.nuget_api_key }}
