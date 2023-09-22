@@ -80,7 +80,7 @@ jobs:
           ref="${{ github.head_ref || github.ref_name }}"
           ref_clean="${ref/\//-}"
           version_suffix="ci-${ref_clean}-${{ github.run_id }}"
-          echo "version-suffix=${version_suffix}" >> $GITHUB_OUT
+          echo "version-suffix=${version_suffix}" >> $GITHUB_OUTPUT
 
       - name: Create packages
         run: >
