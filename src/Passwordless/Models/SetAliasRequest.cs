@@ -2,10 +2,6 @@ namespace Passwordless.Models;
 
 public class SetAliasRequest
 {
-    public SetAliasRequest(string userId)
-        : this(userId, new HashSet<string>(), false)
-    {
-    }
 
     /// <summary>
     /// Sets a single alias for a given user, and removes any other aliases that may exist.
@@ -50,6 +46,6 @@ public class SetAliasRequest
     /// <param name="userId"></param>
     public static SetAliasRequest Empty(string userId)
     {
-        return new SetAliasRequest(userId);
+        return new SetAliasRequest(userId, new HashSet<string>(), true);
     }
 }
