@@ -8,7 +8,7 @@ using Passwordless.AspNetCore.Services;
 using Passwordless.AspNetCore.Services.Implementations;
 
 // Trick to make it show up where it's more likely to be useful
-namespace Passwordless.AspNetCore;
+namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
 /// Default extensions to <see cref="IServiceCollection"/> and <see cref="IdentityBuilder"/> for <see cref="PasswordlessApiEndpointRouteBuilderExtensions.MapPasswordless(IEndpointRouteBuilder)"/>.
