@@ -73,9 +73,17 @@ jobs:
       - name: Install .NET
         uses: actions/setup-dotnet@607fce577a46308457984d59e4954e075820f10a # v3.0.3
 
+      - name: Run restore
+        run: dotnet restore
+
+      - name: Run build
+        run: dotnet build --no-restore --configuration Release
+
       - name: Run tests
         run: >
           dotnet test
+          --no-restore
+          --no-build
           --configuration Release
           --logger "GitHubActions;summary.includePassedTests=true;summary.includeSkippedTests=true"
           --
@@ -95,6 +103,12 @@ jobs:
       - name: Install .NET
         uses: actions/setup-dotnet@607fce577a46308457984d59e4954e075820f10a # v3.0.3
 
+      - name: Run restore
+        run: dotnet restore
+
+      - name: Run build
+        run: dotnet build --no-restore --configuration Release
+
       # When triggered by `push` or `pull_request` events, generate a prerelease version
       # for the package, so as to clearly indicate that it's not a stable version release.
       - name: Generate prerelease version
@@ -109,6 +123,8 @@ jobs:
       - name: Create packages
         run: >
           dotnet pack
+          --no-restore
+          --no-build
           --configuration Release
           ${{ steps.prerelease-version.outputs.suffix && format('--version-suffix {0}', steps.prerelease-version.outputs.suffix) || '' }}
 
