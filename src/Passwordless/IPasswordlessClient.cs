@@ -37,7 +37,7 @@ public interface IPasswordlessClient
     /// <summary>
     /// Attempts to delete a credential via the supplied id.
     /// </summary>
-    /// <param name="id">The id of a credential representing as a Base64 URL encoded <see cref="byte[]" />.</param>
+    /// <param name="id">The id of a credential representing as a Base64 URL encoded <see cref="T:byte[]" />.</param>
     /// <param name="cancellationToken"></param>
     /// <returns>A task object representing the asynchronous operation.</returns>
     /// <exception cref="PasswordlessApiException">An exception containing details abaout the reason for failure.</exception>
