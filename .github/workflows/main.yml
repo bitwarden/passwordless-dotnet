@@ -77,7 +77,10 @@ jobs:
         run: dotnet restore
 
       - name: Run build
-        run: dotnet build --no-restore --configuration Release
+        run: >
+          dotnet build
+          --no-restore
+          --configuration Release
 
       - name: Run tests
         run: >
@@ -108,7 +111,11 @@ jobs:
         run: dotnet restore
 
       - name: Run build
-        run: dotnet build --no-restore --configuration Release
+        run: >
+          dotnet build
+          --no-restore
+          --configuration Release
+          -p:ContinuousIntegrationBuild=true
 
       # When triggered by `push` or `pull_request` events, generate a prerelease version
       # for the package, so as to clearly indicate that it's not a stable version release.
@@ -127,6 +134,7 @@ jobs:
           --no-restore
           --no-build
           --configuration Release
+          -p:ContinuousIntegrationBuild=true
           ${{ steps.prerelease-version.outputs.suffix && format('--version-suffix {0}', steps.prerelease-version.outputs.suffix) || '' }}
 
       - name: Upload artifacts
