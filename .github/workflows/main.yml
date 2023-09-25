@@ -1,0 +1,182 @@
+name: main
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  release:
+    types:
+      - published
+
+env:
+  # Setting these variables allows .NET CLI to use rich color codes in console output
+  TERM: xterm
+  DOTNET_SYSTEM_CONSOLE_ALLOW_ANSI_COLOR_REDIRECTION: true
+  # Skip boilerplate output
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+# Note that as much as we'd love to avoid repetitive work, splitting the pipeline into separate jobs
+# makes it very difficult to share artifacts between them. Even if we succeed, we'll still end up
+# pushing and pulling gigabytes worth of data, which makes the jobs so much slower that we might as
+# well just repeat the checkout-restore-build steps instead.
+
+# Having a setup that involves separate jobs gives us significant benefits, on the other hand, namely:
+# - Most of the jobs can run in parallel, which reduces the overall execution time significantly,
+#   despite the repetitive work.
+# - We can catch more issues this way, for example if the formatting job fails, we can still see the
+#   the test results too.
+# - If one of the jobs fails due to reasons unrelated to our code (e.g. NuGet server is down), we get
+#   the option to rerun only that job, saving us time.
+# - It's easier to understand what each job does (and later, read its output) because the scope is much
+#   more narrow.
+# - We can set permissions on a more granular (per-job) level, which allows us to expose only a few select
+#   steps to more sensitive access scopes.
+
+jobs:
+  # Check formatting
+  format:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
+
+      - name: Install .NET
+        uses: actions/setup-dotnet@607fce577a46308457984d59e4954e075820f10a # v3.0.3
+
+      - name: Validate format
+        run: dotnet format --verify-no-changes
+
+  # Run tests
+  test:
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        os: [ ubuntu-latest, windows-latest ]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
+
+      - name: Install .NET
+        uses: actions/setup-dotnet@607fce577a46308457984d59e4954e075820f10a # v3.0.3
+
+      - name: Run restore
+        run: dotnet restore
+
+      - name: Run build
+        run: >
+          dotnet build
+          --no-restore
+          --configuration Release
+
+      - name: Run tests
+        run: >
+          dotnet test
+          --no-restore
+          --no-build
+          --configuration Release
+          ${{ runner.os == 'Windows' && '-p:IncludeNetCoreAppTargets=false' || '' }}
+          --logger "GitHubActions;summary.includePassedTests=true;summary.includeSkippedTests=true"
+          --
+          RunConfiguration.CollectSourceInformation=true
+
+  # Pack the output into NuGet packages
+  pack:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
+
+      - name: Install .NET
+        uses: actions/setup-dotnet@607fce577a46308457984d59e4954e075820f10a # v3.0.3
+
+      - name: Run restore
+        run: dotnet restore
+
+      - name: Run build
+        run: >
+          dotnet build
+          --no-restore
+          --configuration Release
+          -p:ContinuousIntegrationBuild=true
+
+      # When triggered by `push` or `pull_request` events, generate a prerelease version
+      # for the package, so as to clearly indicate that it's not a stable version release.
+      - name: Generate prerelease version
+        id: prerelease-version
+        if: ${{ github.event_name != 'release' }}
+        run: |
+          ref="${{ github.head_ref || github.ref_name }}"
+          ref_clean="${ref/\//-}"
+          suffix="ci-${ref_clean}-${{ github.run_id }}"
+          echo "suffix=${suffix}" >> $GITHUB_OUTPUT
+
+      - name: Run pack
+        run: >
+          dotnet pack
+          --no-restore
+          --no-build
+          --configuration Release
+          -p:ContinuousIntegrationBuild=true
+          ${{ steps.prerelease-version.outputs.suffix && format('--version-suffix {0}', steps.prerelease-version.outputs.suffix) || '' }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
+        with:
+          name: packages
+          path: "**/*.nupkg"
+
+  # Deploy the NuGet packages to the corresponding registries
+  deploy:
+    needs:
+      # Technically, it's not required for the format job to succeed for us to push the package,
+      # so we may consider removing it as a prerequisite here.
+      - format
+      - test
+      - pack
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      packages: write
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
+        with:
+          name: packages
+
+      - name: Install .NET
+        uses: actions/setup-dotnet@607fce577a46308457984d59e4954e075820f10a # v3.0.3
+
+      # Publish to GitHub package registry every time, whether it's a prerelease
+      # version or a stable release version.
+      - name: Publish packages (GitHub Registry)
+        run: >
+          dotnet nuget push **/*.nupkg
+          --source https://nuget.pkg.github.com/passwordless/index.json
+          --api-key ${{ secrets.GITHUB_TOKEN }}
+
+      # Only publish to NuGet on stable releases
+      - name: Publish packages (NuGet Registry)
+        if: ${{ github.event_name == 'release' }}
+        run: >
+          dotnet nuget push **/*.nupkg
+          --source https://api.nuget.org/v3/index.json
+          --api-key ${{ secrets.nuget_api_key }}
