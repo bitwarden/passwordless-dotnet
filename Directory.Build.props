@@ -18,7 +18,7 @@
   <PropertyGroup>
     <PasswordlessMajorVersion>1</PasswordlessMajorVersion>
     <PasswordlessMinorVersion>0</PasswordlessMinorVersion>
-    <PasswordlessPatchVersion>3</PasswordlessPatchVersion>
+    <PasswordlessPatchVersion>4</PasswordlessPatchVersion>
     <PasswordlessMajorMinorVersion>$(PasswordlessMajorVersion).$(PasswordlessMinorVersion)</PasswordlessMajorMinorVersion>
     <VersionPrefix>$(PasswordlessMajorMinorVersion).$(PasswordlessPatchVersion)</VersionPrefix>
   </PropertyGroup>
@@ -30,5 +30,4 @@
     -->
     <Using Remove="System.Net.Http" />
   </ItemGroup>
-
 </Project>
