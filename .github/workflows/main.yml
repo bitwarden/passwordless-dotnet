@@ -121,7 +121,7 @@ jobs:
           suffix="ci-${ref_clean}-${{ github.run_id }}"
           echo "suffix=${suffix}" >> $GITHUB_OUTPUT
 
-      - name: Create packages
+      - name: Run pack
         run: >
           dotnet pack
           --no-restore
