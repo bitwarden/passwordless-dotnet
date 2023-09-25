@@ -15,39 +15,36 @@ public class PasswordlessClient : IPasswordlessClient, IDisposable
     private readonly bool _disposeClient;
 
     /// <summary>
-    /// Initializes an instance of <see cref="PasswordlessClient" /> using the provided
-    /// <see cref="PasswordlessOptions" /> and <see cref="HttpClientFactoryExtensions" />.
+    /// Initializes an instance of <see cref="PasswordlessClient" />.
     /// </summary>
-    public static PasswordlessClient Create(PasswordlessOptions options, IHttpClientFactory factory) =>
-        new(factory.CreateClient(), options, false);
-
-    private PasswordlessClient(HttpClient client, bool disposeClient)
+    public static PasswordlessClient Create(PasswordlessOptions options, IHttpClientFactory factory)
     {
-        _client = client;
-        _disposeClient = disposeClient;
-    }
-
-    private PasswordlessClient(HttpClient client, PasswordlessOptions options, bool disposeClient)
-        : this(client, disposeClient)
-    {
+        var client = factory.CreateClient();
         client.BaseAddress = new Uri(options.ApiUrl);
         client.DefaultRequestHeaders.Add("ApiSecret", options.ApiSecret);
+        return new PasswordlessClient(client);
+    }
+
+    /// <summary>
+    /// Initializes an instance of <see cref="PasswordlessClient" />.
+    /// </summary>
+    public PasswordlessClient(PasswordlessOptions passwordlessOptions)
+    {
+        _client = new HttpClient
+        {
+            BaseAddress = new Uri(passwordlessOptions.ApiUrl),
+        };
+        _client.DefaultRequestHeaders.Add("ApiSecret", passwordlessOptions.ApiSecret);
+        _disposeClient = true;
     }
 
     /// <summary>
     /// Initializes an instance of <see cref="PasswordlessClient" />.
     /// </summary>
     public PasswordlessClient(HttpClient client)
-        : this(client, false)
     {
-    }
-
-    /// <summary>
-    /// Initializes an instance of <see cref="PasswordlessClient" />.
-    /// </summary>
-    public PasswordlessClient(PasswordlessOptions options)
-        : this(new HttpClient(), options, true)
-    {
+        _client = client;
+        _disposeClient = false;
     }
 
     /// <inheritdoc />
