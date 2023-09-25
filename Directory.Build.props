@@ -4,9 +4,8 @@
     <CurrentPreviewTfm>net8.0</CurrentPreviewTfm>
     <!--<IncludePreview>true</IncludePreview>-->
     <IncludePreview Condition="'$(IncludePreview)' == ''">false</IncludePreview>
-    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
   </PropertyGroup>
-    
+
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
@@ -19,7 +18,7 @@
   <PropertyGroup>
     <PasswordlessMajorVersion>1</PasswordlessMajorVersion>
     <PasswordlessMinorVersion>0</PasswordlessMinorVersion>
-    <PasswordlessPatchVersion>3</PasswordlessPatchVersion>
+    <PasswordlessPatchVersion>4</PasswordlessPatchVersion>
     <PasswordlessMajorMinorVersion>$(PasswordlessMajorVersion).$(PasswordlessMinorVersion)</PasswordlessMajorMinorVersion>
     <VersionPrefix>$(PasswordlessMajorMinorVersion).$(PasswordlessPatchVersion)</VersionPrefix>
   </PropertyGroup>
@@ -31,5 +30,4 @@
     -->
     <Using Remove="System.Net.Http" />
   </ItemGroup>
-
 </Project>

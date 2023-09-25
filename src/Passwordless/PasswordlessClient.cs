@@ -48,11 +48,11 @@ public class PasswordlessClient : IPasswordlessClient, IDisposable
     }
 
     /// <inheritdoc />
-    public async Task AddAliasAsync(AddAliasRequest request, CancellationToken cancellationToken)
+    public async Task SetAliasAsync(SetAliasRequest request, CancellationToken cancellationToken)
     {
         using var response = await _client.PostAsJsonAsync("alias",
             request,
-            PasswordlessSerializerContext.Default.AddAliasRequest,
+            PasswordlessSerializerContext.Default.SetAliasRequest,
             cancellationToken);
 
         response.EnsureSuccessStatusCode();

@@ -7,7 +7,7 @@ namespace Passwordless.Helpers;
 [JsonSourceGenerationOptions(
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
-[JsonSerializable(typeof(AddAliasRequest))]
+[JsonSerializable(typeof(SetAliasRequest))]
 [JsonSerializable(typeof(RegisterTokenResponse))]
 [JsonSerializable(typeof(RegisterOptions))]
 [JsonSerializable(typeof(VerifyTokenRequest))] // TODO: Use this with JsonContent.Create
