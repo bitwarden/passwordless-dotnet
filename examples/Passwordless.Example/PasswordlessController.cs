@@ -57,9 +57,7 @@ public class PasswordlessController : Controller
     ///     Please see: https://docs.passwordless.dev/guide/api.html#signin-verify
     /// </summary>
     /// <param name="token"></param>
-    /// <returns></returns>
-    [HttpGet]
-    [Route("/verify-signin")]
+    [HttpGet("/verify-signin")]
     public async Task<IActionResult> VerifySignInToken(string token)
     {
         try

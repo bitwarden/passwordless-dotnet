@@ -17,7 +17,7 @@ public class PasswordlessServiceTests
 {
     private readonly Mock<IPasswordlessClient> _mockPasswordlessClient = new();
     private readonly TestUserStore _testUserStore = new();
-    private readonly PasswordlessAspNetCoreOptions _options = new();
+    private readonly PasswordlessAspNetCoreOptions _options = new() { ApiSecret = "FooBar" };
     private readonly Mock<IUserClaimsPrincipalFactory<TestUser>> _mockUserClaimsPrincipalFactory = new();
     private readonly Mock<ICustomizeRegisterOptions> _mockCustomizeRegisterOptions = new();
     private readonly Mock<IServiceProvider> _mockServiceProvider = new();
