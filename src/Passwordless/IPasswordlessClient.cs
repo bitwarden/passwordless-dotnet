@@ -1,4 +1,4 @@
-using Passwordless.Models;
+﻿using Passwordless.Models;
 
 namespace Passwordless;
 
@@ -42,6 +42,11 @@ public interface IPasswordlessClient
     /// <returns>A task object representing the asynchronous operation.</returns>
     /// <exception cref="PasswordlessApiException">An exception containing details abaout the reason for failure.</exception>
     Task DeleteCredentialAsync(byte[] id, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets the users count.
+    /// </summary>
+    Task<UsersCount> GetUsersCountAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// List all the <see cref="AliasPointer" /> for a given user.

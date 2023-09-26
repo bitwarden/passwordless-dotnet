@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace Passwordless.Models;
+﻿namespace Passwordless.Models;
 
 public class RegisterTokenResponse
 {

@@ -1,13 +1,18 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Net.Http;
 using Microsoft.Extensions.Options;
 using Passwordless;
 
 // This is a trick to always show up in a class when people are registering services
 namespace Microsoft.Extensions.DependencyInjection;
 
+/// <summary>
+/// Service registration extensions for Passwordless.
+/// </summary>
 public static class ServiceCollectionExtensions
 {
+    /// <summary>
+    /// Adds and configures Passwordless-related services.
+    /// </summary>
     public static IServiceCollection AddPasswordlessSdk(this IServiceCollection services, Action<PasswordlessOptions> configureOptions)
     {
         services.AddOptions<PasswordlessOptions>()
