@@ -1,4 +1,4 @@
-﻿using Passwordless.Models;
+using Passwordless.Models;
 
 namespace Passwordless;
 
@@ -8,12 +8,12 @@ namespace Passwordless;
 public interface IPasswordlessClient
 {
     /// <summary>
-    /// Adds one or more aliases to an existing user.
+    /// Sets one or more aliases to an existing user and removes existing aliases that are not included in the request.
     /// </summary>
     /// <param name="request"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task AddAliasAsync(AddAliasRequest request, CancellationToken cancellationToken = default);
+    Task SetAliasAsync(SetAliasRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Creates a <see cref="RegisterTokenResponse" /> which will be used by your frontend to negotiate
