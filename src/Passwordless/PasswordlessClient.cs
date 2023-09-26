@@ -7,15 +7,16 @@ using JsonContext = Passwordless.Helpers.PasswordlessSerializerContext;
 
 namespace Passwordless;
 
-/// <summary>
-/// TODO: FILL IN
-/// </summary>
+/// <inheritdoc cref="IPasswordlessClient" />
 [DebuggerDisplay("{DebuggerToString(),nq}")]
 public class PasswordlessClient : IPasswordlessClient, IDisposable
 {
-    private readonly bool _needsDisposing;
     private readonly HttpClient _client;
+    private readonly bool _disposeClient;
 
+    /// <summary>
+    /// Initializes an instance of <see cref="PasswordlessClient" />.
+    /// </summary>
     public static PasswordlessClient Create(PasswordlessOptions options, IHttpClientFactory factory)
     {
         var client = factory.CreateClient();
@@ -24,123 +25,136 @@ public class PasswordlessClient : IPasswordlessClient, IDisposable
         return new PasswordlessClient(client);
     }
 
+    /// <summary>
+    /// Initializes an instance of <see cref="PasswordlessClient" />.
+    /// </summary>
     public PasswordlessClient(PasswordlessOptions passwordlessOptions)
     {
-        _needsDisposing = true;
         _client = new HttpClient
         {
             BaseAddress = new Uri(passwordlessOptions.ApiUrl),
         };
         _client.DefaultRequestHeaders.Add("ApiSecret", passwordlessOptions.ApiSecret);
+        _disposeClient = true;
     }
 
+    /// <summary>
+    /// Initializes an instance of <see cref="PasswordlessClient" />.
+    /// </summary>
     public PasswordlessClient(HttpClient client)
     {
-        _needsDisposing = false;
         _client = client;
+        _disposeClient = false;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public async Task SetAliasAsync(SetAliasRequest request, CancellationToken cancellationToken)
     {
-        var res = await _client.PostAsJsonAsync("alias",
+        using var response = await _client.PostAsJsonAsync("alias",
             request,
             PasswordlessSerializerContext.Default.SetAliasRequest,
             cancellationToken);
-        res.EnsureSuccessStatusCode();
+
+        response.EnsureSuccessStatusCode();
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public async Task<RegisterTokenResponse> CreateRegisterTokenAsync(RegisterOptions registerOptions, CancellationToken cancellationToken = default)
     {
-        var res = await _client.PostAsJsonAsync("register/token",
+        using var response = await _client.PostAsJsonAsync("register/token",
             registerOptions,
             PasswordlessSerializerContext.Default.RegisterOptions,
             cancellationToken);
-        res.EnsureSuccessStatusCode();
-        return (await res.Content.ReadFromJsonAsync<RegisterTokenResponse>(
+
+        response.EnsureSuccessStatusCode();
+
+        return (await response.Content.ReadFromJsonAsync(
             PasswordlessSerializerContext.Default.RegisterTokenResponse,
             cancellationToken))!;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public async Task<VerifiedUser?> VerifyTokenAsync(string verifyToken, CancellationToken cancellationToken = default)
     {
-        var request = new HttpRequestMessage(HttpMethod.Post, "signin/verify")
-        {
-            // TODO: No JsonTypeInfo overload yet?
-            Content = JsonContent.Create(new VerifyTokenRequest(verifyToken)),
-        };
+        using var request = new HttpRequestMessage(HttpMethod.Post, "signin/verify");
+
+        // TODO: No JsonTypeInfo overload yet?
+        request.Content = JsonContent.Create(new VerifyTokenRequest(verifyToken));
 
         // We just want to return null if there is a problem.
         request.SkipErrorHandling();
-        var response = await _client.SendAsync(request, cancellationToken);
+        using var response = await _client.SendAsync(request, cancellationToken);
 
         if (response.IsSuccessStatusCode)
         {
             var res = await response.Content.ReadFromJsonAsync(
                 PasswordlessSerializerContext.Default.VerifiedUser,
                 cancellationToken);
+
             return res;
         }
 
         return null;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public async Task DeleteUserAsync(string userId, CancellationToken cancellationToken = default)
     {
-        await _client.PostAsJsonAsync("users/delete",
+        using var response = await _client.PostAsJsonAsync("users/delete",
             new DeleteUserRequest(userId),
             PasswordlessSerializerContext.Default.DeleteUserRequest,
             cancellationToken);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public async Task<IReadOnlyList<PasswordlessUserSummary>> ListUsersAsync(CancellationToken cancellationToken = default)
     {
         var response = await _client.GetFromJsonAsync(
             "users/list",
             PasswordlessSerializerContext.Default.ListResponsePasswordlessUserSummary,
             cancellationToken);
+
         return response!.Values;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public async Task<IReadOnlyList<AliasPointer>> ListAliasesAsync(string userId, CancellationToken cancellationToken = default)
     {
         var response = await _client.GetFromJsonAsync(
             $"alias/list?userid={userId}",
             PasswordlessSerializerContext.Default.ListResponseAliasPointer,
             cancellationToken);
+
         return response!.Values;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public async Task<IReadOnlyList<Credential>> ListCredentialsAsync(string userId, CancellationToken cancellationToken = default)
     {
         var response = await _client.GetFromJsonAsync(
             $"credentials/list?userid={userId}",
             PasswordlessSerializerContext.Default.ListResponseCredential,
             cancellationToken);
+
         return response!.Values;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public async Task DeleteCredentialAsync(string id, CancellationToken cancellationToken = default)
     {
-        await _client.PostAsJsonAsync("credentials/delete",
+        using var response = await _client.PostAsJsonAsync("credentials/delete",
             new DeleteCredentialRequest(id),
             PasswordlessSerializerContext.Default.DeleteCredentialRequest,
             cancellationToken);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public async Task DeleteCredentialAsync(byte[] id, CancellationToken cancellationToken = default)
     {
         await DeleteCredentialAsync(Base64Url.Encode(id), cancellationToken);
     }
 
+    /// <inheritdoc />
     public async Task<UsersCount> GetUsersCountAsync(CancellationToken cancellationToken = default)
     {
         return (await _client.GetFromJsonAsync(
@@ -174,18 +188,19 @@ public class PasswordlessClient : IPasswordlessClient, IDisposable
         return sb.ToString();
     }
 
+    /// <inheritdoc />
     public void Dispose()
     {
-        if (_needsDisposing)
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 
+    /// <summary>
+    /// Releases unmanaged resources.
+    /// </summary>
     protected virtual void Dispose(bool disposing)
     {
-        if (disposing)
+        if (disposing && _disposeClient)
         {
             _client.Dispose();
         }
