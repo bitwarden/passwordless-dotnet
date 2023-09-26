@@ -21,7 +21,7 @@ public class PasswordlessOptions
     /// <summary>
     /// Gets or sets the secret API key used to authenticate with the Passwordless API.
     /// </summary>
-    public string ApiSecret { get; set; } = default!;
+    public required string ApiSecret { get; set; }
 
     /// <summary>
     /// Gets or sets the public API key used to interact with the Passwordless API.
