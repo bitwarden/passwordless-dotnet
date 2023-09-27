@@ -1,0 +1,40 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta content="IE=edge" http-equiv="X-UA-Compatible"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Passwordless ASP.NET</title>
+    <link href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: sans-serif;
+        }
+    </style>
+</head>
+<body>
+<main class="container">
+    <h2>Bitwarden Passwordless.dev - ASP.NET</h2>
+    <p>To run this example you must first add yor API key in index.html and your API Secret in <code>PasswordlessController.cs</code>
+    </p>
+    <p><a href="https://docs.passwordless.dev/">Documentation</a> - <a href="https://admin.passwordless.dev/signup">Get
+        your API keys</a></p>
+
+    <strong>Alias:</strong>
+    <input id="alias" placeholder="Username, Email etc" type="text"/>
+    <button id="passwordless-register">Register</button>
+    <button id="passwordless-signin">Login</button>
+    <pre id="status"></pre>
+
+</main>
+<script>
+    const PASSWORDLESS_API_URL = "https://v4.passwordless.dev"; // For self-hosting, change this. This is always the default value.
+    const API_KEY = "YOUR_API_KEY"; // Replace this value with your API Key
+    const BACKEND_URL = ""; // will use node/app.js as default, but if you can't run node, use the hosted demo: https://demo-backend.passwordless.dev      
+</script>
+<script src="debug.js"></script>
+<script crossorigin="anonymous" src="https://cdn.passwordless.dev/dist/1.1.0/umd/passwordless.umd.min.js"></script>
+<script src="client-register.js"></script>
+<script src="client-signin.js"></script>
+</body>
+</html>
