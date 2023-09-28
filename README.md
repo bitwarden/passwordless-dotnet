@@ -33,6 +33,16 @@ Install the [NuGet Package](https://nuget.org/packages/Passwordless):
   5. Click on the Passwordless package, select the appropriate version in the
      right-tab and click *Install*.
 
+## See also
+
+Integration packages:
+
+- [Passwordless.AspNetCore](src/Passwordless.AspNetCore) — Passwordless.dev integration with ASP.NET Core Identity
+
+Examples:
+
+- [Passwordless.Example](examples/Passwordless.Example) — basic Passwordless.dev integration inside an ASP.NET Core app
+
 ## Getting started
 
 💡 See the full [Getting started guide](https://docs.passwordless.dev/guide/get-started.html) in the official documentation.
