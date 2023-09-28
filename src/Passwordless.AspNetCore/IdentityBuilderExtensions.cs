@@ -97,6 +97,7 @@ public static class IdentityBuilderExtensions
                 var aspNetCoreOptions = aspNetCoreOptionsAccessor.Value;
                 options.ApiSecret = aspNetCoreOptions.ApiSecret;
                 options.ApiUrl = aspNetCoreOptions.ApiUrl;
+                options.ApiKey = aspNetCoreOptions.ApiKey;
             });
 
         return services;
