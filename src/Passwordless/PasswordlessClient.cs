@@ -12,6 +12,7 @@ namespace Passwordless;
 public class PasswordlessClient : IPasswordlessClient, IDisposable
 {
     private readonly HttpClient _http;
+    private readonly PasswordlessOptions _options;
 
     private PasswordlessClient(HttpClient http, bool disposeClient, PasswordlessOptions options)
     {
@@ -23,6 +24,8 @@ public class PasswordlessClient : IPasswordlessClient, IDisposable
                 {"ApiSecret", options.ApiSecret}
             }
         };
+
+        _options = options;
     }
 
     /// <summary>
@@ -160,17 +163,18 @@ public class PasswordlessClient : IPasswordlessClient, IDisposable
     private string DebuggerToString()
     {
         var sb = new StringBuilder();
+
         sb.Append("ApiUrl = ");
-        sb.Append(_http.BaseAddress);
-        if (_http.DefaultRequestHeaders.TryGetValues("ApiSecret", out var values))
+        sb.Append(_options.ApiUrl);
+
+        if (!string.IsNullOrEmpty(_options.ApiSecret))
         {
-            var apiSecret = values.First();
-            if (apiSecret.Length > 5)
+            if (_options.ApiSecret.Length > 5)
             {
                 sb.Append(' ');
                 sb.Append("ApiSecret = ");
                 sb.Append("***");
-                sb.Append(apiSecret.Substring(apiSecret.Length - 4));
+                sb.Append(_options.ApiSecret.Substring(_options.ApiSecret.Length - 4));
             }
         }
         else
