@@ -13,9 +13,6 @@ public class PasswordlessClient : IPasswordlessClient, IDisposable
 {
     private readonly HttpClient _http;
 
-    /// <summary>
-    /// Initializes an instance of <see cref="PasswordlessClient" />.
-    /// </summary>
     private PasswordlessClient(HttpClient http, bool disposeClient, PasswordlessOptions options)
     {
         _http = new HttpClient(new PasswordlessHttpHandler(http, disposeClient))
