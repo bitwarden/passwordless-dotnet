@@ -16,7 +16,7 @@ public class PasswordlessClient : IPasswordlessClient, IDisposable
 
     private PasswordlessClient(HttpClient http, bool disposeClient, PasswordlessOptions options)
     {
-        _http = new HttpClient(new PasswordlessHttpHandler(http, disposeClient))
+        _http = new HttpClient(new PasswordlessHttpHandler(http, disposeClient), true)
         {
             BaseAddress = new Uri(options.ApiUrl),
             DefaultRequestHeaders =
