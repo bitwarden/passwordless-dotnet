@@ -1,0 +1,38 @@
+﻿@page
+@model HelloWorldModel
+
+@{
+    ViewData["Title"] = "Hello World";
+}
+<h1>@ViewData["Title"]</h1>
+
+@if (HttpContext.User.Identity!.IsAuthenticated)
+{
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-success" role="alert">
+                <strong>Congratulations!</strong> You are now authenticated!
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="mb-3">
+                <label asp-for="AuthenticatedUser!.Email" class="form-label">Email</label>
+                <input disabled="disabled" type="text" asp-for="AuthenticatedUser!.Email" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label asp-for="AuthenticatedUser!.Username" class="form-label">Username</label>
+                <input disabled="disabled" type="text" asp-for="AuthenticatedUser!.Username" class="form-control">
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col-12">
+            <p class="text-danger">Not logged in.</p>
+        </div>
+    </div>
+}

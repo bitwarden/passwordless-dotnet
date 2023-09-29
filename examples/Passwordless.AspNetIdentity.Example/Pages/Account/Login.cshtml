@@ -1,0 +1,64 @@
+﻿@page
+@model LoginModel
+@using Microsoft.Extensions.Options
+@using Passwordless.AspNetCore
+@inject IOptions<PasswordlessAspNetCoreOptions> PasswordlessOptions;
+
+@{
+    ViewData["Title"] = "Login";
+}
+<h1>@ViewData["Title"]</h1>
+
+@{
+    var canLogin = ViewData["CanLogin"] != null && (bool)(ViewData["CanLogin"] ?? false);
+}
+
+<div class="row">
+    <div class="col-12">
+        <form class="needs-validation" action="" method="POST">
+            <div class="mb-3">
+                <label asp-for="Form.Email" class="form-label">Email</label>
+                <input placeholder="janedoe@example.org" type="text" asp-for="Form.Email" class="form-control" id="email">
+                <span class="text-danger" asp-validation-for="Form.Email"></span>
+            </div>
+            <div class="text-danger" asp-validation-summary="ModelOnly"></div>
+            <div>
+                <button type="submit" class="btn-primary">Login</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (canLogin)
+{
+    <script src="https://cdn.passwordless.dev/dist/1.1.0/umd/passwordless.umd.js"></script>
+    <script>
+    async function login() {
+        const alias = document.getElementById("email").value;
+        const p = new Passwordless.Client(
+            {
+                apiKey: "@PasswordlessOptions.Value.ApiKey",
+                apiUrl: "@PasswordlessOptions.Value.ApiUrl"
+            });
+        const loginPasskeyResponse = await p.signinWithAlias(alias);
+        if (!loginPasskeyResponse) {
+            return;
+        }
+        const loginRequest = { token: loginPasskeyResponse.token };
+        const loginResponse = await fetch('/passwordless-login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(loginRequest)
+        });
+        
+        if (loginResponse.ok) {
+            console.log('login successful: ' + await loginResponse.text());
+            
+            // redirect to authorized page /Authorized/HelloWorld
+            window.location.href = '/Authorized/HelloWorld';        }
+    }
+    login();
+    </script>
+}
