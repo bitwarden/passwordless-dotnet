@@ -11,46 +11,43 @@ namespace Passwordless;
 [DebuggerDisplay("{DebuggerToString(),nq}")]
 public class PasswordlessClient : IPasswordlessClient, IDisposable
 {
-    private readonly HttpClient _client;
-    private readonly bool _disposeClient;
+    private readonly HttpClient _http;
 
     /// <summary>
     /// Initializes an instance of <see cref="PasswordlessClient" />.
     /// </summary>
-    public static PasswordlessClient Create(PasswordlessOptions options, IHttpClientFactory factory)
+    private PasswordlessClient(HttpClient http, bool disposeClient, PasswordlessOptions options)
     {
-        var client = factory.CreateClient();
-        client.BaseAddress = new Uri(options.ApiUrl);
-        client.DefaultRequestHeaders.Add("ApiSecret", options.ApiSecret);
-        return new PasswordlessClient(client);
-    }
-
-    /// <summary>
-    /// Initializes an instance of <see cref="PasswordlessClient" />.
-    /// </summary>
-    public PasswordlessClient(PasswordlessOptions passwordlessOptions)
-    {
-        _client = new HttpClient
+        _http = new HttpClient(new PasswordlessHttpHandler(http, disposeClient))
         {
-            BaseAddress = new Uri(passwordlessOptions.ApiUrl),
+            BaseAddress = new Uri(options.ApiUrl),
+            DefaultRequestHeaders =
+            {
+                {"ApiSecret", options.ApiSecret}
+            }
         };
-        _client.DefaultRequestHeaders.Add("ApiSecret", passwordlessOptions.ApiSecret);
-        _disposeClient = true;
     }
 
     /// <summary>
     /// Initializes an instance of <see cref="PasswordlessClient" />.
     /// </summary>
-    public PasswordlessClient(HttpClient client)
+    public PasswordlessClient(HttpClient http, PasswordlessOptions options)
+        : this(http, false, options)
     {
-        _client = client;
-        _disposeClient = false;
+    }
+
+    /// <summary>
+    /// Initializes an instance of <see cref="PasswordlessClient" />.
+    /// </summary>
+    public PasswordlessClient(PasswordlessOptions options)
+        : this(new HttpClient(), true, options)
+    {
     }
 
     /// <inheritdoc />
     public async Task SetAliasAsync(SetAliasRequest request, CancellationToken cancellationToken)
     {
-        using var response = await _client.PostAsJsonAsync("alias",
+        using var response = await _http.PostAsJsonAsync("alias",
             request,
             PasswordlessSerializerContext.Default.SetAliasRequest,
             cancellationToken);
@@ -61,7 +58,7 @@ public class PasswordlessClient : IPasswordlessClient, IDisposable
     /// <inheritdoc />
     public async Task<RegisterTokenResponse> CreateRegisterTokenAsync(RegisterOptions registerOptions, CancellationToken cancellationToken = default)
     {
-        using var response = await _client.PostAsJsonAsync("register/token",
+        using var response = await _http.PostAsJsonAsync("register/token",
             registerOptions,
             PasswordlessSerializerContext.Default.RegisterOptions,
             cancellationToken);
@@ -83,7 +80,7 @@ public class PasswordlessClient : IPasswordlessClient, IDisposable
 
         // We just want to return null if there is a problem.
         request.SkipErrorHandling();
-        using var response = await _client.SendAsync(request, cancellationToken);
+        using var response = await _http.SendAsync(request, cancellationToken);
 
         if (response.IsSuccessStatusCode)
         {
@@ -100,7 +97,7 @@ public class PasswordlessClient : IPasswordlessClient, IDisposable
     /// <inheritdoc />
     public async Task DeleteUserAsync(string userId, CancellationToken cancellationToken = default)
     {
-        using var response = await _client.PostAsJsonAsync("users/delete",
+        using var response = await _http.PostAsJsonAsync("users/delete",
             new DeleteUserRequest(userId),
             PasswordlessSerializerContext.Default.DeleteUserRequest,
             cancellationToken);
@@ -109,7 +106,7 @@ public class PasswordlessClient : IPasswordlessClient, IDisposable
     /// <inheritdoc />
     public async Task<IReadOnlyList<PasswordlessUserSummary>> ListUsersAsync(CancellationToken cancellationToken = default)
     {
-        var response = await _client.GetFromJsonAsync(
+        var response = await _http.GetFromJsonAsync(
             "users/list",
             PasswordlessSerializerContext.Default.ListResponsePasswordlessUserSummary,
             cancellationToken);
@@ -120,7 +117,7 @@ public class PasswordlessClient : IPasswordlessClient, IDisposable
     /// <inheritdoc />
     public async Task<IReadOnlyList<AliasPointer>> ListAliasesAsync(string userId, CancellationToken cancellationToken = default)
     {
-        var response = await _client.GetFromJsonAsync(
+        var response = await _http.GetFromJsonAsync(
             $"alias/list?userid={userId}",
             PasswordlessSerializerContext.Default.ListResponseAliasPointer,
             cancellationToken);
@@ -131,7 +128,7 @@ public class PasswordlessClient : IPasswordlessClient, IDisposable
     /// <inheritdoc />
     public async Task<IReadOnlyList<Credential>> ListCredentialsAsync(string userId, CancellationToken cancellationToken = default)
     {
-        var response = await _client.GetFromJsonAsync(
+        var response = await _http.GetFromJsonAsync(
             $"credentials/list?userid={userId}",
             PasswordlessSerializerContext.Default.ListResponseCredential,
             cancellationToken);
@@ -142,7 +139,7 @@ public class PasswordlessClient : IPasswordlessClient, IDisposable
     /// <inheritdoc />
     public async Task DeleteCredentialAsync(string id, CancellationToken cancellationToken = default)
     {
-        using var response = await _client.PostAsJsonAsync("credentials/delete",
+        using var response = await _http.PostAsJsonAsync("credentials/delete",
             new DeleteCredentialRequest(id),
             PasswordlessSerializerContext.Default.DeleteCredentialRequest,
             cancellationToken);
@@ -157,7 +154,7 @@ public class PasswordlessClient : IPasswordlessClient, IDisposable
     /// <inheritdoc />
     public async Task<UsersCount> GetUsersCountAsync(CancellationToken cancellationToken = default)
     {
-        return (await _client.GetFromJsonAsync(
+        return (await _http.GetFromJsonAsync(
             "users/count",
             PasswordlessSerializerContext.Default.UsersCount,
             cancellationToken))!;
@@ -167,8 +164,8 @@ public class PasswordlessClient : IPasswordlessClient, IDisposable
     {
         var sb = new StringBuilder();
         sb.Append("ApiUrl = ");
-        sb.Append(_client.BaseAddress);
-        if (_client.DefaultRequestHeaders.TryGetValues("ApiSecret", out var values))
+        sb.Append(_http.BaseAddress);
+        if (_http.DefaultRequestHeaders.TryGetValues("ApiSecret", out var values))
         {
             var apiSecret = values.First();
             if (apiSecret.Length > 5)
@@ -200,9 +197,7 @@ public class PasswordlessClient : IPasswordlessClient, IDisposable
     /// </summary>
     protected virtual void Dispose(bool disposing)
     {
-        if (disposing && _disposeClient)
-        {
-            _client.Dispose();
-        }
+        if (disposing)
+            _http.Dispose();
     }
 }
