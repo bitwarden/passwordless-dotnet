@@ -1,5 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
-using Microsoft.Extensions.Options;
 using Passwordless;
 
 // This is a trick to always show up in a class when people are registering services
