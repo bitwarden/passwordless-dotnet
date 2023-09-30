@@ -1,6 +1,4 @@
-using Microsoft.Extensions.DependencyInjection;
-
-namespace Passwordless.DataContext;
+namespace Passwordless.AspNetIdentity.Example.DataContext;
 
 public static class DataContextBootstrap
 {

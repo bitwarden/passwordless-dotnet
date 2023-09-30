@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Passwordless.AspNetIdentity.Example.DataContext;
 using Passwordless.DataContext;
 
 #nullable disable

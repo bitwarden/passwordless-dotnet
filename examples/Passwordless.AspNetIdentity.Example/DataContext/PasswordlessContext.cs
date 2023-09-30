@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace Passwordless.DataContext;
+namespace Passwordless.AspNetIdentity.Example.DataContext;
 
 public class PasswordlessContext : IdentityDbContext<IdentityUser, IdentityRole, string>
 {

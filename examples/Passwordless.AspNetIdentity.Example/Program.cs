@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Passwordless.AspNetCore;
-using Passwordless.DataContext;
+using Passwordless.AspNetIdentity.Example.DataContext;
 
 var builder = WebApplication.CreateBuilder(args);
 
