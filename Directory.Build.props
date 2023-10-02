@@ -16,11 +16,12 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <PasswordlessMajorVersion>1</PasswordlessMajorVersion>
+    <PasswordlessMajorVersion>2</PasswordlessMajorVersion>
     <PasswordlessMinorVersion>0</PasswordlessMinorVersion>
-    <PasswordlessPatchVersion>4</PasswordlessPatchVersion>
+    <PasswordlessPatchVersion>0</PasswordlessPatchVersion>
     <PasswordlessMajorMinorVersion>$(PasswordlessMajorVersion).$(PasswordlessMinorVersion)</PasswordlessMajorMinorVersion>
     <VersionPrefix>$(PasswordlessMajorMinorVersion).$(PasswordlessPatchVersion)</VersionPrefix>
+    <VersionSuffix>beta1</VersionSuffix>
   </PropertyGroup>
 
   <ItemGroup>

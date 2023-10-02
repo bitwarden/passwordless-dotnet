@@ -1,4 +1,4 @@
-# <img src="../../favicon.png" width="24" height="24" alt="Icon" /> Passwordless ASP.NET Core Integration 
+# Passwordless ASP.NET Core Integration 
 
 The official [Bitwarden Passwordless.dev](https://passwordless.dev) ASP.NET Identity integration. Automatically adds endpoints to verify passwordless signin and sign the user in using the existing ASP.NET Identity code.
 
