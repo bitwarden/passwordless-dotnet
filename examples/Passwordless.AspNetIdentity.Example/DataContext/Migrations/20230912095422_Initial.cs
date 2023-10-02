@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Passwordless.DataContext.Migrations;
+namespace Passwordless.AspNetIdentity.Example.DataContext.Migrations;
 
 /// <inheritdoc />
 public partial class Initial : Migration
