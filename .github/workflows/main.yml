@@ -123,9 +123,10 @@ jobs:
         id: prerelease-version
         if: ${{ github.event_name != 'release' }}
         run: |
+          time=$(date +%s)
           ref="${{ github.head_ref || github.ref_name }}"
           ref_clean="${ref/\//-}"
-          suffix="ci-$ref_clean-${{ github.run_id }}"
+          suffix="ci-$time-$ref_clean-${{ github.run_id }}"
           echo "version=0.0.0-$suffix" >> $GITHUB_OUTPUT
 
       - name: Run pack
