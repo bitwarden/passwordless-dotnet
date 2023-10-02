@@ -87,3 +87,4 @@ jobs:
           --base main
           --head $BUMP_BRANCH_NAME
           --title "Bump version to ${{ inputs.version }}"
+          --body "This is an automated pull request that bumps the version to ${{ inputs.version }}."
