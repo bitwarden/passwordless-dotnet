@@ -1,6 +1,7 @@
 <Project>
 
   <PropertyGroup>
+    <Version>2.0.0-beta1</Version>
     <CurrentPreviewTfm>net8.0</CurrentPreviewTfm>
     <!--<IncludePreview>true</IncludePreview>-->
     <IncludePreview Condition="'$(IncludePreview)' == ''">false</IncludePreview>
@@ -13,15 +14,6 @@
     <WarningsAsErrors>nullable</WarningsAsErrors>
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
     <IsPackable>false</IsPackable>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <PasswordlessMajorVersion>2</PasswordlessMajorVersion>
-    <PasswordlessMinorVersion>0</PasswordlessMinorVersion>
-    <PasswordlessPatchVersion>0</PasswordlessPatchVersion>
-    <PasswordlessMajorMinorVersion>$(PasswordlessMajorVersion).$(PasswordlessMinorVersion)</PasswordlessMajorMinorVersion>
-    <VersionPrefix>$(PasswordlessMajorMinorVersion).$(PasswordlessPatchVersion)</VersionPrefix>
-    <VersionSuffix>beta1</VersionSuffix>
   </PropertyGroup>
 
   <ItemGroup>
