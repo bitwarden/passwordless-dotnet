@@ -25,8 +25,8 @@ jobs:
       - name: Get current version
         id: current-version
         run: |
-          props_file=$(cat Directory.Build.props)
-          version=$(echo "$props_file" | grep -oPm1 "(?<=<Version>)[^<]*")
+          props=$(cat Directory.Build.props)
+          version=$(echo "$props" | grep -oPm1 "(?<=<Version>)[^<]*")
           echo "version=$version" >> $GITHUB_OUTPUT
 
       - name: Validate new version
