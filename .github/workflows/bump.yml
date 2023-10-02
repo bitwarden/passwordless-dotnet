@@ -31,8 +31,7 @@ jobs:
 
       - name: Validate new version
         run: >
-          npx semver@7.5.4
-          "${{ inputs.version }}"
+          npx semver@7.5.4 "${{ inputs.version }}"
           --range "> ${{ steps.current-version.outputs.version }}"
           --include-prerelease
 
