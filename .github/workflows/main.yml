@@ -123,10 +123,11 @@ jobs:
         id: prerelease-version
         if: ${{ github.event_name != 'release' }}
         run: |
+          time=$(date +%s)
           ref="${{ github.head_ref || github.ref_name }}"
           ref_clean="${ref/\//-}"
-          suffix="ci-${ref_clean}-${{ github.run_id }}"
-          echo "suffix=${suffix}" >> $GITHUB_OUTPUT
+          suffix="ci-$time-$ref_clean-${{ github.run_id }}"
+          echo "version=0.0.0-$suffix" >> $GITHUB_OUTPUT
 
       - name: Run pack
         run: >
@@ -135,7 +136,7 @@ jobs:
           --no-build
           --configuration Release
           -p:ContinuousIntegrationBuild=true
-          ${{ steps.prerelease-version.outputs.suffix && format('--version-suffix {0}', steps.prerelease-version.outputs.suffix) || '' }}
+          ${{ steps.prerelease-version.outputs.version && format('-p:Version={0}', steps.prerelease-version.outputs.version) || '' }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
