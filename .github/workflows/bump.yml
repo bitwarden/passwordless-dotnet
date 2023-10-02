@@ -30,11 +30,10 @@ jobs:
           echo "version=$version" >> $GITHUB_OUTPUT
 
       - name: Validate new version
-        run: |
-          if npx semver "${{ inputs.version }}" --range "<= ${{ steps.current-version.outputs.version }}"; then
-            echo "New version must be greater than the current version"
-            exit 1
-          fi
+        run: >
+          npx semver "${{ inputs.version }}"
+          --range "> ${{ steps.current-version.outputs.version }}"
+          --include-prerelease
 
   # Update version and commit
   update:
