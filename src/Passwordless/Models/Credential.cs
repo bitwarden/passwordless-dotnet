@@ -9,20 +9,6 @@ public class Credential
     /// <summary>
     /// Initializes an instance of <see cref="Credential"/>
     /// </summary>
-    /// <param name="descriptor"><see cref="Descriptor"/></param>
-    /// <param name="publicKey"><see cref="PublicKey"/></param>
-    /// <param name="userHandle"><see cref="UserHandle"/></param>
-    /// <param name="signatureCounter"><see cref="SignatureCounter"/></param>
-    /// <param name="attestationFmt"><see cref="AttestationFmt"/></param>
-    /// <param name="createdAt"><see cref="CreatedAt"/></param>
-    /// <param name="aaGuid"><see cref="AaGuid"/></param>
-    /// <param name="lastUsedAt"><see cref="LastUsedAt"/></param>
-    /// <param name="rpid"><see cref="RPID"/></param>
-    /// <param name="origin"><see cref="Origin"/></param>
-    /// <param name="country"><see cref="Country"/></param>
-    /// <param name="device"><see cref="Device"/></param>
-    /// <param name="nickname"><see cref="Nickname"/></param>
-    /// <param name="userId"><see cref="UserId"/></param>
     public Credential(CredentialDescriptor descriptor, byte[] publicKey, byte[] userHandle, uint signatureCounter,
         string attestationFmt, DateTime createdAt, Guid aaGuid, DateTime lastUsedAt, string rpid,
         string origin, string country, string device, string nickname, string userId)
@@ -48,56 +34,69 @@ public class Credential
     /// <see href="https://w3c.github.io/webauthn/#enumdef-publickeycredentialtype" />
     /// </summary>
     public CredentialDescriptor Descriptor { get; }
+    
     /// <summary>
     /// Public key of the passkey pair.
     /// </summary>
     public byte[] PublicKey { get; }
+    
     /// <summary>
     /// Byte array of user identifier
     /// </summary>
     public byte[] UserHandle { get; }
+    
     /// <summary>
     /// Number of times credential has been used
     /// </summary>
     public uint SignatureCounter { get; }
+    
     /// <summary>
     /// Attestation Statement format used to create credential
     /// </summary>
     public string AttestationFmt { get; }
+    
     /// <summary>
     /// When the credential was created 
     /// </summary>
     public DateTime CreatedAt { get; }
+    
     /// <summary>
     /// The AAGUID of the authenticator. Can be used to identify the make and model of the authenticator.
     /// <see href="https://www.w3.org/TR/webauthn/#aaguid"/>
     /// </summary>
     public Guid AaGuid { get; }
+    
     /// <summary>
     /// Last time credential was used
     /// </summary>
     public DateTime LastUsedAt { get; }
+    
     /// <summary>
     /// Relying Party identifier
     /// <see href="https://w3c.github.io/webauthn/#dom-publickeycredentialcreationoptions-rp"/>
     /// </summary>
     public string RPID { get; }
+    
     /// <summary>
     /// Domain credential was created for
     /// </summary>
     public string Origin { get; }
+    
     /// <summary>
     /// Optional country credential was created in
     /// </summary>
     public string Country { get; }
+    
     /// <summary>
     /// Device the credential was created on
     /// </summary>
     public string Device { get; }
+    
     /// <summary>
     /// Friendly name for credential.
     /// </summary>
     public string Nickname { get; }
+    
     /// <summary>
     /// Identifier for the user
     /// </summary>
