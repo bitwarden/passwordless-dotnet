@@ -22,10 +22,12 @@ public class AliasPointer
     /// Identifier for the user
     /// </summary>
     public string UserId { get; }
+
     /// <summary>
     /// Hashed value of the user's alias
     /// </summary>
     public string Alias { get; }
+
     /// <summary>
     /// Plaintext value of user's alias.
     /// </summary>
