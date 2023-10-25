@@ -73,7 +73,7 @@ public static class IdentityBuilderExtensions
         string? defaultScheme)
     {
         // If a default scheme was passed in (ASP.NET Identity in use) then configure our option to take that one
-        // but still call their configure callback after so they have the oppurtunity to override it.
+        // but still call their configure callback after so they have the opportunity to override it.
         if (!string.IsNullOrEmpty(defaultScheme))
         {
             services.Configure<PasswordlessAspNetCoreOptions>(options => options.SignInScheme = defaultScheme);
@@ -82,7 +82,7 @@ public static class IdentityBuilderExtensions
         services.Configure(configure);
 
         // Add the SDK services but don't configure it there since ASP.NET Core options are a superset of their options.
-        services.AddPasswordlessSdk(passwordlessOptions => { });
+        services.AddPasswordlessSdk(_ => { });
 
         services.TryAddScoped(
             typeof(IPasswordlessService<PasswordlessRegisterRequest>),

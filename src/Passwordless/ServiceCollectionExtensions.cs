@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Options;
 using Passwordless;
 
 // This is a trick to always show up in a class when people are registering services
@@ -20,7 +21,11 @@ public static class ServiceCollectionExtensions
             .PostConfigure(options => options.ApiUrl ??= PasswordlessOptions.CloudApiUrl)
             .Validate(options => !string.IsNullOrEmpty(options.ApiSecret), "Passwordless: Missing ApiSecret");
 
-        services.AddHttpClient<IPasswordlessClient, PasswordlessClient>();
+        services.AddHttpClient<IPasswordlessClient, PasswordlessClient>((http, sp) =>
+            // Above call to services.AddOptions<...> only registers IOptions<PasswordlessOptions>, not
+            // PasswordlessOptions itself, so we need to resolve it manually.
+            new PasswordlessClient(http, sp.GetRequiredService<IOptions<PasswordlessOptions>>().Value)
+        );
 
         // TODO: Get rid of this service, all consumers should use the interface
         services.AddTransient(sp => (PasswordlessClient)sp.GetRequiredService<IPasswordlessClient>());
