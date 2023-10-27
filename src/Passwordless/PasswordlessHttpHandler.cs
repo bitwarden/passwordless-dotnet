@@ -17,13 +17,15 @@ internal class PasswordlessHttpHandler : HttpMessageHandler
     }
 
     protected override async Task<HttpResponseMessage> SendAsync(
-        HttpRequestMessage request,
+        HttpRequestMessage providedRequest,
         CancellationToken cancellationToken)
     {
+        // Clone the request to reset its completion status, which is required
+        // because we're crossing the boundary between two HTTP clients.
+        using var request = providedRequest.Clone();
+
         var response = await _http.SendAsync(
-            // Clone the request to reset its completion status, which is required
-            // because we're crossing the boundary between two HTTP clients.
-            request.Clone(),
+            request,
             HttpCompletionOption.ResponseHeadersRead,
             cancellationToken
         );
