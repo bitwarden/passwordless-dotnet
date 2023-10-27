@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using Passwordless.Helpers;
+using Passwordless.Helpers.Extensions;
 
 namespace Passwordless;
 
@@ -16,10 +17,18 @@ internal class PasswordlessHttpHandler : HttpMessageHandler
     }
 
     protected override async Task<HttpResponseMessage> SendAsync(
-        HttpRequestMessage request,
+        HttpRequestMessage providedRequest,
         CancellationToken cancellationToken)
     {
-        var response = await _http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+        // Clone the request to reset its completion status, which is required
+        // because we're crossing the boundary between two HTTP clients.
+        using var request = providedRequest.Clone();
+
+        var response = await _http.SendAsync(
+            request,
+            HttpCompletionOption.ResponseHeadersRead,
+            cancellationToken
+        );
 
         // On failed requests, check if responded with ProblemDetails and provide a nicer error if so
         if (!request.ShouldSkipErrorHandling() &&

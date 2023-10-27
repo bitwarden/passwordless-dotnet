@@ -64,7 +64,7 @@ jobs:
       fail-fast: false
       max-parallel: 3
       matrix:
-        os: [ ubuntu-latest, windows-latest ]
+        os: [ubuntu-latest, windows-latest]
 
     steps:
       - name: Checkout
@@ -118,7 +118,7 @@ jobs:
           -p:ContinuousIntegrationBuild=true
 
       # When triggered by `push` or `pull_request` events, generate a prerelease version
-      # for the package, so as to clearly indicate that it's not a stable version release.
+      # for the packages, so as to clearly indicate that it's not a stable version release.
       - name: Generate prerelease version
         id: prerelease-version
         if: ${{ github.event_name != 'release' }}
@@ -132,7 +132,7 @@ jobs:
           
           echo "version=0.0.0-ci-$time-$ref_clean" >> $GITHUB_OUTPUT
 
-      - name: Run pack
+      - name: Create packages
         run: >
           dotnet pack
           --no-restore
@@ -155,6 +155,7 @@ jobs:
       - format
       - test
       - pack
+
     runs-on: ubuntu-latest
     permissions:
       actions: read
@@ -201,5 +202,5 @@ jobs:
             Content-Type: application/json; charset=UTF-8
           body: |
             {
-              "text": "**Passwordless-dotnet**, new version released! 🎉\nVersion: `${{ github.event.release.name }}`\nDetails: ${{ github.event.release.html_url }}"
+              "text": "*Passwordless-dotnet* version `${{ github.event.release.name }}` has been released! 🎉\nDetails: ${{ github.event.release.html_url }}"
             }
