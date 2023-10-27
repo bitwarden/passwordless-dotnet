@@ -1,3 +1,2 @@
 example.db
-example.db-shm
-example.db-wal
+example.db-*
