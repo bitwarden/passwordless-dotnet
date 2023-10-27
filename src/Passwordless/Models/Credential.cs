@@ -46,7 +46,7 @@ public class Credential
     public byte[] UserHandle { get; }
 
     /// <summary>
-    /// Number of times credential has been used
+    /// WebAuthn SignatureCounter, used for anti forgery. 
     /// </summary>
     public uint SignatureCounter { get; }
 
