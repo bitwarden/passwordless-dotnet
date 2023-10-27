@@ -1,7 +1,7 @@
 ﻿namespace Passwordless;
 
 /// <summary>
-/// Store credential used to authenticate users. Follows WebAuthN specification
+/// The passkey credential stored by Passwordless
 /// <see href="https://www.w3.org/TR/webauthn-2/#public-key-credential"/>
 /// </summary>
 public class Credential
