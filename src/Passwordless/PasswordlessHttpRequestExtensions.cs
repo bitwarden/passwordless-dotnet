@@ -24,8 +24,7 @@ internal static class PasswordlessHttpRequestExtensions
         return request.Options.TryGetValue(SkipErrorHandlingOption, out var doNotErrorHandle) && doNotErrorHandle;
 #elif NET462 || NETSTANDARD2_0
         return request.Properties.TryGetValue(SkipErrorHandlingOption, out var shouldSkipOptionObject)
-            && shouldSkipOptionObject is bool shouldSkipOption
-            && shouldSkipOption;
+               && shouldSkipOptionObject is true;
 #endif
     }
 }
