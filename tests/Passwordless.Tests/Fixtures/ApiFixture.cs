@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using DotNet.Testcontainers.Builders;
@@ -10,75 +11,87 @@ namespace Passwordless.Tests.Fixtures;
 
 public class ApiFixture : IAsyncLifetime
 {
-    private const string DatabasePassword = "Password1!";
-    private const string ManagementKey = "FooBar";
-
     private readonly HttpClient _http = new();
 
-    public INetwork Network { get; }
-    public IContainer MssqlContainer { get; }
-    public IContainer ApiContainer { get; }
+    private readonly INetwork _network;
+    private readonly MsSqlContainer _databaseContainer;
+    private readonly IContainer _apiContainer;
 
+    private string ExposedApiUrl => $"http://localhost:{_apiContainer.GetMappedPublicPort(80)}";
+
+    // TODO: route container logs to test output
     public ApiFixture()
     {
-        Network = new NetworkBuilder()
-            .WithName("Passwordless.NET.Tests")
+        const string ManagementKey = "yourStrong(!)ManagementKey";
+
+        _network = new NetworkBuilder()
             .Build();
 
-        MssqlContainer = new MsSqlBuilder()
-            .WithPassword(DatabasePassword)
-            .WithNetwork(Network)
+        _databaseContainer = new MsSqlBuilder()
+            .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
+            .WithNetwork(_network)
+            .WithNetworkAliases("database")
             .Build();
 
-        ApiContainer = new ContainerBuilder()
+        _apiContainer = new ContainerBuilder()
             .WithImage("api") // temp
-            .WithNetwork(Network)
+            .WithNetwork(_network)
+            // Run in development environment to execute migrations
+            .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
             .WithEnvironment("ConnectionStrings__sqlite:api", "")
             .WithEnvironment("ConnectionStrings__mssql:api",
-                $"Server={MssqlContainer.Hostname},1433;" +
-                $"Database=passwordless_dev;" +
-                $"User Id=sa;" +
-                $"Password=${DatabasePassword};"
+                $"Server=database,{MsSqlBuilder.MsSqlPort};" +
+                $"Database=Passwordless;" +
+                $"User Id={MsSqlBuilder.DefaultUsername};" +
+                $"Password={MsSqlBuilder.DefaultPassword};" +
+                "Trust Server Certificate=true;" +
+                "Trusted_Connection=false;"
             )
             .WithEnvironment("PasswordlessManagement__ManagementKey", ManagementKey)
             .WithPortBinding(80, true)
+            // Wait until the API is ready to accept requests and perform migrations at the same time
+            .WithWaitStrategy(Wait
+                .ForUnixContainer()
+                .UntilHttpRequestIsSucceeded(r => r
+                    .ForPath("/")
+                    .ForStatusCode(HttpStatusCode.OK)))
             .Build();
+
+        _http.DefaultRequestHeaders.Add("ManagementKey", ManagementKey);
     }
 
     public async Task InitializeAsync()
     {
-        await Network.CreateAsync();
-        await MssqlContainer.StartAsync();
-        await ApiContainer.StartAsync();
+        await _network.CreateAsync();
+        await _databaseContainer.StartAsync();
+        await _apiContainer.StartAsync();
     }
 
     public async Task<PasswordlessClient> CreateClientAsync()
     {
         // Create an app in the API
-        var apiUrl = $"http://localhost:{ApiContainer.GetMappedPublicPort(80)}";
-
-        using var request = new HttpRequestMessage(HttpMethod.Post, $"{apiUrl}/admin/apps/{Guid.NewGuid():N}/create");
-        request.Content = JsonContent.Create(new { AdminEmail = "foo@bar.com", EventLoggingIsEnabled = true });
-        request.Headers.Add("ManagementKey", ManagementKey);
-
-        using var response = await _http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+        using var response = await _http.PostAsJsonAsync(
+            $"{ExposedApiUrl}/admin/apps/app{Guid.NewGuid():N}/create",
+            new { AdminEmail = "foo@bar.com", EventLoggingIsEnabled = true }
+        );
 
         if (!response.IsSuccessStatusCode)
         {
             throw new InvalidOperationException(
-                "Failed to create an app. Response body: " +
-                await response.Content.ReadAsStringAsync()
+                $"Failed to create an app. " +
+                $"Status code: {(int)response.StatusCode}. " +
+                $"Response body: {await response.Content.ReadAsStringAsync()}."
             );
         }
 
         var responseContent = await response.Content.ReadFromJsonAsync<JsonElement>();
-        var apiKey = responseContent.GetProperty("ApiKey1").GetString();
-        var apiSecret = responseContent.GetProperty("ApiSecret1").GetString();
+        var apiKey = responseContent.GetProperty("apiKey1").GetString();
+        var apiSecret = responseContent.GetProperty("apiSecret1").GetString();
 
         // Configure client
         var options = new PasswordlessOptions
         {
-            ApiUrl = apiUrl,
+            ApiUrl = ExposedApiUrl,
             ApiKey = apiKey,
             ApiSecret = apiSecret ??
                         throw new InvalidOperationException("Cannot extract API Secret from the response.")
@@ -89,13 +102,9 @@ public class ApiFixture : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
-        await ApiContainer.StopAsync();
-        await MssqlContainer.StopAsync();
-        await Network.DeleteAsync();
-
-        await ApiContainer.DisposeAsync();
-        await MssqlContainer.DisposeAsync();
-        await Network.DisposeAsync();
+        await _apiContainer.DisposeAsync();
+        await _databaseContainer.DisposeAsync();
+        await _network.DisposeAsync();
 
         _http.Dispose();
     }
