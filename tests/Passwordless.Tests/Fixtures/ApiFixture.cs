@@ -34,7 +34,9 @@ public class ApiFixture : IAsyncLifetime
             .Build();
 
         _apiContainer = new ContainerBuilder()
-            .WithImage("api") // temp
+            // https://github.com/passwordless/passwordless-server/pkgs/container/api-test-server
+            // Note: replace with ':stable' after the next release of the server.
+            .WithImage("ghcr.io/passwordless/api-test-server:latest")
             .WithNetwork(_network)
             // Run in development environment to execute migrations
             .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
