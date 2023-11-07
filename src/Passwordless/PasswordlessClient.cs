@@ -21,7 +21,14 @@ public class PasswordlessClient : IPasswordlessClient, IDisposable
             BaseAddress = new Uri(options.ApiUrl),
             DefaultRequestHeaders =
             {
-                {"ApiSecret", options.ApiSecret}
+                {
+                    "ApiSecret",
+                    options.ApiSecret
+                },
+                {
+                    "Client-Version",
+                    $".NET-{typeof(PasswordlessClient).Assembly.GetName().Version.ToString(3)}"
+                }
             }
         };
 
