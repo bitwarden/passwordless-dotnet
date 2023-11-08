@@ -1,22 +1,22 @@
 using Passwordless.Tests.Fixtures;
+using Passwordless.Tests.Infra;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Passwordless.Tests;
 
-public class Tests : IClassFixture<ApiFixture>
+public class Tests : ApiTestBase
 {
-    private readonly ApiFixture _api;
-
-    public Tests(ApiFixture api)
+    public Tests(TestApiFixture api, ITestOutputHelper testOutput)
+        : base(api, testOutput)
     {
-        _api = api;
     }
 
     [Fact]
     public async Task Test()
     {
         // Arrange
-        var passwordless = await _api.CreateClientAsync();
+        var passwordless = await Api.CreateClientAsync();
 
         // Act
         var users = await passwordless.ListUsersAsync();
