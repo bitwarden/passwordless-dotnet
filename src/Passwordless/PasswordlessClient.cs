@@ -11,6 +11,11 @@ namespace Passwordless;
 [DebuggerDisplay("{DebuggerToString(),nq}")]
 public class PasswordlessClient : IPasswordlessClient, IDisposable
 {
+    private static readonly string SdkVersion =
+        typeof(PasswordlessClient).Assembly.GetName().Version?.ToString(3) ??
+        // This should never happen, unless the assembly had its metadata trimmed
+        "unknown";
+
     private readonly HttpClient _http;
     private readonly PasswordlessOptions _options;
 
@@ -21,7 +26,14 @@ public class PasswordlessClient : IPasswordlessClient, IDisposable
             BaseAddress = new Uri(options.ApiUrl),
             DefaultRequestHeaders =
             {
-                {"ApiSecret", options.ApiSecret}
+                {
+                    "ApiSecret",
+                    options.ApiSecret
+                },
+                {
+                    "Client-Version",
+                    $".NET-{SdkVersion}"
+                }
             }
         };
 
