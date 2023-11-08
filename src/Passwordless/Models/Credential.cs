@@ -101,4 +101,19 @@ public class Credential
     /// Identifier for the user
     /// </summary>
     public string UserId { get; }
+
+    /// <summary>
+    /// Whether the credential is synced (or backed up or not).
+    /// </summary>
+    public bool? BackupState { get; set; }
+
+    /// <summary>
+    /// Whether the credential is eligible for backup or syncing
+    /// </summary>
+    public bool? IsBackupEligible { get; set; }
+
+    /// <summary>
+    /// Whether the credential is discoverable
+    /// </summary>
+    public bool? IsDiscoverable { get; set; }
 }
