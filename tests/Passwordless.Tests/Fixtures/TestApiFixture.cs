@@ -5,6 +5,7 @@ using System.Text.Json;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using DotNet.Testcontainers.Networks;
+using Microsoft.Extensions.DependencyInjection;
 using Testcontainers.MsSql;
 using Xunit;
 
@@ -83,7 +84,7 @@ public class TestApiFixture : IAsyncLifetime
         await _apiContainer.StartAsync();
     }
 
-    public async Task<PasswordlessClient> CreateClientAsync()
+    public async Task<IPasswordlessClient> CreateClientAsync()
     {
         using var response = await _http.PostAsJsonAsync(
             $"{PublicApiUrl}/admin/apps/app{Guid.NewGuid():N}/create",
@@ -103,13 +104,17 @@ public class TestApiFixture : IAsyncLifetime
         var apiKey = responseContent.GetProperty("apiKey1").GetString();
         var apiSecret = responseContent.GetProperty("apiSecret1").GetString();
 
-        return new PasswordlessClient(_http, new PasswordlessOptions
+        var services = new ServiceCollection();
+
+        services.AddPasswordlessSdk(options =>
         {
-            ApiUrl = PublicApiUrl,
-            ApiKey = apiKey,
-            ApiSecret = apiSecret ??
-                        throw new InvalidOperationException("Cannot extract API Secret from the response.")
+            options.ApiUrl = PublicApiUrl;
+            options.ApiKey = apiKey;
+            options.ApiSecret = apiSecret ??
+                                throw new InvalidOperationException("Cannot extract API Secret from the response.");
         });
+
+        return services.BuildServiceProvider().GetRequiredService<IPasswordlessClient>();
     }
 
     public string GetLogs()
@@ -130,16 +135,9 @@ public class TestApiFixture : IAsyncLifetime
             _apiContainerStdErr.ToArray()
         );
 
+        // API logs are typically more relevant, so put them first
         return
             $"""
-             # Database container STDOUT:
-
-             {databaseContainerStdOutText}
-
-             # Database container STDERR:
-
-             {databaseContainerStdErrText}
-
              # API container STDOUT:
 
              {apiContainerStdOutText}
@@ -147,6 +145,14 @@ public class TestApiFixture : IAsyncLifetime
              # API container STDERR:
 
              {apiContainerStdErrText}
+             
+             # Database container STDOUT:
+             
+             {databaseContainerStdOutText}
+             
+             # Database container STDERR:
+             
+             {databaseContainerStdErrText}
              """;
     }
 

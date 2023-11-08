@@ -1,4 +1,5 @@
 {
   "$schema": "https://xunit.net/schema/current/xunit.runner.schema.json",
-  "methodDisplayOptions": "all"
+  "methodDisplayOptions": "all",
+  "methodDisplay": "method"
 }
