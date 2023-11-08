@@ -84,14 +84,18 @@ jobs:
 
   # Run tests
   test:
-    runs-on: ${{ matrix.os }}
-    permissions:
-      contents: read
-
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os:
+          - ubuntu-latest
+          # Windows runners don't support Linux Docker containers (needed for tests),
+          # so we currently cannot run tests on Windows.
+          # - windows-latest
+
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout
