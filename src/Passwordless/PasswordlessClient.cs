@@ -14,7 +14,7 @@ public class PasswordlessClient : IPasswordlessClient, IDisposable
     private static readonly string SdkVersion =
         typeof(PasswordlessClient).Assembly.GetName().Version?.ToString(3) ??
         // This should never happen, unless the assembly had its metadata trimmed
-        throw new InvalidOperationException("Could not determine SDK version.");
+        "unknown";
 
     private readonly HttpClient _http;
     private readonly PasswordlessOptions _options;
