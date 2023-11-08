@@ -44,7 +44,7 @@ public class TestApiFixture : IAsyncLifetime
             .Build();
 
         _apiContainer = new ContainerBuilder()
-            // https://github.com/passwordless/passwordless-server/pkgs/container/api-test-server
+            // https://github.com/passwordless/passwordless-server/pkgs/container/passwordless-test-api
             // TODO: replace with ':stable' after the next release of the server.
             .WithImage("ghcr.io/passwordless/passwordless-test-api:latest")
             .WithNetwork(_network)
