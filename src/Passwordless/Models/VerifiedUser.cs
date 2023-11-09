@@ -20,6 +20,7 @@ public class VerifiedUser
         TokenId = tokenId;
         Type = type;
     }
+
     public string UserId { get; }
     public byte[] CredentialId { get; }
     public bool Success { get; }
