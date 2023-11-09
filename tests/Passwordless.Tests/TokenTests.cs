@@ -36,19 +36,28 @@ public class TokenTests : ApiTestBase
         var passwordless = await Api.CreateClientAsync();
 
         // Act & assert
-        await Assert.ThrowsAnyAsync<Exception>(async () =>
+        var ex = await Assert.ThrowsAnyAsync<PasswordlessApiException>(async () =>
             await passwordless.VerifyTokenAsync("invalid")
         );
+
+        ex.Details.Status.Should().Be(400);
+        ex.Details.Title.Should().NotBeNullOrWhiteSpace();
     }
 
-    [Fact(Skip = "Need to figure out a syntactically correct token that is invalid")]
+    [Fact]
     public async Task I_can_try_to_verify_an_invalid_signin_token_and_get_a_null_response()
     {
         // Arrange
         var passwordless = await Api.CreateClientAsync();
 
         // Act
-        var response = await passwordless.VerifyTokenAsync("verify_foobar");
+        var response = await passwordless.VerifyTokenAsync(
+            "verify_" +
+            "k8Qg4kXVl8D2aunn__jMT7td5endUueS9zEG8zIsu0lqQjfFAQXcABPX_wlDNbBlTNiB2SQ5MjQ0ZmUzYS0wOGExLTRlMTctOTMwZS1i" +
+            "YWZhNmM0OWJiOGWucGFzc2tleV9zaWduaW7AwMDAwMDA2SQ3NGUxMzFjOS0yNDZhLTRmNzYtYjIxMS1jNzBkZWQ1Mjg2YzLX_wlDJIBl" +
+            "TNgJv2FkbWluY29uc29sZTAxLmxlc3NwYXNzd29yZC5kZXbZJ2h0dHBzOi8vYWRtaW5jb25zb2xlMDEubGVzc3Bhc3N3b3JkLmRldsOy" +
+            "Q2hyb21lLCBXaW5kb3dzIDEwolVBqXRlc3Rlc3RzZcQghR4WgXh0HvbrT27GvP0Pkk4HmfL2b0ucVVSRlDElp_fOeb02NQ"
+        );
 
         // Assert
         response.Should().BeNull();
