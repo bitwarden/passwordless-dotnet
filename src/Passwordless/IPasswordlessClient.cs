@@ -75,14 +75,15 @@ public interface IPasswordlessClient
     Task<IReadOnlyList<PasswordlessUserSummary>> ListUsersAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Verifies that the given token is valid and returns information packed into it. The token should have been generated
-    /// via calling a <c>signInWith*</c> method from your frontend code.
+    /// Verifies that the given token is valid and returns information packed into it.
+    /// The token should have been generated via calling a <c>signInWith*</c> method from your frontend code.
+    /// If the token is not valid, an exception of type <see cref="PasswordlessApiException" /> will be thrown.
     /// </summary>
     /// <param name="verifyToken">The token to verify.</param>
     /// <param name="cancellationToken"></param>
     /// <returns>A task object representing the asynchronous operation containing the <see cref="VerifiedUser" />.</returns>
     /// <exception cref="PasswordlessApiException">An exception containing details about the reason for failure.</exception>
-    Task<VerifiedUser?> VerifyTokenAsync(string verifyToken, CancellationToken cancellationToken = default);
+    Task<VerifiedUser> VerifyTokenAsync(string verifyToken, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Deletes a user.
