@@ -311,7 +311,7 @@ public class PasswordlessServiceTests
     {
         _mockPasswordlessClient
             .Setup(s => s.VerifyTokenAsync("test_token", default))
-            .Returns(Task.FromResult<VerifiedUser?>(null));
+            .Returns(Task.FromResult<VerifiedUser>(null!));
 
         var sut = CreateSut();
 

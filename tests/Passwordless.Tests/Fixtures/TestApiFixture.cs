@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
+using DotNet.Testcontainers.Images;
 using DotNet.Testcontainers.Networks;
 using Microsoft.Extensions.DependencyInjection;
 using Testcontainers.MsSql;
@@ -47,6 +48,8 @@ public class TestApiFixture : IAsyncLifetime
             // https://github.com/passwordless/passwordless-server/pkgs/container/passwordless-test-api
             // TODO: replace with ':stable' after the next release of the server.
             .WithImage("ghcr.io/passwordless/passwordless-test-api:latest")
+            // Make sure we always have the latest version of the image
+            .WithImagePullPolicy(PullPolicy.Always)
             .WithNetwork(_network)
             // Run in development environment to execute migrations
             .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")

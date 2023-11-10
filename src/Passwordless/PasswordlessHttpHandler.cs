@@ -30,12 +30,12 @@ internal class PasswordlessHttpHandler : HttpMessageHandler
             cancellationToken
         );
 
-        // On failed requests, check if responded with ProblemDetails and provide a nicer error if so
-        if (!request.ShouldSkipErrorHandling() &&
-            !response.IsSuccessStatusCode &&
-            string.Equals(response.Content.Headers.ContentType?.MediaType,
+        // Provide nice errors for problem details responses
+        if (string.Equals(
+                response.Content.Headers.ContentType?.MediaType,
                 "application/problem+json",
-                StringComparison.OrdinalIgnoreCase))
+                StringComparison.OrdinalIgnoreCase)
+        )
         {
             var problemDetails = await response.Content.ReadFromJsonAsync(
                 PasswordlessSerializerContext.Default.PasswordlessProblemDetails,
