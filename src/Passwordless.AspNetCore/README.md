@@ -2,36 +2,9 @@
 
 The official [Bitwarden Passwordless.dev](https://passwordless.dev) ASP.NET Identity integration. Automatically adds endpoints to verify passwordless signin and sign the user in using the existing ASP.NET Identity code.
 
-## Installation
+## Install
 
-Install the [NuGet Package](https://nuget.org/packages/Passwordless.AspNetCore):
-
-- Using the [.NET CLI](https://docs.microsoft.com/en-us/dotnet/core/tools):
-
-    ```sh
-    dotnet add package Passwordless.AspNetCore
-    ```
-
-- Using the [NuGet CLI](https://docs.microsoft.com/en-us/nuget/tools/nuget-exe-cli-reference):
-
-    ```sh
-    nuget install Passwordless.AspNetCore
-    ```
-
-- Using the [Package Manager Console](https://docs.microsoft.com/en-us/nuget/tools/package-manager-console):
-
-    ```powershell
-    Install-Package Passwordless.AspNetCore
-    ```
-
-- From within Visual Studio:
-
-   1. Open the Solution Explorer.
-   2. Right-click on a project within your solution.
-   3. Click on *Manage NuGet Packages...*
-   4. Click on the *Browse* tab and search for "Passwordless.AspNetCore".
-   5. Click on the Passwordless.AspNetCore package, select the appropriate version in the
-      right-tab and click *Install*.
+- [NuGet](https://nuget.org/packages/Passwordless.AspNetCore): `dotnet add package Passwordless.AspNetCore`
 
 ## Usage
 
@@ -53,7 +26,7 @@ app.MapPasswordless();
 app.Run();
 ```
 
-### Using MVC
+### Using Startup class
 
 ```csharp
 // In Startup.cs
