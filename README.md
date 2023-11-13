@@ -2,36 +2,9 @@
 
 The official [Bitwarden Passwordless.dev](https://passwordless.dev) .NET library, supporting .NET Standard 2.0+, .NET Core 2.0+, and .NET Framework 4.6.2+.
 
-## Installation
+## Install
 
-Install the [NuGet Package](https://nuget.org/packages/Passwordless):
-
-- Using the [.NET CLI](https://docs.microsoft.com/en-us/dotnet/core/tools):
-
-    ```sh
-    dotnet add package Passwordless
-    ```
-
-- Using the [NuGet CLI](https://docs.microsoft.com/en-us/nuget/tools/nuget-exe-cli-reference):
-
-    ```sh
-    nuget install Passwordless
-    ```
-
-- Using the [Package Manager Console](https://docs.microsoft.com/en-us/nuget/tools/package-manager-console):
-
-    ```powershell
-    Install-Package Passwordless
-    ```
-
-- From within Visual Studio:
-
-  1. Open the Solution Explorer.
-  2. Right-click on a project within your solution.
-  3. Click on *Manage NuGet Packages...*
-  4. Click on the *Browse* tab and search for "Passwordless".
-  5. Click on the Passwordless package, select the appropriate version in the
-     right-tab and click *Install*.
+- [NuGet](https://nuget.org/packages/Passwordless): `dotnet add package Passwordless`
 
 ## See also
 
@@ -41,14 +14,16 @@ Integration packages:
 
 Examples:
 
-- [Passwordless.Example](examples/Passwordless.Example) — basic Passwordless.dev integration inside an ASP.NET Core app
+- [Passwordless.Example](examples/Passwordless.Example) — basic Passwordless.dev integration inside an ASP.NET app
 - [Passwordless.AspNetIdentity.Example](examples/Passwordless.AspNetIdentity.Example) — Passwordless.dev integration using ASP.NET Identity.
 
-## Getting started
+## Usage
 
 💡 See the full [Getting started guide](https://docs.passwordless.dev/guide/get-started.html) in the official documentation.
 
-### Register using Dependency Injection
+### Resolve the client
+
+Add Passwordless to your service container:
 
 ```csharp
 // In Program.cs or Startup.cs
@@ -59,7 +34,25 @@ services.AddPasswordlessSdk(options =>
 });
 ```
 
+Inject the client into your controller:
+
+```csharp
+public class HomeController : Controller
+{
+    private readonly IPasswordlessClient _passwordlessClient;
+
+    public HomeController(IPasswordlessClient passwordlessClient)
+    {
+        _passwordlessClient = passwordlessClient;
+    }
+    
+    // ...
+}
+```
+
 ### Register a passkey
+
+Define an action or an endpoint to generate a registration token:
 
 ```csharp
 [HttpGet("/create-token")]
@@ -93,6 +86,8 @@ public async Task<IActionResult> GetRegisterToken(string alias)
 ```
 
 ### Verify user
+
+Define an action or an endpoint to verify a signin token:
 
 ```csharp
 [HttpGet("/verify-signin")]
