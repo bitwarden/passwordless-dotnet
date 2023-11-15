@@ -10,17 +10,9 @@
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
     <WarningsAsErrors>nullable</WarningsAsErrors>
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <!--
-      The .NET Framework target doesn't seem to like this implicit using so we
-      have to bring it in for each file, so might as well remove it for .NET targets too.
-    -->
-    <Using Remove="System.Net.Http" />
-  </ItemGroup>
 </Project>

@@ -1,5 +1,7 @@
-﻿using System.Security.Claims;
+﻿using System;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Logging;
 
 namespace Passwordless.AspNetIdentity.Example.Pages.Authorized;
 

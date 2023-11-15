@@ -1,3 +1,5 @@
+using System;
+
 namespace Passwordless.AspNetCore;
 
 /// <summary>

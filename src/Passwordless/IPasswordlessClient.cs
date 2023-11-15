@@ -1,4 +1,7 @@
-﻿using Passwordless.Models;
+﻿using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Passwordless.Models;
 
 namespace Passwordless;
 
@@ -53,7 +56,7 @@ public interface IPasswordlessClient
     /// </summary>
     /// <param name="userId">The userId of the user for which the aliases will be returned.</param>
     /// <param name="cancellationToken"></param>
-    /// <returns>A task object representing the asynchronous operation containing the <see cref="IReadOnlyList{AliasPointer}" />.</returns>
+    /// <returns>A task object representing the asynchronous operation containing the <see cref="IReadOnlyList{T}" />.</returns>
     /// <exception cref="PasswordlessApiException">An exception containing details about the reason for failure.</exception>
     Task<IReadOnlyList<AliasPointer>> ListAliasesAsync(string userId, CancellationToken cancellationToken = default);
 

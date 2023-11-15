@@ -1,4 +1,6 @@
-﻿namespace Passwordless;
+﻿using System;
+
+namespace Passwordless;
 
 /// <summary>
 /// The passkey credential stored by Passwordless
