@@ -63,7 +63,7 @@ public class TestApiFixture : IAsyncLifetime
                 "Trusted_Connection=false;"
             )
             .WithEnvironment("PasswordlessManagement__ManagementKey", managementKey)
-            .WithPortBinding(80, true)
+            .WithPortBinding(8080, true)
             // Wait until the API is launched, has performed migrations, and is ready to accept requests
             .WithWaitStrategy(Wait
                 .ForUnixContainer()
