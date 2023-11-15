@@ -2,9 +2,6 @@
 
   <PropertyGroup>
     <Version>2.0.0-beta4</Version>
-    <CurrentPreviewTfm>net8.0</CurrentPreviewTfm>
-    <!--<IncludePreview>true</IncludePreview>-->
-    <IncludePreview Condition="'$(IncludePreview)' == ''">false</IncludePreview>
   </PropertyGroup>
 
   <PropertyGroup>
