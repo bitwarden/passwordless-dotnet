@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
@@ -75,6 +76,7 @@ public class TestApiFixture : IAsyncLifetime
                     .ForPath("/")
                     .ForStatusCode(HttpStatusCode.OK)
                 )
+                .UntilOperationIsSucceeded(() => true, 1)
             )
             .WithOutputConsumer(
                 Consume.RedirectStdoutAndStderrToStream(_apiContainerStdOut, _apiContainerStdErr)
@@ -86,9 +88,27 @@ public class TestApiFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        await _network.CreateAsync();
-        await _databaseContainer.StartAsync();
-        await _apiContainer.StartAsync();
+        try
+        {
+            // Introduce a timeout to avoid waiting forever for the containers to start
+            // in case something goes wrong (e.g. wait strategy never succeeds).
+            using var timeoutCts = new CancellationTokenSource(TimeSpan.FromMinutes(1));
+
+            await _network.CreateAsync(timeoutCts.Token);
+            await _databaseContainer.StartAsync(timeoutCts.Token);
+            await _apiContainer.StartAsync(timeoutCts.Token);
+        }
+        catch (Exception ex) when (ex is OperationCanceledException or TimeoutException)
+        {
+            throw new OperationCanceledException(
+                "Failed to start the containers within the allotted timeout. " +
+                "This probably means that something went wrong during container initialization. " +
+                "See the logs for more info." +
+                Environment.NewLine + Environment.NewLine +
+                GetLogs(),
+                ex
+            );
+        }
     }
 
     public async Task<IPasswordlessClient> CreateClientAsync()
