@@ -19,6 +19,10 @@ namespace Passwordless.Tests.Fixtures;
 
 public class TestApiFixture : IAsyncLifetime
 {
+    private const string ManagementKey = "yourStrong(!)ManagementKey";
+    private const string DatabaseHost = "database";
+    private const ushort ApiPort = 8080;
+
     private readonly HttpClient _http = new();
 
     private readonly INetwork _network;
@@ -30,20 +34,17 @@ public class TestApiFixture : IAsyncLifetime
     private readonly MemoryStream _apiContainerStdOut = new();
     private readonly MemoryStream _apiContainerStdErr = new();
 
-    private string PublicApiUrl => $"http://localhost:{_apiContainer.GetMappedPublicPort(8080)}";
+    private string PublicApiUrl => $"http://{_apiContainer.Hostname}:{_apiContainer.GetMappedPublicPort(ApiPort)}";
 
     public TestApiFixture()
     {
-        const string managementKey = "yourStrong(!)ManagementKey";
-        const string databaseHost = "database";
-
         _network = new NetworkBuilder()
             .Build();
 
         _databaseContainer = new MsSqlBuilder()
             .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
             .WithNetwork(_network)
-            .WithNetworkAliases(databaseHost)
+            .WithNetworkAliases(DatabaseHost)
             .WithOutputConsumer(
                 Consume.RedirectStdoutAndStderrToStream(_databaseContainerStdOut, _databaseContainerStdErr)
             )
@@ -58,23 +59,24 @@ public class TestApiFixture : IAsyncLifetime
             .WithNetwork(_network)
             // Run in development environment to execute migrations
             .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
+            .WithEnvironment("ASPNETCORE_HTTP_PORTS", ApiPort.ToString())
             .WithEnvironment("ConnectionStrings__sqlite:api", "")
             .WithEnvironment("ConnectionStrings__mssql:api",
-                $"Server={databaseHost},{MsSqlBuilder.MsSqlPort};" +
+                $"Server={DatabaseHost},{MsSqlBuilder.MsSqlPort};" +
                 "Database=Passwordless;" +
                 $"User Id={MsSqlBuilder.DefaultUsername};" +
                 $"Password={MsSqlBuilder.DefaultPassword};" +
                 "Trust Server Certificate=true;" +
                 "Trusted_Connection=false;"
             )
-            .WithEnvironment("PasswordlessManagement__ManagementKey", managementKey)
-            .WithPortBinding(8080, true)
+            .WithEnvironment("PasswordlessManagement__ManagementKey", ManagementKey)
+            .WithPortBinding(ApiPort, true)
             // Wait until the API is launched, has performed migrations, and is ready to accept requests
             .WithWaitStrategy(Wait
                 .ForUnixContainer()
                 .UntilHttpRequestIsSucceeded(r => r
                     .ForPath("/")
-                    .ForPort(8080)
+                    .ForPort(ApiPort)
                     .ForStatusCode(HttpStatusCode.OK)
                 )
             )
@@ -83,7 +85,7 @@ public class TestApiFixture : IAsyncLifetime
             )
             .Build();
 
-        _http.DefaultRequestHeaders.Add("ManagementKey", managementKey);
+        _http.DefaultRequestHeaders.Add("ManagementKey", ManagementKey);
     }
 
     public async Task InitializeAsync()
