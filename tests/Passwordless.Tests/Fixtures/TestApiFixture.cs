@@ -76,7 +76,6 @@ public class TestApiFixture : IAsyncLifetime
                     .ForPath("/")
                     .ForStatusCode(HttpStatusCode.OK)
                 )
-                .UntilOperationIsSucceeded(() => true, 1)
             )
             .WithOutputConsumer(
                 Consume.RedirectStdoutAndStderrToStream(_apiContainerStdOut, _apiContainerStdErr)
@@ -92,7 +91,7 @@ public class TestApiFixture : IAsyncLifetime
         {
             // Introduce a timeout to avoid waiting forever for the containers to start
             // in case something goes wrong (e.g. wait strategy never succeeds).
-            using var timeoutCts = new CancellationTokenSource(TimeSpan.FromMinutes(1));
+            using var timeoutCts = new CancellationTokenSource(TimeSpan.FromMinutes(5));
 
             await _network.CreateAsync(timeoutCts.Token);
             await _databaseContainer.StartAsync(timeoutCts.Token);
