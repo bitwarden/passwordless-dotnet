@@ -1,7 +1,12 @@
+using System;
+using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using DotNet.Testcontainers.Images;
@@ -14,6 +19,10 @@ namespace Passwordless.Tests.Fixtures;
 
 public class TestApiFixture : IAsyncLifetime
 {
+    private const string ManagementKey = "yourStrong(!)ManagementKey";
+    private const string DatabaseHost = "database";
+    private const ushort ApiPort = 8080;
+
     private readonly HttpClient _http = new();
 
     private readonly INetwork _network;
@@ -25,20 +34,17 @@ public class TestApiFixture : IAsyncLifetime
     private readonly MemoryStream _apiContainerStdOut = new();
     private readonly MemoryStream _apiContainerStdErr = new();
 
-    private string PublicApiUrl => $"http://localhost:{_apiContainer.GetMappedPublicPort(80)}";
+    private string PublicApiUrl => $"http://{_apiContainer.Hostname}:{_apiContainer.GetMappedPublicPort(ApiPort)}";
 
     public TestApiFixture()
     {
-        const string managementKey = "yourStrong(!)ManagementKey";
-        const string databaseHost = "database";
-
         _network = new NetworkBuilder()
             .Build();
 
         _databaseContainer = new MsSqlBuilder()
             .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
             .WithNetwork(_network)
-            .WithNetworkAliases(databaseHost)
+            .WithNetworkAliases(DatabaseHost)
             .WithOutputConsumer(
                 Consume.RedirectStdoutAndStderrToStream(_databaseContainerStdOut, _databaseContainerStdErr)
             )
@@ -53,22 +59,24 @@ public class TestApiFixture : IAsyncLifetime
             .WithNetwork(_network)
             // Run in development environment to execute migrations
             .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
+            .WithEnvironment("ASPNETCORE_HTTP_PORTS", ApiPort.ToString())
             .WithEnvironment("ConnectionStrings__sqlite:api", "")
             .WithEnvironment("ConnectionStrings__mssql:api",
-                $"Server={databaseHost},{MsSqlBuilder.MsSqlPort};" +
+                $"Server={DatabaseHost},{MsSqlBuilder.MsSqlPort};" +
                 "Database=Passwordless;" +
                 $"User Id={MsSqlBuilder.DefaultUsername};" +
                 $"Password={MsSqlBuilder.DefaultPassword};" +
                 "Trust Server Certificate=true;" +
                 "Trusted_Connection=false;"
             )
-            .WithEnvironment("PasswordlessManagement__ManagementKey", managementKey)
-            .WithPortBinding(80, true)
+            .WithEnvironment("PasswordlessManagement__ManagementKey", ManagementKey)
+            .WithPortBinding(ApiPort, true)
             // Wait until the API is launched, has performed migrations, and is ready to accept requests
             .WithWaitStrategy(Wait
                 .ForUnixContainer()
                 .UntilHttpRequestIsSucceeded(r => r
                     .ForPath("/")
+                    .ForPort(ApiPort)
                     .ForStatusCode(HttpStatusCode.OK)
                 )
             )
@@ -77,14 +85,32 @@ public class TestApiFixture : IAsyncLifetime
             )
             .Build();
 
-        _http.DefaultRequestHeaders.Add("ManagementKey", managementKey);
+        _http.DefaultRequestHeaders.Add("ManagementKey", ManagementKey);
     }
 
     public async Task InitializeAsync()
     {
-        await _network.CreateAsync();
-        await _databaseContainer.StartAsync();
-        await _apiContainer.StartAsync();
+        try
+        {
+            // Introduce a timeout to avoid waiting forever for the containers to start
+            // in case something goes wrong (e.g. wait strategy never succeeds).
+            using var timeoutCts = new CancellationTokenSource(TimeSpan.FromMinutes(5));
+
+            await _network.CreateAsync(timeoutCts.Token);
+            await _databaseContainer.StartAsync(timeoutCts.Token);
+            await _apiContainer.StartAsync(timeoutCts.Token);
+        }
+        catch (Exception ex) when (ex is OperationCanceledException or TimeoutException)
+        {
+            throw new OperationCanceledException(
+                "Failed to start the containers within the allotted timeout. " +
+                "This probably means that something went wrong during container initialization. " +
+                "See the logs for more info." +
+                Environment.NewLine + Environment.NewLine +
+                GetLogs(),
+                ex
+            );
+        }
     }
 
     public async Task<IPasswordlessClient> CreateClientAsync()

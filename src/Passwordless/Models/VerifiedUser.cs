@@ -1,4 +1,6 @@
-﻿namespace Passwordless;
+﻿using System;
+
+namespace Passwordless;
 
 public class VerifiedUser
 {

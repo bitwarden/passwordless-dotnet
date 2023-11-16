@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Passwordless.Models;
 
 internal class ListResponse<T>

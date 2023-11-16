@@ -1,4 +1,9 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
+using System.Threading;
+using System.Threading.Tasks;
 using AutoFixture;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
@@ -10,6 +15,7 @@ using Moq;
 using Passwordless.AspNetCore.Services;
 using Passwordless.AspNetCore.Services.Implementations;
 using Passwordless.Models;
+using Xunit;
 
 namespace Passwordless.AspNetCore.Tests.Services;
 
