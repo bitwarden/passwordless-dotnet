@@ -63,11 +63,11 @@ public class PasswordlessClient : IPasswordlessClient, IDisposable
 
     /// <inheritdoc />
     public async Task<RegisterTokenResponse> CreateRegisterTokenAsync(
-        RegisterOptions registerOptions,
+        RegisterOptions options,
         CancellationToken cancellationToken = default)
     {
         using var response = await _http.PostAsJsonAsync("register/token",
-            registerOptions,
+            options,
             PasswordlessSerializerContext.Default.RegisterOptions,
             cancellationToken
         );
@@ -76,6 +76,24 @@ public class PasswordlessClient : IPasswordlessClient, IDisposable
 
         return (await response.Content.ReadFromJsonAsync(
             PasswordlessSerializerContext.Default.RegisterTokenResponse,
+            cancellationToken))!;
+    }
+
+    /// <inheritdoc />
+    public async Task<SigninTokenResponse> CreateSigninTokenAsync(
+        SigninOptions options,
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await _http.PostAsJsonAsync("signin/token",
+            options,
+            PasswordlessSerializerContext.Default.SigninOptions,
+            cancellationToken
+        );
+
+        response.EnsureSuccessStatusCode();
+
+        return (await response.Content.ReadFromJsonAsync(
+            PasswordlessSerializerContext.Default.SigninTokenResponse,
             cancellationToken))!;
     }
 

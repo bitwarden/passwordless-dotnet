@@ -8,13 +8,15 @@ namespace Passwordless.Helpers;
 [JsonSourceGenerationOptions(
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
-[JsonSerializable(typeof(SetAliasRequest))]
 [JsonSerializable(typeof(RegisterTokenResponse))]
 [JsonSerializable(typeof(RegisterOptions))]
-[JsonSerializable(typeof(VerifyTokenRequest))] // TODO: Use this with JsonContent.Create
+[JsonSerializable(typeof(SigninTokenResponse))]
+[JsonSerializable(typeof(SigninOptions))]
+[JsonSerializable(typeof(VerifyTokenRequest))]
 [JsonSerializable(typeof(VerifiedUser))]
 [JsonSerializable(typeof(DeleteUserRequest))]
 [JsonSerializable(typeof(ListResponse<PasswordlessUserSummary>))]
+[JsonSerializable(typeof(SetAliasRequest))]
 [JsonSerializable(typeof(ListResponse<AliasPointer>))]
 [JsonSerializable(typeof(ListResponse<Credential>))]
 [JsonSerializable(typeof(DeleteCredentialRequest))]

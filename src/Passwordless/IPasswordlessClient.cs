@@ -14,12 +14,24 @@ public interface IPasswordlessClient
     /// Creates a <see cref="RegisterTokenResponse" /> which will be used by your frontend to negotiate
     /// the creation of a WebAuth credential.
     /// </summary>
-    /// <param name="registerOptions">The <see cref="RegisterOptions"/> that will be used to configure your token.</param>
+    /// <param name="options">The <see cref="RegisterOptions"/> that will be used to configure your token.</param>
     /// <param name="cancellationToken"></param>
     /// <returns>A task object representing the asynchronous operation containing the <see cref="RegisterTokenResponse" />.</returns>
     /// <exception cref="PasswordlessApiException">An exception containing details about the reason for failure.</exception>
     Task<RegisterTokenResponse> CreateRegisterTokenAsync(
-        RegisterOptions registerOptions,
+        RegisterOptions options,
+        CancellationToken cancellationToken = default
+    );
+
+    /// <summary>
+    /// Creates a <see cref="SigninTokenResponse" /> which can be used to authenticate on behalf of a user.
+    /// </summary>
+    /// <param name="options">The <see cref="SigninOptions"/> that will be used to configure your token.</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>A task object representing the asynchronous operation containing the <see cref="SigninTokenResponse" />.</returns>
+    /// <exception cref="PasswordlessApiException">An exception containing details about the reason for failure.</exception>
+    Task<SigninTokenResponse> CreateSigninTokenAsync(
+        SigninOptions options,
         CancellationToken cancellationToken = default
     );
 
