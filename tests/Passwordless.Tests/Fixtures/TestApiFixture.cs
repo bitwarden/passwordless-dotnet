@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
@@ -30,7 +29,7 @@ public class TestApiFixture : IAsyncLifetime
     private readonly MemoryStream _apiContainerStdOut = new();
     private readonly MemoryStream _apiContainerStdErr = new();
 
-    private string PublicApiUrl => $"http://localhost:{_apiContainer.GetMappedPublicPort(80)}";
+    private string PublicApiUrl => $"http://localhost:{_apiContainer.GetMappedPublicPort(8080)}";
 
     public TestApiFixture()
     {
@@ -69,14 +68,6 @@ public class TestApiFixture : IAsyncLifetime
             )
             .WithEnvironment("PasswordlessManagement__ManagementKey", managementKey)
             .WithPortBinding(8080, true)
-            // Wait until the API is launched, has performed migrations, and is ready to accept requests
-            .WithWaitStrategy(Wait
-                .ForUnixContainer()
-                .UntilHttpRequestIsSucceeded(r => r
-                    .ForPath("/")
-                    .ForStatusCode(HttpStatusCode.OK)
-                )
-            )
             .WithOutputConsumer(
                 Consume.RedirectStdoutAndStderrToStream(_apiContainerStdOut, _apiContainerStdErr)
             )
@@ -93,9 +84,14 @@ public class TestApiFixture : IAsyncLifetime
             // in case something goes wrong (e.g. wait strategy never succeeds).
             using var timeoutCts = new CancellationTokenSource(TimeSpan.FromMinutes(5));
 
+            // Initialize Docker infrastructure and start the containers
             await _network.CreateAsync(timeoutCts.Token);
             await _databaseContainer.StartAsync(timeoutCts.Token);
             await _apiContainer.StartAsync(timeoutCts.Token);
+
+            // Seed the API database
+            using var response = await _http.GetAsync(PublicApiUrl, timeoutCts.Token);
+            response.EnsureSuccessStatusCode();
         }
         catch (Exception ex) when (ex is OperationCanceledException or TimeoutException)
         {
