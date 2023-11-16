@@ -33,5 +33,5 @@ public class PasswordlessAspNetCoreOptions : PasswordlessOptions
     /// <summary>
     /// Gets or sets the <see cref="PasswordlessRegisterOptions"/> for the Passwordless system.
     /// </summary>
-    public PasswordlessRegisterOptions Register { get; set; } = new PasswordlessRegisterOptions();
+    public PasswordlessRegisterOptions Register { get; set; } = new();
 }

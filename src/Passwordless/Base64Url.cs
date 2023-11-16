@@ -42,9 +42,9 @@ internal static class Base64Url
         }
 
 #if NET5_0_OR_GREATER
-        string result = new string(span);
+        string result = new(span);
 #elif NET462 || NETSTANDARD2_0
-        string result = new string(span.ToArray());
+        string result = new(span.ToArray());
 #endif
         ArrayPool<char>.Shared.Return(array, clearArray: true);
         return result;
