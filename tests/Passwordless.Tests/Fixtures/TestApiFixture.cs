@@ -42,7 +42,6 @@ public class TestApiFixture : IAsyncLifetime
             .Build();
 
         _databaseContainer = new MsSqlBuilder()
-            .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
             .WithNetwork(_network)
             .WithNetworkAliases(DatabaseHost)
             .WithOutputConsumer(
