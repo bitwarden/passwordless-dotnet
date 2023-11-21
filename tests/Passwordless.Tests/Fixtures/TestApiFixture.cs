@@ -10,9 +10,7 @@ using System.Threading.Tasks;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using DotNet.Testcontainers.Images;
-using DotNet.Testcontainers.Networks;
 using Microsoft.Extensions.DependencyInjection;
-using Testcontainers.MsSql;
 using Xunit;
 
 namespace Passwordless.Tests.Fixtures;
@@ -20,17 +18,11 @@ namespace Passwordless.Tests.Fixtures;
 public class TestApiFixture : IAsyncLifetime
 {
     private const string ManagementKey = "yourStrong(!)ManagementKey";
-    private const string DatabaseHost = "database";
     private const ushort ApiPort = 8080;
 
     private readonly HttpClient _http = new();
 
-    private readonly INetwork _network;
-    private readonly MsSqlContainer _databaseContainer;
     private readonly IContainer _apiContainer;
-
-    private readonly MemoryStream _databaseContainerStdOut = new();
-    private readonly MemoryStream _databaseContainerStdErr = new();
     private readonly MemoryStream _apiContainerStdOut = new();
     private readonly MemoryStream _apiContainerStdErr = new();
 
@@ -38,37 +30,15 @@ public class TestApiFixture : IAsyncLifetime
 
     public TestApiFixture()
     {
-        _network = new NetworkBuilder()
-            .Build();
-
-        _databaseContainer = new MsSqlBuilder()
-            .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
-            .WithNetwork(_network)
-            .WithNetworkAliases(DatabaseHost)
-            .WithOutputConsumer(
-                Consume.RedirectStdoutAndStderrToStream(_databaseContainerStdOut, _databaseContainerStdErr)
-            )
-            .Build();
-
         _apiContainer = new ContainerBuilder()
             // https://github.com/passwordless/passwordless-server/pkgs/container/passwordless-test-api
             // TODO: replace with ':stable' after the next release of the server.
             .WithImage("ghcr.io/passwordless/passwordless-test-api:latest")
             // Make sure we always have the latest version of the image
             .WithImagePullPolicy(PullPolicy.Always)
-            .WithNetwork(_network)
             // Run in development environment to execute migrations
             .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
             .WithEnvironment("ASPNETCORE_HTTP_PORTS", ApiPort.ToString())
-            .WithEnvironment("ConnectionStrings__sqlite:api", "")
-            .WithEnvironment("ConnectionStrings__mssql:api",
-                $"Server={DatabaseHost},{MsSqlBuilder.MsSqlPort};" +
-                "Database=Passwordless;" +
-                $"User Id={MsSqlBuilder.DefaultUsername};" +
-                $"Password={MsSqlBuilder.DefaultPassword};" +
-                "Trust Server Certificate=true;" +
-                "Trusted_Connection=false;"
-            )
             .WithEnvironment("PasswordlessManagement__ManagementKey", ManagementKey)
             .WithPortBinding(ApiPort, true)
             // Wait until the API is launched, has performed migrations, and is ready to accept requests
@@ -96,8 +66,6 @@ public class TestApiFixture : IAsyncLifetime
             // in case something goes wrong (e.g. wait strategy never succeeds).
             using var timeoutCts = new CancellationTokenSource(TimeSpan.FromMinutes(5));
 
-            await _network.CreateAsync(timeoutCts.Token);
-            await _databaseContainer.StartAsync(timeoutCts.Token);
             await _apiContainer.StartAsync(timeoutCts.Token);
         }
         catch (Exception ex) when (ex is OperationCanceledException or TimeoutException)
@@ -148,14 +116,6 @@ public class TestApiFixture : IAsyncLifetime
 
     public string GetLogs()
     {
-        var databaseContainerStdOutText = Encoding.UTF8.GetString(
-            _databaseContainerStdOut.ToArray()
-        );
-
-        var databaseContainerStdErrText = Encoding.UTF8.GetString(
-            _databaseContainerStdErr.ToArray()
-        );
-
         var apiContainerStdOutText = Encoding.UTF8.GetString(
             _apiContainerStdOut.ToArray()
         );
@@ -164,7 +124,6 @@ public class TestApiFixture : IAsyncLifetime
             _apiContainerStdErr.ToArray()
         );
 
-        // API logs are typically more relevant, so put them first
         return
             $"""
              # API container STDOUT:
@@ -174,25 +133,12 @@ public class TestApiFixture : IAsyncLifetime
              # API container STDERR:
 
              {apiContainerStdErrText}
-             
-             # Database container STDOUT:
-             
-             {databaseContainerStdOutText}
-             
-             # Database container STDERR:
-             
-             {databaseContainerStdErrText}
              """;
     }
 
     public async Task DisposeAsync()
     {
         await _apiContainer.DisposeAsync();
-        await _databaseContainer.DisposeAsync();
-        await _network.DisposeAsync();
-
-        _databaseContainerStdOut.Dispose();
-        _databaseContainerStdErr.Dispose();
         _apiContainerStdOut.Dispose();
         _apiContainerStdErr.Dispose();
 
