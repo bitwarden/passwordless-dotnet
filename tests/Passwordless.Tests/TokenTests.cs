@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using FluentAssertions;
-using Passwordless.Tests.Fixtures;
 using Passwordless.Tests.Infra;
 using Xunit;
 using Xunit.Abstractions;

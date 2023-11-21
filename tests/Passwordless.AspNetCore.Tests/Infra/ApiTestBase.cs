@@ -2,7 +2,7 @@ using System;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Passwordless.Tests.Infra;
+namespace Passwordless.AspNetCore.Tests.Infra;
 
 [Collection(TestApiFixture.Collection.Name)]
 public abstract class ApiTestBase : IDisposable

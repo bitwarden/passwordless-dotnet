@@ -12,11 +12,10 @@ using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using DotNet.Testcontainers.Images;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
-namespace Passwordless.Tests.Fixtures;
+namespace Passwordless.Tests.Infra;
 
-public class TestApiFixture : IAsyncLifetime
+public class TestApi : IAsyncDisposable
 {
     private const string ManagementKey = "yourStrong(!)ManagementKey";
     private const ushort ApiPort = 8080;
@@ -29,7 +28,7 @@ public class TestApiFixture : IAsyncLifetime
 
     private string PublicApiUrl => $"http://{_apiContainer.Hostname}:{_apiContainer.GetMappedPublicPort(ApiPort)}";
 
-    public TestApiFixture()
+    public TestApi()
     {
         _apiContainer = new ContainerBuilder()
             // https://github.com/passwordless/passwordless-server/pkgs/container/passwordless-test-api
@@ -138,7 +137,7 @@ public class TestApiFixture : IAsyncLifetime
              """;
     }
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         await _apiContainer.DisposeAsync();
         _apiContainerStdOut.Dispose();

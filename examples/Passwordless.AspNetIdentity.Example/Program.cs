@@ -23,7 +23,7 @@ var app = builder.Build();
 
 // Execute our migrations to generate our `example.db` file with all the required tables.
 using var scope = app.Services.CreateScope();
-var dbContext = scope.ServiceProvider.GetRequiredService<PasswordlessContext>();
+using var dbContext = scope.ServiceProvider.GetRequiredService<PasswordlessContext>();
 dbContext.Database.Migrate();
 
 // Configure the HTTP request pipeline.
