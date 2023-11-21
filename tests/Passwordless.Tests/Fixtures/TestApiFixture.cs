@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -32,13 +33,14 @@ public class TestApiFixture : IAsyncLifetime
     {
         _apiContainer = new ContainerBuilder()
             // https://github.com/passwordless/passwordless-server/pkgs/container/passwordless-test-api
-            // TODO: replace with ':stable' after the next release of the server.
-            .WithImage("ghcr.io/passwordless/passwordless-test-api:latest")
+            .WithImage("ghcr.io/passwordless/passwordless-test-api:stable")
             // Make sure we always have the latest version of the image
             .WithImagePullPolicy(PullPolicy.Always)
-            // Run in development environment to execute migrations
+            // Run in development environment to enable migrations
             .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
-            .WithEnvironment("ASPNETCORE_HTTP_PORTS", ApiPort.ToString())
+            // Explicitly set the HTTP port to avoid relying on the default value
+            .WithEnvironment("ASPNETCORE_HTTP_PORTS", ApiPort.ToString(CultureInfo.InvariantCulture))
+            // We need the management key to create apps
             .WithEnvironment("PasswordlessManagement__ManagementKey", ManagementKey)
             .WithPortBinding(ApiPort, true)
             // Wait until the API is launched, has performed migrations, and is ready to accept requests
@@ -85,7 +87,7 @@ public class TestApiFixture : IAsyncLifetime
     {
         using var response = await _http.PostAsJsonAsync(
             $"{PublicApiUrl}/admin/apps/app{Guid.NewGuid():N}/create",
-            new { AdminEmail = "foo@bar.com", EventLoggingIsEnabled = true }
+            new { AdminEmail = "test@passwordless.dev" }
         );
 
         if (!response.IsSuccessStatusCode)
