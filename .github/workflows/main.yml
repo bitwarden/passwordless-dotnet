@@ -192,7 +192,7 @@ jobs:
       - name: Publish packages (GitHub Registry)
         run: >
           dotnet nuget push **/*.nupkg
-          --source https://nuget.pkg.github.com/passwordless/index.json
+          --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
           --api-key ${{ secrets.GITHUB_TOKEN }}
 
       # Only publish to NuGet on stable releases
