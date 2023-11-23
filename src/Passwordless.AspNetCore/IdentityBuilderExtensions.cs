@@ -96,8 +96,8 @@ public static class IdentityBuilderExtensions
             .Configure<IOptions<PasswordlessAspNetCoreOptions>>((options, aspNetCoreOptionsAccessor) =>
             {
                 var aspNetCoreOptions = aspNetCoreOptionsAccessor.Value;
-                options.ApiSecret = aspNetCoreOptions.ApiSecret;
                 options.ApiUrl = aspNetCoreOptions.ApiUrl;
+                options.ApiSecret = aspNetCoreOptions.ApiSecret;
                 options.ApiKey = aspNetCoreOptions.ApiKey;
             });
 

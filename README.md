@@ -29,8 +29,8 @@ Add Passwordless to your service container:
 // In Program.cs or Startup.cs
 services.AddPasswordlessSdk(options =>
 {
-    options.ApiKey = "your_api_key";
     options.ApiSecret = "your_api_secret";
+    options.ApiKey = "your_api_key";
 });
 ```
 
