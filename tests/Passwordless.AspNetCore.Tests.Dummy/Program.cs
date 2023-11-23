@@ -19,15 +19,17 @@ public class Program
 
         var app = builder.Build();
 
-        // Execute our migrations
+        // Execute migrations
         using var scope = app.Services.CreateScope();
         using var dbContext = scope.ServiceProvider.GetRequiredService<PasswordlessDbContext>();
         dbContext.Database.Migrate();
 
-        app.UseAuthorization();
-        app.MapPasswordless(enableRegisterEndpoint: true);
-
-        app.MapGet("/", () => "Hello World!");
+        app.MapPasswordless(new PasswordlessEndpointOptions
+        {
+            GroupPrefix = "",
+            RegisterPath = "/register",
+            LoginPath = "/login"
+        });
 
         app.Run();
     }

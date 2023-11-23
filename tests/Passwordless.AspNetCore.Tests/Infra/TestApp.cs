@@ -12,5 +12,6 @@ public class TestApp : WebApplicationFactory<Dummy.Program>
     public async Task InitializeAsync()
     {
         await _api.InitializeAsync();
+        var client = await _api.CreateClientAsync();
     }
 }

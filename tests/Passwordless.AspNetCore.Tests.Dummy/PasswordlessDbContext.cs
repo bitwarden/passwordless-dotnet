@@ -1,3 +1,4 @@
+using System;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,6 @@ public class PasswordlessDbContext : IdentityDbContext<IdentityUser, IdentityRol
 
     protected override void OnConfiguring(DbContextOptionsBuilder builder)
     {
-        builder.UseSqlite("Data Source=database.db");
+        builder.UseSqlite($"Data Source=database-{Guid.NewGuid():N}.db");
     }
 }
