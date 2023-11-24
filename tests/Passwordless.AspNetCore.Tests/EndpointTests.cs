@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -19,7 +21,7 @@ public class EndpointTests : AppTestBase
     }
 
     [Fact]
-    public async Task I_can_define_an_endpoint_to_create_a_register_token()
+    public async Task I_can_define_a_register_endpoint()
     {
         // Arrange
         using var http = await App.CreateClientAsync();
@@ -47,8 +49,66 @@ public class EndpointTests : AppTestBase
         responseJson.GetProperty("token").GetString().Should().StartWith("register_");
     }
 
+    [Fact]
+    public async Task I_can_define_a_register_endpoint_and_it_will_reject_invalid_registration_attempts()
+    {
+        // Arrange
+        using var http = await App.CreateClientAsync();
+
+        // Act
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/register");
+        request.Content = new StringContent(
+            // lang=json
+            """
+            {
+              "email": null
+            }
+            """,
+            Encoding.UTF8,
+            "application/json"
+        );
+
+        using var response = await http.SendAsync(request);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task I_can_define_a_register_endpoint_and_it_will_reject_duplicate_registration_attempts()
+    {
+        // Arrange
+        using var http = await App.CreateClientAsync();
+
+        // Act
+        var responses = new List<HttpResponseMessage>();
+        for (var i = 0; i < 5; i++)
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Post, "/register");
+            request.Content = new StringContent(
+                // lang=json
+                """
+                {
+                  "email": "test@passwordless.dev",
+                  "username": "test",
+                  "displayName": "Test User"
+                }
+                """,
+                Encoding.UTF8,
+                "application/json"
+            );
+
+            var response = await http.SendAsync(request);
+            responses.Add(response);
+        }
+
+        // Assert
+        responses.Take(1).Should().OnlyContain(r => r.StatusCode == HttpStatusCode.OK);
+        responses.Skip(1).Should().OnlyContain(r => r.StatusCode == HttpStatusCode.BadRequest);
+    }
+
     [Fact(Skip = "Bug: this currently does not return 400 status code")]
-    public async Task I_can_define_an_endpoint_to_verify_a_signin_token_and_return_an_error_if_it_is_invalid()
+    public async Task I_can_define_a_signin_endpoint_and_it_will_reject_invalid_signin_attempts()
     {
         // Arrange
         using var http = await App.CreateClientAsync();

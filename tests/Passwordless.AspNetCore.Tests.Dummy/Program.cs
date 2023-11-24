@@ -1,3 +1,4 @@
+using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -14,7 +15,10 @@ public partial class Program
 
         builder.Services.AddDbContext<PasswordlessDbContext>();
 
-        builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+        builder.Services.AddIdentity<IdentityUser, IdentityRole>(o =>
+            {
+                o.User.RequireUniqueEmail = true;
+            })
             .AddEntityFrameworkStores<PasswordlessDbContext>()
             .AddPasswordless(builder.Configuration.GetSection("Passwordless"));
 
@@ -41,7 +45,8 @@ public partial class Program
 
         protected override void OnConfiguring(DbContextOptionsBuilder builder)
         {
-            builder.UseInMemoryDatabase("Test");
+            // Random database name to avoid sharing state between tests
+            builder.UseInMemoryDatabase($"Test_{Guid.NewGuid():N}");
         }
     }
 }

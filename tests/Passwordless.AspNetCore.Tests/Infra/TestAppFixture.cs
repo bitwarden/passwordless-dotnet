@@ -1,3 +1,4 @@
+using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -16,20 +17,23 @@ public partial class TestAppFixture : IAsyncLifetime
 
     public async Task InitializeAsync() => await _api.InitializeAsync();
 
-    public async Task<HttpClient> CreateClientAsync()
+    public async Task<HttpClient> CreateClientAsync(Action<IServiceCollection>? configure = null)
     {
         var app = await _api.CreateAppAsync();
 
         return new WebApplicationFactory<Program>()
             .WithWebHostBuilder(c => c
                 .ConfigureTestServices(s =>
+                {
                     s.Configure<PasswordlessAspNetCoreOptions>(o =>
                     {
                         o.ApiUrl = app.ApiUrl;
                         o.ApiSecret = app.ApiSecret;
                         o.ApiKey = app.ApiKey;
-                    })
-                )
+                    });
+
+                    configure?.Invoke(s);
+                })
             ).CreateClient();
     }
 
