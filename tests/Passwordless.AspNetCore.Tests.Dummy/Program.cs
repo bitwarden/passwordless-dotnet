@@ -1,7 +1,7 @@
-using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -37,16 +37,20 @@ public partial class Program
 
 public partial class Program
 {
-    private class PasswordlessDbContext : IdentityDbContext<IdentityUser, IdentityRole, string>
+    public class PasswordlessDbContext : IdentityDbContext<IdentityUser, IdentityRole, string>
     {
         public PasswordlessDbContext(DbContextOptions options) : base(options)
         {
+            Database.EnsureCreated();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder builder)
         {
-            // Random database name to avoid sharing state between tests
-            builder.UseInMemoryDatabase($"Test_{Guid.NewGuid():N}");
+            // For some reason, this is required
+            var connection = new SqliteConnection("DataSource=:memory:");
+            connection.Open();
+
+            builder.UseSqlite(connection);
         }
     }
 }
