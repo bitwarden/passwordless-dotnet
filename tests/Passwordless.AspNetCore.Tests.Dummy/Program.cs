@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Passwordless.AspNetCore.Tests.Dummy;
@@ -20,7 +21,7 @@ public partial class Program
                 o.User.RequireUniqueEmail = true;
             })
             .AddEntityFrameworkStores<PasswordlessDbContext>()
-            .AddPasswordless(builder.Configuration.GetSection("Passwordless"));
+            .AddPasswordless(builder.Configuration.GetRequiredSection("Passwordless"));
 
         var app = builder.Build();
 
