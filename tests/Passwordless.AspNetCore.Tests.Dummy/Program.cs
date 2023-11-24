@@ -21,7 +21,7 @@ public partial class Program
                 o.User.RequireUniqueEmail = true;
             })
             .AddEntityFrameworkStores<PasswordlessDbContext>()
-            .AddPasswordless(builder.Configuration.GetRequiredSection("Passwordless"));
+            .AddPasswordless(_ => { });
 
         var app = builder.Build();
 
