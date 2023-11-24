@@ -43,9 +43,7 @@ public static class ServiceCollectionExtensions
         IConfiguration configuration) =>
         services.AddPasswordlessSdk(o =>
         {
-            o.ApiUrl =
-                configuration["ApiUrl"] ??
-                throw new InvalidOperationException("Missing 'ApiUrl' configuration value.");
+            o.ApiUrl = configuration["ApiUrl"] ?? PasswordlessOptions.CloudApiUrl;
 
             o.ApiSecret =
                 configuration["ApiSecret"] ??
