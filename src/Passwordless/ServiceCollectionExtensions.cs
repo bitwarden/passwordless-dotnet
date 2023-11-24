@@ -45,11 +45,11 @@ public static class ServiceCollectionExtensions
         {
             o.ApiUrl =
                 configuration["ApiUrl"] ??
-                throw new InvalidOperationException("Midding 'ApiUrl' configuration value.");
+                throw new InvalidOperationException("Missing 'ApiUrl' configuration value.");
 
             o.ApiSecret =
                 configuration["ApiSecret"] ??
-                throw new InvalidOperationException("Midding 'ApiSecret' configuration value.");
+                throw new InvalidOperationException("Missing 'ApiSecret' configuration value.");
 
             o.ApiKey = configuration["ApiKey"];
         });
