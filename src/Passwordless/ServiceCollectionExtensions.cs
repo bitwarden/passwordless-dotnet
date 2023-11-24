@@ -1,4 +1,5 @@
 using System;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Passwordless;
 
@@ -33,4 +34,21 @@ public static class ServiceCollectionExtensions
 
         return services;
     }
+
+    /// <summary>
+    /// Adds and configures Passwordless-related services.
+    /// </summary>
+    public static IServiceCollection AddPasswordlessSdk(
+        this IServiceCollection services,
+        IConfiguration configuration) =>
+        services.AddPasswordlessSdk(o =>
+        {
+            o.ApiUrl = configuration["ApiUrl"] ?? PasswordlessOptions.CloudApiUrl;
+
+            o.ApiSecret =
+                configuration["ApiSecret"] ??
+                throw new InvalidOperationException("Missing 'ApiSecret' configuration value.");
+
+            o.ApiKey = configuration["ApiKey"];
+        });
 }
