@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Passwordless.AspNetCore.Tests.Dummy;
 
-public class Program
+public partial class Program
 {
     public static void Main(string[] args)
     {
@@ -19,11 +20,6 @@ public class Program
 
         var app = builder.Build();
 
-        // Execute migrations
-        using var scope = app.Services.CreateScope();
-        using var dbContext = scope.ServiceProvider.GetRequiredService<PasswordlessDbContext>();
-        dbContext.Database.Migrate();
-
         app.MapPasswordless(new PasswordlessEndpointOptions
         {
             GroupPrefix = "",
@@ -32,5 +28,20 @@ public class Program
         });
 
         app.Run();
+    }
+}
+
+public partial class Program
+{
+    private class PasswordlessDbContext : IdentityDbContext<IdentityUser, IdentityRole, string>
+    {
+        public PasswordlessDbContext(DbContextOptions options) : base(options)
+        {
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder builder)
+        {
+            builder.UseInMemoryDatabase("Test");
+        }
     }
 }
