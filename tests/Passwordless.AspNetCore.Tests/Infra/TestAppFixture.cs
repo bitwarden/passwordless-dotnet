@@ -26,8 +26,8 @@ public partial class TestAppFixture : IAsyncLifetime
                     s.Configure<PasswordlessAspNetCoreOptions>(o =>
                     {
                         o.ApiUrl = app.ApiUrl;
-                        o.ApiKey = app.ApiKey;
                         o.ApiSecret = app.ApiSecret;
+                        o.ApiKey = app.ApiKey;
                     })
                 )
             ).CreateClient();
