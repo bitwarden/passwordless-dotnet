@@ -12,11 +12,10 @@ using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using DotNet.Testcontainers.Images;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
-namespace Passwordless.Tests.Fixtures;
+namespace Passwordless.Tests.Infra;
 
-public class TestApiFixture : IAsyncLifetime
+public class TestApi : IAsyncDisposable
 {
     private const string ManagementKey = "yourStrong(!)ManagementKey";
     private const ushort ApiPort = 8080;
@@ -29,7 +28,7 @@ public class TestApiFixture : IAsyncLifetime
 
     private string PublicApiUrl => $"http://{_apiContainer.Hostname}:{_apiContainer.GetMappedPublicPort(ApiPort)}";
 
-    public TestApiFixture()
+    public TestApi()
     {
         _apiContainer = new ContainerBuilder()
             // https://github.com/passwordless/passwordless-server/pkgs/container/passwordless-test-api
@@ -83,12 +82,25 @@ public class TestApiFixture : IAsyncLifetime
         }
     }
 
-    public async Task<IPasswordlessClient> CreateClientAsync()
+    public async Task<PasswordlessOptions> CreateAppAsync()
     {
-        using var response = await _http.PostAsJsonAsync(
-            $"{PublicApiUrl}/admin/apps/app{Guid.NewGuid():N}/create",
-            new { AdminEmail = "test@passwordless.dev" }
+        using var request = new HttpRequestMessage(
+            HttpMethod.Post,
+            $"{PublicApiUrl}/admin/apps/app{Guid.NewGuid():N}/create"
         );
+
+        request.Content = new StringContent(
+            // lang=json
+            """
+            {
+              "adminEmail": "test@passwordless.dev"
+            }
+            """,
+            Encoding.UTF8,
+            "application/json"
+        );
+
+        using var response = await _http.SendAsync(request);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -103,17 +115,26 @@ public class TestApiFixture : IAsyncLifetime
         var apiKey = responseContent.GetProperty("apiKey1").GetString();
         var apiSecret = responseContent.GetProperty("apiSecret1").GetString();
 
-        var services = new ServiceCollection();
-
-        services.AddPasswordlessSdk(options =>
+        return new PasswordlessOptions
         {
-            options.ApiUrl = PublicApiUrl;
-            options.ApiKey = apiKey;
-            options.ApiSecret = apiSecret ??
-                                throw new InvalidOperationException("Cannot extract API Secret from the response.");
-        });
+            ApiUrl = PublicApiUrl,
+            ApiKey = apiKey,
+            ApiSecret = apiSecret ??
+                        throw new InvalidOperationException("Cannot extract API Secret from the response.")
+        };
+    }
 
-        return services.BuildServiceProvider().GetRequiredService<IPasswordlessClient>();
+    public async Task<IPasswordlessClient> CreateClientAsync()
+    {
+        var options = await CreateAppAsync();
+
+        // Initialize using a service container to cover more code paths
+        return new ServiceCollection().AddPasswordlessSdk(o =>
+        {
+            o.ApiUrl = options.ApiUrl;
+            o.ApiKey = options.ApiKey;
+            o.ApiSecret = options.ApiSecret;
+        }).BuildServiceProvider().GetRequiredService<IPasswordlessClient>();
     }
 
     public string GetLogs()
@@ -138,7 +159,7 @@ public class TestApiFixture : IAsyncLifetime
              """;
     }
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         await _apiContainer.DisposeAsync();
         _apiContainerStdOut.Dispose();

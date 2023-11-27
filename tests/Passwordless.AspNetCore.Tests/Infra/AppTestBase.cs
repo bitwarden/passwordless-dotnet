@@ -2,18 +2,18 @@ using System;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Passwordless.Tests.Infra;
+namespace Passwordless.AspNetCore.Tests.Infra;
 
-[Collection(TestApiFixture.Collection.Name)]
-public abstract class ApiTestBase : IDisposable
+[Collection(TestAppFixture.Collection.Name)]
+public abstract class AppTestBase : IDisposable
 {
-    protected TestApiFixture Api { get; }
+    protected TestAppFixture App { get; }
 
     protected ITestOutputHelper TestOutput { get; }
 
-    protected ApiTestBase(TestApiFixture api, ITestOutputHelper testOutput)
+    protected AppTestBase(TestAppFixture app, ITestOutputHelper testOutput)
     {
-        Api = api;
+        App = app;
         TestOutput = testOutput;
     }
 
@@ -21,6 +21,6 @@ public abstract class ApiTestBase : IDisposable
     {
         // Ideally we should route the logs in realtime, but it's a bit tedious
         // with the way the TestContainers library is designed.
-        TestOutput.WriteLine(Api.GetLogs());
+        TestOutput.WriteLine(App.GetLogs());
     }
 }

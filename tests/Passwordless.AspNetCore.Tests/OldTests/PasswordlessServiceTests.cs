@@ -17,7 +17,7 @@ using Passwordless.AspNetCore.Services.Implementations;
 using Passwordless.Models;
 using Xunit;
 
-namespace Passwordless.AspNetCore.Tests.Services;
+namespace Passwordless.AspNetCore.Tests.OldTests;
 
 public class PasswordlessServiceTests
 {
