@@ -107,7 +107,7 @@ public class EndpointTests : AppTestBase
         responses.Skip(1).Should().OnlyContain(r => r.StatusCode == HttpStatusCode.BadRequest);
     }
 
-    [Fact(Skip = "Bug: this currently does not return 400 status code. Task: PAS-260")]
+    [Fact]
     public async Task I_can_define_a_signin_endpoint_and_it_will_reject_invalid_signin_attempts()
     {
         // Arrange

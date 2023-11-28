@@ -313,19 +313,6 @@ public class PasswordlessServiceTests
     }
 
     [Fact]
-    public async Task LoginUserAsync_PasswordlessClientReturnsNull_ReturnsUnauthorized()
-    {
-        _mockPasswordlessClient
-            .Setup(s => s.VerifyTokenAsync("test_token", default))
-            .Returns(Task.FromResult<VerifiedUser>(null!));
-
-        var sut = CreateSut();
-
-        var result = await sut.LoginUserAsync(new PasswordlessLoginRequest("test_token"), CancellationToken.None);
-        Assert.IsAssignableFrom<UnauthorizedHttpResult>(result);
-    }
-
-    [Fact]
     public async Task LoginUserAsync_UserDoesNotExist_ReturnsUnauthorized()
     {
         var verifiedUser = new VerifiedUser(
