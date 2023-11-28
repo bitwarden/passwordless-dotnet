@@ -1,5 +1,10 @@
 # Passwordless .NET SDK
 
+[![Build](https://img.shields.io/github/actions/workflow/status/bitwarden/passwordless-dotnet/main.yml?branch=main)](https://github.com/bitwarden/passwordless-dotnet/actions)
+[![Coverage](https://img.shields.io/codecov/c/github/bitwarden/passwordless-dotnet/main)](https://codecov.io/gh/bitwarden/passwordless-dotnet)
+[![Version](https://img.shields.io/nuget/v/Passwordless.svg)](https://nuget.org/packages/Passwordless)
+[![Downloads](https://img.shields.io/nuget/dt/Passwordless.svg)](https://nuget.org/packages/Passwordless)
+
 The official [Bitwarden Passwordless.dev](https://passwordless.dev) .NET library, supporting .NET Standard 2.0+, .NET Core 2.0+, and .NET Framework 4.6.2+.
 
 ## Install
