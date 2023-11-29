@@ -127,7 +127,7 @@ jobs:
           DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
 
       - name: Upload coverage
-        uses: codecov/codecov-action@eaaf4bedf32dbdc6b720b63067d99c4d77d6047d # 3.1.4
+        uses: codecov/codecov-action@eaaf4bedf32dbdc6b720b63067d99c4d77d6047d # v3.1.4
 
   # Pack the output into NuGet packages
   pack:
@@ -219,7 +219,7 @@ jobs:
 
     steps:
       - name: Send Slack message
-        uses: tyrrrz/action-http-request@28a403e52ea0f292b85a1850aeab1b90abc54be0 # 1.0.0
+        uses: tyrrrz/action-http-request@28a403e52ea0f292b85a1850aeab1b90abc54be0 # v1.0.0
         with:
           url: ${{ secrets.SLACK_WEBHOOK_URL }}
           method: POST
