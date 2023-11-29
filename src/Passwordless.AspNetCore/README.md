@@ -1,5 +1,8 @@
 # Passwordless ASP.NET Core Integration 
 
+[![Version](https://img.shields.io/nuget/v/Passwordless.AspNetCore.svg)](https://nuget.org/packages/Passwordless.AspNetCore)
+[![Downloads](https://img.shields.io/nuget/dt/Passwordless.AspNetCore.svg)](https://nuget.org/packages/Passwordless.AspNetCore)
+
 The official [Bitwarden Passwordless.dev](https://passwordless.dev) ASP.NET Identity integration. Automatically adds endpoints to verify passwordless signin and sign the user in using the existing ASP.NET Identity code.
 
 ## Install

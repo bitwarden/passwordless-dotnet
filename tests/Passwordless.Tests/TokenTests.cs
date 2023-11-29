@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
 using FluentAssertions;
 using Passwordless.Models;
-using Passwordless.Tests.Fixtures;
 using Passwordless.Tests.Infra;
 using Xunit;
 using Xunit.Abstractions;
@@ -32,13 +31,13 @@ public class TokenTests : ApiTestBase
     }
 
     [Fact]
-    public async Task I_can_create_a_signin_token()
+    public async Task I_can_generate_a_signin_token()
     {
         // Arrange
         var passwordless = await Api.CreateClientAsync();
 
         // Act
-        var response = await passwordless.CreateSigninTokenAsync(
+        var response = await passwordless.GenerateSigninTokenAsync(
             new SigninOptions("user123")
         );
 
@@ -53,7 +52,7 @@ public class TokenTests : ApiTestBase
         // Arrange
         var passwordless = await Api.CreateClientAsync();
 
-        var token = (await passwordless.CreateSigninTokenAsync(
+        var token = (await passwordless.GenerateSigninTokenAsync(
             new SigninOptions("user123")
         )).Token;
 

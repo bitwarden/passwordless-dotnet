@@ -17,6 +17,9 @@ namespace Passwordless.AspNetCore.Services.Implementations;
 public class PasswordlessService<TUser> : PasswordlessService<TUser, PasswordlessRegisterRequest>
     where TUser : class, new()
 {
+    /// <summary>
+    /// Initializes an instance of <see cref="PasswordlessService{TUser}" />.
+    /// </summary>
     public PasswordlessService(
         IPasswordlessClient passwordlessClient,
         IUserStore<TUser> userStore,
@@ -37,6 +40,9 @@ public class PasswordlessService<TUser, TRegisterRequest>
 {
     private readonly ILogger<PasswordlessService<TUser, TRegisterRequest>> _logger;
 
+    /// <summary>
+    /// Initializes an instance of <see cref="PasswordlessService{TUser, TRegisterRequest}" />.
+    /// </summary>
     public PasswordlessService(
         IPasswordlessClient passwordlessClient,
         IUserStore<TUser> userStore,
@@ -66,70 +72,95 @@ public class PasswordlessService<TUser, TRegisterRequest>
     protected AuthenticationOptions? AuthenticationOptions { get; }
     protected UserManager<TUser>? UserManager { get; }
 
-    public virtual async Task<IResult> AddCredentialAsync(PasswordlessAddCredentialRequest request, ClaimsPrincipal claimsPrincipal, CancellationToken cancellationToken)
+    /// <inheritdoc />
+    public virtual async Task<IResult> AddCredentialAsync(
+        PasswordlessAddCredentialRequest request,
+        ClaimsPrincipal claimsPrincipal,
+        CancellationToken cancellationToken)
     {
-        var userId = await GetUserIdAsync(claimsPrincipal, cancellationToken);
-
-        if (string.IsNullOrEmpty(userId))
+        try
         {
-            return Unauthorized();
-        }
+            var userId = await GetUserIdAsync(claimsPrincipal, cancellationToken);
 
-
-        var user = await UserStore.FindByIdAsync(userId, cancellationToken);
-
-        if (user is null)
-        {
-            _logger.LogDebug("Could not find user with id {UserId} while attempting to add credential", userId);
-            return Unauthorized();
-        }
-
-        _logger.LogInformation("Found user {UserId} while attempting to add credential", userId);
-
-        var username = await UserStore.GetUserNameAsync(user, cancellationToken);
-
-        if (string.IsNullOrEmpty(username))
-        {
-            return Unauthorized();
-        }
-
-        UserInformation userInformation;
-        if (IdentityOptions?.User.RequireUniqueEmail is true && UserStore is IUserEmailStore<TUser> emailStore)
-        {
-            var email = await emailStore.GetEmailAsync(user, cancellationToken);
-
-            if (string.IsNullOrEmpty(email))
+            if (string.IsNullOrEmpty(userId))
             {
                 return Unauthorized();
             }
 
-            userInformation = new UserInformation(username, request.DisplayName, new HashSet<string> { email });
+            var user = await UserStore.FindByIdAsync(userId, cancellationToken);
+
+            if (user is null)
+            {
+                _logger.LogDebug("Could not find user with id {UserId} while attempting to add credential", userId);
+                return Unauthorized();
+            }
+
+            _logger.LogInformation("Found user {UserId} while attempting to add credential", userId);
+
+            var username = await UserStore.GetUserNameAsync(user, cancellationToken);
+
+            if (string.IsNullOrEmpty(username))
+            {
+                return Unauthorized();
+            }
+
+            UserInformation userInformation;
+            if (IdentityOptions?.User.RequireUniqueEmail is true && UserStore is IUserEmailStore<TUser> emailStore)
+            {
+                var email = await emailStore.GetEmailAsync(user, cancellationToken);
+
+                if (string.IsNullOrEmpty(email))
+                {
+                    return Unauthorized();
+                }
+
+                userInformation = new UserInformation(username, request.DisplayName, new HashSet<string> { email });
+            }
+            else
+            {
+                userInformation = new UserInformation(username, request.DisplayName, null);
+            }
+
+            var registerOptions = CreateRegisterOptions(userId, userInformation);
+
+            // I could check if the customize service is the noop one and not allocate this context class
+            // which would make this a bit more pay-for-play.
+            var customizeContext = new CustomizeRegisterOptionsContext(false, registerOptions);
+            await CustomizeRegisterOptions.CustomizeAsync(customizeContext, cancellationToken);
+
+            if (customizeContext.Options is null)
+            {
+                return Unauthorized();
+            }
+
+            var registerTokenResponse =
+                await PasswordlessClient.CreateRegisterTokenAsync(customizeContext.Options, cancellationToken);
+
+            _logger.LogDebug("Successfully created a register token for user {UserId}", userId);
+
+            return Ok(registerTokenResponse);
         }
-        else
+        // Route Passwordless API errors to the corresponding result
+        catch (PasswordlessApiException ex)
         {
-            userInformation = new UserInformation(username, request.DisplayName, null);
+            _logger.LogDebug(
+                "Passwordless API responded with an error while attempting to add credential: {Error}",
+                ex.Details
+            );
+
+            return Problem(
+                ex.Details.Detail,
+                ex.Details.Instance,
+                ex.Details.Status,
+                ex.Details.Title,
+                ex.Details.Type
+            );
         }
-
-        var registerOptions = CreateRegisterOptions(userId, userInformation);
-
-        // I could check if the customize service is the noop one and not allocate this context class
-        // which would make this a bit more pay-for-play.
-        var customizeContext = new CustomizeRegisterOptionsContext(false, registerOptions);
-        await CustomizeRegisterOptions.CustomizeAsync(customizeContext, cancellationToken);
-
-        if (customizeContext.Options is null)
-        {
-            return Unauthorized();
-        }
-
-        var registerTokenResponse = await PasswordlessClient.CreateRegisterTokenAsync(customizeContext.Options, cancellationToken);
-
-        _logger.LogDebug("Successfully created a register token for user {UserId}", userId);
-
-        return Ok(registerTokenResponse);
     }
 
-    protected virtual ValueTask<string?> GetUserIdAsync(ClaimsPrincipal claimsPrincipal, CancellationToken cancellationToken)
+    protected virtual ValueTask<string?> GetUserIdAsync(
+        ClaimsPrincipal claimsPrincipal,
+        CancellationToken cancellationToken)
     {
         // Do we want to check if the Identity is authenticated? They could have multiple identities and the first one isn't authenticated
         if (claimsPrincipal.Identity?.IsAuthenticated is not true)
@@ -150,89 +181,131 @@ public class PasswordlessService<TUser, TRegisterRequest>
         return ValueTask.FromResult(userId);
     }
 
-    public virtual async Task<IResult> RegisterUserAsync(TRegisterRequest request, CancellationToken cancellationToken)
+    /// <inheritdoc />
+    public virtual async Task<IResult> RegisterUserAsync(
+        TRegisterRequest request,
+        CancellationToken cancellationToken)
     {
-        var user = new TUser();
-        var result = await CreateUserAsync(user, request, cancellationToken);
-
-        if (!result.Succeeded)
+        try
         {
-            return ValidationProblem(result.Errors.ToDictionary(e => e.Code, e => new[] { e.Description })); ;
-        }
+            var user = new TUser();
+            var result = await CreateUserAsync(user, request, cancellationToken);
 
-        var userId = await UserStore.GetUserIdAsync(user, cancellationToken);
-        _logger.LogDebug("Registering user with id: {Id}", userId);
-
-        var aliases = request.Aliases ?? new HashSet<string>();
-
-        if (IdentityOptions?.User.RequireUniqueEmail is true && UserStore is IUserEmailStore<TUser> emailStore)
-        {
-            if (string.IsNullOrEmpty(request.Email))
+            if (!result.Succeeded)
             {
-                return ValidationProblem(new Dictionary<string, string[]>
-                {
-                    { "invalid_email", new [] { "Email cannot be null or empty." }}
-                });
+                return ValidationProblem(result.Errors.ToDictionary(e => e.Code, e => new[] { e.Description }));
             }
 
-            aliases.Add(request.Email);
+            var userId = await UserStore.GetUserIdAsync(user, cancellationToken);
+            _logger.LogDebug("Registering user with id: {Id}", userId);
+
+            var aliases = request.Aliases ?? new HashSet<string>();
+
+            if (IdentityOptions?.User.RequireUniqueEmail is true && UserStore is IUserEmailStore<TUser> emailStore)
+            {
+                if (string.IsNullOrEmpty(request.Email))
+                {
+                    return ValidationProblem(new Dictionary<string, string[]>
+                    {
+                        { "invalid_email", new[] { "Email cannot be null or empty." } }
+                    });
+                }
+
+                aliases.Add(request.Email);
+            }
+            else if (!string.IsNullOrEmpty(request.Email))
+            {
+                _logger.LogWarning(
+                    "An email was provided for {UserId}, but IdentityOptions.User.RequireUniqueEmail was not set to true so the email will not be used as an alias for the passkey.",
+                    userId);
+            }
+
+            var registerOptions = CreateRegisterOptions(userId,
+                new UserInformation(request.Username, request.DisplayName, aliases));
+
+            // Customize register options
+            var customizeContext = new CustomizeRegisterOptionsContext(true, registerOptions);
+            await CustomizeRegisterOptions.CustomizeAsync(customizeContext, cancellationToken);
+
+            if (customizeContext.Options is null)
+            {
+                // Is this the best result?
+                return Unauthorized();
+            }
+
+            var token = await PasswordlessClient.CreateRegisterTokenAsync(customizeContext.Options, cancellationToken);
+            return Ok(token);
         }
-        else if (!string.IsNullOrEmpty(request.Email))
+        // Route Passwordless API errors to the corresponding result
+        catch (PasswordlessApiException ex)
         {
-            _logger.LogWarning("An email was provided for {UserId}, but IdentityOptions.User.RequireUniqueEmail was not set to true so the email will not be used as an alias for the passkey.",
-                userId);
+            _logger.LogDebug(
+                "Passwordless API responded with an error while attempting to register user: {Error}",
+                ex.Details
+            );
+
+            return Problem(
+                ex.Details.Detail,
+                ex.Details.Instance,
+                ex.Details.Status,
+                ex.Details.Title,
+                ex.Details.Type
+            );
         }
-
-        var registerOptions = CreateRegisterOptions(userId,
-            new UserInformation(request.Username, request.DisplayName, aliases));
-
-        // Customize register options
-        var customizeContext = new CustomizeRegisterOptionsContext(true, registerOptions);
-        await CustomizeRegisterOptions.CustomizeAsync(customizeContext, cancellationToken);
-
-        if (customizeContext.Options is null)
-        {
-            // Is this the best result?
-            return Unauthorized();
-        }
-
-        var token = await PasswordlessClient.CreateRegisterTokenAsync(customizeContext.Options, cancellationToken);
-        return Ok(token);
     }
 
-    public virtual async Task<IResult> LoginUserAsync(PasswordlessLoginRequest loginRequest, CancellationToken cancellationToken)
+    /// <inheritdoc />
+    public virtual async Task<IResult> LoginUserAsync(
+        PasswordlessLoginRequest loginRequest,
+        CancellationToken cancellationToken)
     {
-        var verifiedUser = await PasswordlessClient.VerifyTokenAsync(loginRequest.Token, cancellationToken);
-
-        if (verifiedUser is null)
+        try
         {
-            _logger.LogDebug("User could not be verified with token {Token}", loginRequest.Token);
-            return Unauthorized();
+            var verifiedUser = await PasswordlessClient.VerifyTokenAsync(loginRequest.Token, cancellationToken);
+
+            _logger.LogDebug("Attempting to find user in store by id {UserId}.", verifiedUser.UserId);
+            var user = await UserStore.FindByIdAsync(verifiedUser.UserId, cancellationToken);
+
+            if (user is null)
+            {
+                _logger.LogDebug("Could not find user.");
+                return Unauthorized();
+            }
+
+            var claimsPrincipal = await UserClaimsPrincipalFactory.CreateAsync(user);
+
+            // First try our own scheme, then optionally try built in options but null is still allowed because it
+            // will then fallback to the default scheme.
+            var scheme = Options.SignInScheme
+                         ?? AuthenticationOptions?.DefaultSignInScheme;
+
+            _logger.LogInformation("Signing in user with scheme {Scheme} and {NumberOfClaims} claims",
+                scheme, claimsPrincipal.Claims.Count());
+
+            return SignIn(claimsPrincipal, authenticationScheme: scheme);
         }
-
-        _logger.LogDebug("Attempting to find user in store by id {UserId}.", verifiedUser.UserId);
-        var user = await UserStore.FindByIdAsync(verifiedUser.UserId, cancellationToken);
-
-        if (user is null)
+        // Route Passwordless API errors to the corresponding result
+        catch (PasswordlessApiException ex)
         {
-            _logger.LogDebug("Could not find user.");
-            return Unauthorized();
+            _logger.LogDebug(
+                "Passwordless API responded with an error while attempting to login user: {Error}",
+                ex.Details
+            );
+
+            return Problem(
+                ex.Details.Detail,
+                ex.Details.Instance,
+                ex.Details.Status,
+                ex.Details.Title,
+                ex.Details.Type
+            );
         }
-
-        var claimsPrincipal = await UserClaimsPrincipalFactory.CreateAsync(user);
-
-        // First try our own scheme, then optionally try built in options but null is still allowed because it
-        // will then fallback to the default scheme.
-        var scheme = Options.SignInScheme
-            ?? AuthenticationOptions?.DefaultSignInScheme;
-
-        _logger.LogInformation("Signing in user with scheme {Scheme} and {NumberOfClaims} claims",
-            scheme, claimsPrincipal.Claims.Count());
-
-        return SignIn(claimsPrincipal, authenticationScheme: scheme);
     }
 
-    protected virtual async Task<IdentityResult> CreateUserAsync(TUser user, TRegisterRequest request, CancellationToken cancellationToken)
+    protected virtual async Task<IdentityResult> CreateUserAsync(
+        TUser user,
+        TRegisterRequest request,
+        CancellationToken cancellationToken)
     {
         await UserStore.SetUserNameAsync(user, request.Username, cancellationToken);
 
