@@ -30,7 +30,7 @@ public interface IPasswordlessClient
     /// <param name="cancellationToken"></param>
     /// <returns>A task object representing the asynchronous operation containing the <see cref="SigninTokenResponse" />.</returns>
     /// <exception cref="PasswordlessApiException">An exception containing details about the reason for failure.</exception>
-    Task<SigninTokenResponse> CreateSigninTokenAsync(
+    Task<SigninTokenResponse> GenerateSigninTokenAsync(
         SigninOptions options,
         CancellationToken cancellationToken = default
     );

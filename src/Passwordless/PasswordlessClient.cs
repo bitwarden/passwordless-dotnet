@@ -80,11 +80,11 @@ public class PasswordlessClient : IPasswordlessClient, IDisposable
     }
 
     /// <inheritdoc />
-    public async Task<SigninTokenResponse> CreateSigninTokenAsync(
+    public async Task<SigninTokenResponse> GenerateSigninTokenAsync(
         SigninOptions options,
         CancellationToken cancellationToken = default)
     {
-        using var response = await _http.PostAsJsonAsync("signin/token",
+        using var response = await _http.PostAsJsonAsync("signin/generate-token",
             options,
             PasswordlessSerializerContext.Default.SigninOptions,
             cancellationToken
