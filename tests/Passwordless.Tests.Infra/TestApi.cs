@@ -32,8 +32,9 @@ public class TestApi : IAsyncDisposable
     {
         _apiContainer = new ContainerBuilder()
             // https://github.com/passwordless/passwordless-server/pkgs/container/passwordless-test-api
-            .WithImage("ghcr.io/passwordless/passwordless-test-api:latest") // switch to stable eventually
-                                                                            // Make sure we always have the latest version of the image
+            // Switch to stable whenever possible
+            .WithImage("ghcr.io/passwordless/passwordless-test-api:latest")
+            // Make sure we always have the latest version of the image
             .WithImagePullPolicy(PullPolicy.Always)
             // Run in development environment to enable migrations
             .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
