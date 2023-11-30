@@ -35,5 +35,5 @@ public class PasswordlessProblemDetails
     public string? Instance { get; }
 
     [JsonExtensionData]
-    public Dictionary<string, JsonElement> Extensions { get; set; } = new Dictionary<string, JsonElement>();
+    public Dictionary<string, JsonElement> Extensions { get; set; } = new();
 }

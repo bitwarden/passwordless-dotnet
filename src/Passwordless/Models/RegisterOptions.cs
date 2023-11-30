@@ -4,12 +4,12 @@ using System.Collections.Generic;
 namespace Passwordless;
 
 /// <summary>
-/// 
+///
 /// </summary>
 public class RegisterOptions
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="userId"></param>
     /// <param name="username"></param>
@@ -72,7 +72,7 @@ public class RegisterOptions
     /// signin on the client side with the signinWithAlias() method. An alias must be unique to the userId.
     /// Defaults to an empty array [].
     /// </summary>
-    public HashSet<string> Aliases { get; set; } = new HashSet<string>();
+    public HashSet<string> Aliases { get; set; } = new();
 
     /// <summary>
     /// Whether aliases should be hashed before being stored. Defaults to true.
