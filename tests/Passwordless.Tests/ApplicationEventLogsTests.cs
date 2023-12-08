@@ -17,7 +17,7 @@ public class ApplicationEventLogsTests : ApiTestBase
     public async Task I_can_view_application_event_logs_when_event_logs_are_enabled()
     {
         // Arrange
-        const string applicationName = "test-event-logs";
+        const string applicationName = "testeventlogs";
 
         var passwordless = await Api.CreateClientAsync(applicationName);
 
