@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Passwordless.Helpers;
 using Passwordless.Models;
-using JsonContext = Passwordless.Helpers.PasswordlessSerializerContext;
 
 namespace Passwordless;
 
@@ -115,6 +114,12 @@ public class PasswordlessClient : IPasswordlessClient, IDisposable
             cancellationToken
         ))!;
     }
+
+    /// <inheritdoc />
+    public async Task<GetEventLogResponse> GetEventLogAsync(GetEventLogRequest request, CancellationToken cancellationToken = default) =>
+        (await _http.GetFromJsonAsync($"events?pageNumber={request.PageNumber}&numberOfResults={request.NumberOfResults}",
+            PasswordlessSerializerContext.Default.GetEventLogResponse,
+            cancellationToken)) ?? new GetEventLogResponse();
 
     /// <inheritdoc />
     public async Task<UsersCount> GetUsersCountAsync(CancellationToken cancellationToken = default) =>

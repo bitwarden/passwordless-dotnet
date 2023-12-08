@@ -83,11 +83,13 @@ public class TestApi : IAsyncDisposable
         }
     }
 
-    public async Task<PasswordlessOptions> CreateAppAsync()
+    public Task<PasswordlessOptions> CreateAppAsync() => CreateAppAsync($"app{Guid.NewGuid():N}");
+
+    public async Task<PasswordlessOptions> CreateAppAsync(string appName)
     {
         using var request = new HttpRequestMessage(
             HttpMethod.Post,
-            $"{PublicApiUrl}/admin/apps/app{Guid.NewGuid():N}/create"
+            $"{PublicApiUrl}/admin/apps/{appName}/create"
         );
 
         request.Content = new StringContent(
@@ -128,6 +130,19 @@ public class TestApi : IAsyncDisposable
     public async Task<IPasswordlessClient> CreateClientAsync()
     {
         var options = await CreateAppAsync();
+
+        // Initialize using a service container to cover more code paths
+        return new ServiceCollection().AddPasswordlessSdk(o =>
+        {
+            o.ApiUrl = options.ApiUrl;
+            o.ApiKey = options.ApiKey;
+            o.ApiSecret = options.ApiSecret;
+        }).BuildServiceProvider().GetRequiredService<IPasswordlessClient>();
+    }
+
+    public async Task<IPasswordlessClient> CreateClientAsync(string applicationName)
+    {
+        var options = await CreateAppAsync(applicationName);
 
         // Initialize using a service container to cover more code paths
         return new ServiceCollection().AddPasswordlessSdk(o =>
