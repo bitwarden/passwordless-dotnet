@@ -28,10 +28,18 @@ async function handleSigninClick(e) {
         }
 
         console.log("Received token", token);
+        
         /**
          * Verify the sign in - Call your node backend to verify the token created from the sign in
          */
-        const user = await fetch(BACKEND_URL + "/verify-signin?token=" + token).then((r) => r.json());
+        const userResponse = await fetch(BACKEND_URL + "/verify-signin?token=" + token);
+        if (!userResponse.ok) {
+            const userError = await userResponse.json();
+            Status("Your backend failed while verifying the token: " + JSON.stringify(userError, null, 2));
+            return;
+        }
+        
+        const user = await userResponse.json()
 
         /**
          * Done - you can now check the user result for status, userid etc

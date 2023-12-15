@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
@@ -45,7 +46,7 @@ public class PasswordlessController : Controller
         {
             return new JsonResult(e.Details)
             {
-                StatusCode = (int?)e.StatusCode
+                StatusCode = e.Details.Status
             };
         }
     }
@@ -71,7 +72,7 @@ public class PasswordlessController : Controller
         {
             return new JsonResult(e.Details)
             {
-                StatusCode = (int?)e.StatusCode
+                StatusCode = e.Details.Status
             };
         }
     }
