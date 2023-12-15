@@ -1,11 +1,11 @@
+using System;
 using System.Collections.Generic;
-using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Passwordless;
 
-public sealed class PasswordlessApiException : HttpRequestException
+public sealed class PasswordlessApiException : Exception
 {
     public PasswordlessProblemDetails Details { get; }
 
