@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using FluentAssertions;
+using Passwordless.Models;
 using Passwordless.Tests.Infra;
 using Xunit;
 using Xunit.Abstractions;
@@ -27,6 +28,40 @@ public class TokenTests : ApiTestBase
         // Assert
         response.Token.Should().NotBeNullOrWhiteSpace();
         response.Token.Should().StartWith("register_");
+    }
+
+    [Fact]
+    public async Task I_can_generate_a_signin_token()
+    {
+        // Arrange
+        var passwordless = await Api.CreateClientAsync();
+
+        // Act
+        var response = await passwordless.GenerateSigninTokenAsync(
+            new SigninOptions("user123")
+        );
+
+        // Assert
+        response.Token.Should().NotBeNullOrWhiteSpace();
+        response.Token.Should().StartWith("verify_");
+    }
+
+    [Fact]
+    public async Task I_can_verify_a_valid_signin_token()
+    {
+        // Arrange
+        var passwordless = await Api.CreateClientAsync();
+
+        var token = (await passwordless.GenerateSigninTokenAsync(
+            new SigninOptions("user123")
+        )).Token;
+
+        // Act
+        var response = await passwordless.VerifyTokenAsync(token);
+
+        // Assert
+        response.Success.Should().BeTrue();
+        response.UserId.Should().Be("user123");
     }
 
     [Fact]

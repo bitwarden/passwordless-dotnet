@@ -543,7 +543,7 @@ public class PasswordlessServiceTests
 
 public sealed class TestUserStore : IUserEmailStore<TestUser>
 {
-    public Dictionary<Guid, TestUser> InnerStore { get; } = new Dictionary<Guid, TestUser>();
+    public Dictionary<Guid, TestUser> InnerStore { get; } = new();
 
     public Task<IdentityResult> CreateAsync(TestUser user, CancellationToken cancellationToken = default)
     {

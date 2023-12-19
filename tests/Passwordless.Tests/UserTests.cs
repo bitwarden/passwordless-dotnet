@@ -24,7 +24,7 @@ public class UserTests : ApiTestBase
         var users = await passwordless.ListUsersAsync();
 
         // Assert
-        userCountResponse.Count.Should().Be(users.Count);
+        userCountResponse.Count.Should().Be(0);
         users.Should().BeEmpty();
     }
 }
