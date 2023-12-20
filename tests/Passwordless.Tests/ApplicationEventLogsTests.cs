@@ -17,7 +17,6 @@ public class ApplicationEventLogsTests(TestApiFixture api, ITestOutputHelper tes
         var passwordless = await Api.CreateClientAsync(applicationName);
         await Api.EnableEventLogsAsync(applicationName);
 
-
         // Act
         var response = await passwordless.GetEventLogAsync(new GetEventLogRequest { PageNumber = 1, NumberOfResults = 100 });
 
