@@ -31,9 +31,8 @@ public class TestApi : IAsyncDisposable
     public TestApi()
     {
         _apiContainer = new ContainerBuilder()
-            // https://github.com/passwordless/passwordless-server/pkgs/container/passwordless-test-api
-            // Switch to stable whenever possible
-            .WithImage("ghcr.io/passwordless/passwordless-test-api:latest")
+            // https://hub.docker.com/r/bitwarden/passwordless-test-api
+            .WithImage("bitwarden/passwordless-test-api:stable")
             // Make sure we always have the latest version of the image
             .WithImagePullPolicy(PullPolicy.Always)
             // Run in development environment to enable migrations
