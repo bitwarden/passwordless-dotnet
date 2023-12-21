@@ -1,10 +1,10 @@
 namespace Passwordless.Models;
 
-public class SigninOptions
+public class AuthenticationOptions
 {
     public string UserId { get; }
 
-    public SigninOptions(string userId)
+    public AuthenticationOptions(string userId)
     {
         UserId = userId;
     }

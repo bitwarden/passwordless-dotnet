@@ -92,11 +92,11 @@ public async Task<IActionResult> GetRegisterToken(string alias)
 
 ### Verify user
 
-Define an action or an endpoint to verify a signin token:
+Define an action or an endpoint to verify an authentication token:
 
 ```csharp
 [HttpGet("/verify-signin")]
-public async Task<IActionResult> VerifySignInToken(string token)
+public async Task<IActionResult> VerifyAuthenticationToken(string token)
 {
     try
     {

@@ -31,14 +31,14 @@ public class TokenTests : ApiTestBase
     }
 
     [Fact]
-    public async Task I_can_generate_a_signin_token()
+    public async Task I_can_generate_an_authentication_token()
     {
         // Arrange
         var passwordless = await Api.CreateClientAsync();
 
         // Act
-        var response = await passwordless.GenerateSigninTokenAsync(
-            new SigninOptions("user123")
+        var response = await passwordless.GenerateAuthenticationTokenAsync(
+            new AuthenticationOptions("user123")
         );
 
         // Assert
@@ -47,17 +47,17 @@ public class TokenTests : ApiTestBase
     }
 
     [Fact]
-    public async Task I_can_verify_a_valid_signin_token()
+    public async Task I_can_verify_a_valid_authentication_token()
     {
         // Arrange
         var passwordless = await Api.CreateClientAsync();
 
-        var token = (await passwordless.GenerateSigninTokenAsync(
-            new SigninOptions("user123")
+        var token = (await passwordless.GenerateAuthenticationTokenAsync(
+            new AuthenticationOptions("user123")
         )).Token;
 
         // Act
-        var response = await passwordless.VerifyTokenAsync(token);
+        var response = await passwordless.VerifyAuthenticationTokenAsync(token);
 
         // Assert
         response.Success.Should().BeTrue();
@@ -65,14 +65,14 @@ public class TokenTests : ApiTestBase
     }
 
     [Fact]
-    public async Task I_can_try_to_verify_a_poorly_formatted_signin_token_and_get_an_error()
+    public async Task I_can_try_to_verify_a_poorly_formatted_authentication_token_and_get_an_error()
     {
         // Arrange
         var passwordless = await Api.CreateClientAsync();
 
         // Act & assert
         var ex = await Assert.ThrowsAnyAsync<PasswordlessApiException>(async () =>
-            await passwordless.VerifyTokenAsync("invalid")
+            await passwordless.VerifyAuthenticationTokenAsync("invalid")
         );
 
         ex.Details.Status.Should().Be(400);
@@ -80,14 +80,14 @@ public class TokenTests : ApiTestBase
     }
 
     [Fact]
-    public async Task I_can_try_to_verify_a_tampered_signin_token_and_get_an_error()
+    public async Task I_can_try_to_verify_a_tampered_authentication_token_and_get_an_error()
     {
         // Arrange
         var passwordless = await Api.CreateClientAsync();
 
         // Act & assert
         var ex = await Assert.ThrowsAnyAsync<PasswordlessApiException>(async () =>
-            await passwordless.VerifyTokenAsync("verify_something_that_looks_like_a_token_but_is_not")
+            await passwordless.VerifyAuthenticationTokenAsync("verify_something_that_looks_like_a_token_but_is_not")
         );
 
         ex.Details.Status.Should().Be(400);
@@ -95,14 +95,14 @@ public class TokenTests : ApiTestBase
     }
 
     [Fact]
-    public async Task I_can_try_to_verify_an_invalid_signin_token_and_get_an_error()
+    public async Task I_can_try_to_verify_an_invalid_authentication_token_and_get_an_error()
     {
         // Arrange
         var passwordless = await Api.CreateClientAsync();
 
         // Act & assert
         var ex = await Assert.ThrowsAnyAsync<PasswordlessApiException>(async () =>
-            await passwordless.VerifyTokenAsync(
+            await passwordless.VerifyAuthenticationTokenAsync(
                 "verify_" +
                 "k8Qg4kXVl8D2aunn__jMT7td5endUueS9zEG8zIsu0lqQjfFAQXcABPX_wlDNbBlTNiB2SQ5MjQ0ZmUzYS0wOGExLTRlMTctOTMwZS1i" +
                 "YWZhNmM0OWJiOGWucGFzc2tleV9zaWduaW7AwMDAwMDA2SQ3NGUxMzFjOS0yNDZhLTRmNzYtYjIxMS1jNzBkZWQ1Mjg2YzLX_wlDJIBl" +

@@ -1,8 +1,8 @@
 namespace Passwordless.Models;
 
-public class SigninTokenResponse
+public class AuthenticationTokenResponse
 {
-    public SigninTokenResponse(string token)
+    public AuthenticationTokenResponse(string token)
     {
         Token = token;
     }

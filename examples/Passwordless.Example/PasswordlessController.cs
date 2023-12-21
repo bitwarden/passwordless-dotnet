@@ -61,11 +61,11 @@ public class PasswordlessController : Controller
     /// </summary>
     /// <param name="token"></param>
     [HttpGet("/verify-signin")]
-    public async Task<IActionResult> VerifySignInToken(string token)
+    public async Task<IActionResult> VerifyAuthenticationToken(string token)
     {
         try
         {
-            var verifiedUser = await _passwordlessClient.VerifyTokenAsync(token);
+            var verifiedUser = await _passwordlessClient.VerifyAuthenticationTokenAsync(token);
             return Ok(verifiedUser);
         }
         catch (PasswordlessApiException e)
