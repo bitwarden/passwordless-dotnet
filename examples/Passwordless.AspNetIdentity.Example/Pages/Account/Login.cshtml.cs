@@ -23,7 +23,7 @@ public class LoginModel : PageModel
         {
             return LocalRedirect("/");
         }
-        return Page();
+        return Page(); 
     }
 
     public async Task OnPostAsync(LoginForm form, CancellationToken cancellationToken)
