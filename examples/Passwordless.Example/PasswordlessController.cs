@@ -25,8 +25,6 @@ public class PasswordlessController : Controller
     ///     signed in users to add a Key to their own account.
     ///     Please see: https://docs.passwordless.dev/guide/api.html#register-token
     /// </summary>
-    /// <param name="alias"></param>
-    /// <returns></returns>
     [HttpGet("/create-token")]
     public async Task<IActionResult> GetRegisterToken(string alias)
     {
@@ -59,7 +57,6 @@ public class PasswordlessController : Controller
     ///     This is as easy as POST'ing it to together with your ApiSecret.
     ///     Please see: https://docs.passwordless.dev/guide/api.html#signin-verify
     /// </summary>
-    /// <param name="token"></param>
     [HttpGet("/verify-signin")]
     public async Task<IActionResult> VerifyAuthenticationToken(string token)
     {
