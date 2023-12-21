@@ -136,4 +136,12 @@ public interface IPasswordlessClient
         byte[] id,
         CancellationToken cancellationToken = default
     );
+
+    /// <summary>
+    /// Gets a list of events for the application.  
+    /// </summary>
+    /// <param name="request"><see cref="GetEventLogRequest"/></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<GetEventLogResponse> GetEventLogAsync(GetEventLogRequest request, CancellationToken cancellationToken = default);
 }

@@ -28,6 +28,8 @@ public class TestApi : IAsyncDisposable
 
     private string PublicApiUrl => $"http://{_apiContainer.Hostname}:{_apiContainer.GetMappedPublicPort(ApiPort)}";
 
+    public static string GetAppName() => $"app{Guid.NewGuid():N}";
+
     public TestApi()
     {
         _apiContainer = new ContainerBuilder()
@@ -82,11 +84,13 @@ public class TestApi : IAsyncDisposable
         }
     }
 
-    public async Task<PasswordlessOptions> CreateAppAsync()
+    public Task<PasswordlessOptions> CreateAppAsync() => CreateAppAsync($"app{Guid.NewGuid():N}");
+
+    public async Task<PasswordlessOptions> CreateAppAsync(string appName)
     {
         using var request = new HttpRequestMessage(
             HttpMethod.Post,
-            $"{PublicApiUrl}/admin/apps/app{Guid.NewGuid():N}/create"
+            $"{PublicApiUrl}/admin/apps/{appName}/create"
         );
 
         request.Content = new StringContent(
@@ -135,6 +139,49 @@ public class TestApi : IAsyncDisposable
             o.ApiKey = options.ApiKey;
             o.ApiSecret = options.ApiSecret;
         }).BuildServiceProvider().GetRequiredService<IPasswordlessClient>();
+    }
+
+    public async Task<IPasswordlessClient> CreateClientAsync(string applicationName)
+    {
+        var options = await CreateAppAsync(applicationName);
+
+        // Initialize using a service container to cover more code paths
+        return new ServiceCollection().AddPasswordlessSdk(o =>
+        {
+            o.ApiUrl = options.ApiUrl;
+            o.ApiKey = options.ApiKey;
+            o.ApiSecret = options.ApiSecret;
+        }).BuildServiceProvider().GetRequiredService<IPasswordlessClient>();
+    }
+
+    public async Task EnableEventLogsAsync(string applicationName)
+    {
+        using var request = new HttpRequestMessage(
+            HttpMethod.Post,
+            $"{PublicApiUrl}/admin/apps/{applicationName}/features"
+        );
+        request.Content = new StringContent(
+            // lang=json
+            """
+            {
+              "EventLoggingIsEnabled": true,
+              "EventLoggingRetentionPeriod": 7,
+              "MaxUsers": null
+            }
+            """,
+            Encoding.UTF8,
+            "application/json");
+
+        using var response = await _http.SendAsync(request);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new InvalidOperationException(
+                $"Failed to enable event logging. " +
+                $"Status code: {(int)response.StatusCode}. " +
+                $"Response body: {await response.Content.ReadAsStringAsync()}."
+            );
+        }
     }
 
     public string GetLogs()
