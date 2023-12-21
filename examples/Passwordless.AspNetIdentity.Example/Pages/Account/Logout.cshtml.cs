@@ -16,7 +16,7 @@ public class Logout : PageModel
         _userSignInManager = userSignInManager;
         _logger = logger;
     }
-    
+
     public async Task<IActionResult> OnGet()
     {
         await _userSignInManager.SignOutAsync();
