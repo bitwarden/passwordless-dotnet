@@ -2,7 +2,7 @@
 
 ## Requirements
 
-* .NET 7 SDK
+* .NET 8 SDK
 * A free account obtained from [passwordless.dev](https://admin.passwordless.dev/signup).
 * [A Passwordless.dev public and private API key pair](https://docs.passwordless.dev/guide/get-started.html#create-an-application).
 * An IDE such as Visual Studio or JetBrains Rider.

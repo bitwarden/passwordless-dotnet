@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@{
+    var loggedIn = User.Identity?.IsAuthenticated ?? false;
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8"/>
@@ -31,6 +35,12 @@
                     <li class="nav-item">
                         <a class="nav-link text-dark" asp-area="" asp-page="/Authorized/HelloWorld">Hello World (Protected Page)</a>
                     </li>
+                    @if (loggedIn)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Account/Logout">Logout</a>
+                        </li>
+                    }
                 </ul>
             </div>
         </div>
