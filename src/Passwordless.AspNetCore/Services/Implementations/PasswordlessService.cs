@@ -261,7 +261,7 @@ public class PasswordlessService<TUser, TRegisterRequest>
     {
         try
         {
-            var verifiedUser = await PasswordlessClient.VerifyTokenAsync(loginRequest.Token, cancellationToken);
+            var verifiedUser = await PasswordlessClient.VerifyAuthenticationTokenAsync(loginRequest.Token, cancellationToken);
 
             _logger.LogDebug("Attempting to find user in store by id {UserId}.", verifiedUser.UserId);
             var user = await UserStore.FindByIdAsync(verifiedUser.UserId, cancellationToken);

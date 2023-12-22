@@ -79,30 +79,30 @@ public class PasswordlessClient : IPasswordlessClient, IDisposable
     }
 
     /// <inheritdoc />
-    public async Task<SigninTokenResponse> GenerateSigninTokenAsync(
-        SigninOptions options,
+    public async Task<AuthenticationTokenResponse> GenerateAuthenticationTokenAsync(
+        AuthenticationOptions options,
         CancellationToken cancellationToken = default)
     {
         using var response = await _http.PostAsJsonAsync("signin/generate-token",
             options,
-            PasswordlessSerializerContext.Default.SigninOptions,
+            PasswordlessSerializerContext.Default.AuthenticationOptions,
             cancellationToken
         );
 
         response.EnsureSuccessStatusCode();
 
         return (await response.Content.ReadFromJsonAsync(
-            PasswordlessSerializerContext.Default.SigninTokenResponse,
+            PasswordlessSerializerContext.Default.AuthenticationTokenResponse,
             cancellationToken))!;
     }
 
     /// <inheritdoc />
-    public async Task<VerifiedUser> VerifyTokenAsync(
-        string verifyToken,
+    public async Task<VerifiedUser> VerifyAuthenticationTokenAsync(
+        string authenticationToken,
         CancellationToken cancellationToken = default)
     {
         using var response = await _http.PostAsJsonAsync("signin/verify",
-            new VerifyTokenRequest(verifyToken),
+            new VerifyTokenRequest(authenticationToken),
             PasswordlessSerializerContext.Default.VerifyTokenRequest,
             cancellationToken
         );

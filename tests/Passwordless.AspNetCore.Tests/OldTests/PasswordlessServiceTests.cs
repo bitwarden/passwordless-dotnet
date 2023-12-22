@@ -16,6 +16,7 @@ using Passwordless.AspNetCore.Services;
 using Passwordless.AspNetCore.Services.Implementations;
 using Passwordless.Models;
 using Xunit;
+using AuthenticationOptions = Microsoft.AspNetCore.Authentication.AuthenticationOptions;
 
 namespace Passwordless.AspNetCore.Tests.OldTests;
 
@@ -206,7 +207,7 @@ public class PasswordlessServiceTests
         await _testUserStore.CreateAsync(user);
 
         _mockPasswordlessClient
-            .Setup(s => s.VerifyTokenAsync("test_token", default))
+            .Setup(s => s.VerifyAuthenticationTokenAsync("test_token", default))
             .ReturnsAsync(verifiedUser);
 
         _mockUserClaimsPrincipalFactory
@@ -248,7 +249,7 @@ public class PasswordlessServiceTests
         await _testUserStore.CreateAsync(user);
 
         _mockPasswordlessClient
-            .Setup(s => s.VerifyTokenAsync("test_token", default))
+            .Setup(s => s.VerifyAuthenticationTokenAsync("test_token", default))
             .ReturnsAsync(verifiedUser);
 
         _mockUserClaimsPrincipalFactory
@@ -297,7 +298,7 @@ public class PasswordlessServiceTests
         await _testUserStore.CreateAsync(user);
 
         _mockPasswordlessClient
-            .Setup(s => s.VerifyTokenAsync("test_token", default))
+            .Setup(s => s.VerifyAuthenticationTokenAsync("test_token", default))
             .ReturnsAsync(verifiedUser);
 
         _mockUserClaimsPrincipalFactory
@@ -329,7 +330,7 @@ public class PasswordlessServiceTests
             _fixture.Create<Guid>(),
             _fixture.Create<string>());
         _mockPasswordlessClient
-            .Setup(s => s.VerifyTokenAsync("test_token", default))
+            .Setup(s => s.VerifyAuthenticationTokenAsync("test_token", default))
             .ReturnsAsync(verifiedUser);
 
         var sut = CreateSut();
