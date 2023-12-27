@@ -85,7 +85,7 @@ public class TestApi : IAsyncDisposable
 
     public async Task<PasswordlessApplication> CreateAppAsync()
     {
-        var appName = Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
+        var appName = $"app{Guid.NewGuid():N)}";
 
         using var request = new HttpRequestMessage(
             HttpMethod.Post,
