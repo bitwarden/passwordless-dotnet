@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using DotNet.Testcontainers.Images;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Passwordless.Tests.Infra;
 
@@ -84,10 +83,10 @@ public class TestApi : IAsyncDisposable
         }
     }
 
-    public Task<PasswordlessOptions> CreateAppAsync() => CreateAppAsync($"app{Guid.NewGuid():N}");
-
-    public async Task<PasswordlessOptions> CreateAppAsync(string appName)
+    public async Task<PasswordlessApplication> CreateAppAsync()
     {
+        var appName = Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
+
         using var request = new HttpRequestMessage(
             HttpMethod.Post,
             $"{PublicApiUrl}/admin/apps/{appName}/create"
@@ -116,50 +115,27 @@ public class TestApi : IAsyncDisposable
         }
 
         var responseContent = await response.Content.ReadFromJsonAsync<JsonElement>();
-        var apiKey = responseContent.GetProperty("apiKey1").GetString();
-        var apiSecret = responseContent.GetProperty("apiSecret1").GetString();
 
-        return new PasswordlessOptions
-        {
-            ApiUrl = PublicApiUrl,
-            ApiKey = apiKey,
-            ApiSecret = apiSecret ??
-                        throw new InvalidOperationException("Cannot extract API Secret from the response.")
-        };
+        var apiSecret =
+            responseContent.GetProperty("apiSecret1").GetString() ??
+            throw new InvalidOperationException("Failed to extract the API secret.");
+
+        var apiKey =
+            responseContent.GetProperty("apiKey1").GetString() ??
+            throw new InvalidOperationException("Failed to extract the API key.");
+
+        return new PasswordlessApplication(appName, PublicApiUrl, apiSecret, apiKey);
     }
 
-    public async Task<IPasswordlessClient> CreateClientAsync()
-    {
-        var options = await CreateAppAsync();
+    public async Task<IPasswordlessClient> CreateClientAsync() => (await CreateAppAsync()).CreateClient();
 
-        // Initialize using a service container to cover more code paths
-        return new ServiceCollection().AddPasswordlessSdk(o =>
-        {
-            o.ApiUrl = options.ApiUrl;
-            o.ApiKey = options.ApiKey;
-            o.ApiSecret = options.ApiSecret;
-        }).BuildServiceProvider().GetRequiredService<IPasswordlessClient>();
-    }
-
-    public async Task<IPasswordlessClient> CreateClientAsync(string applicationName)
-    {
-        var options = await CreateAppAsync(applicationName);
-
-        // Initialize using a service container to cover more code paths
-        return new ServiceCollection().AddPasswordlessSdk(o =>
-        {
-            o.ApiUrl = options.ApiUrl;
-            o.ApiKey = options.ApiKey;
-            o.ApiSecret = options.ApiSecret;
-        }).BuildServiceProvider().GetRequiredService<IPasswordlessClient>();
-    }
-
-    public async Task EnableEventLogsAsync(string applicationName)
+    public async Task EnableEventLogsAsync(string appName)
     {
         using var request = new HttpRequestMessage(
             HttpMethod.Post,
-            $"{PublicApiUrl}/admin/apps/{applicationName}/features"
+            $"{PublicApiUrl}/admin/apps/{appName}/features"
         );
+
         request.Content = new StringContent(
             // lang=json
             """
@@ -170,7 +146,8 @@ public class TestApi : IAsyncDisposable
             }
             """,
             Encoding.UTF8,
-            "application/json");
+            "application/json"
+        );
 
         using var response = await _http.SendAsync(request);
 

@@ -13,15 +13,18 @@ public class ApplicationEventLogsTests(TestApiFixture api, ITestOutputHelper tes
     public async Task I_can_view_application_event_logs_when_event_logs_are_enabled()
     {
         // Arrange
-        var applicationName = TestApi.GetAppName();
-        var passwordless = await Api.CreateClientAsync(applicationName);
-        await Api.EnableEventLogsAsync(applicationName);
+        var app = await Api.CreateAppAsync();
+        var passwordless = app.CreateClient();
+
+        await Api.EnableEventLogsAsync(app.Name);
 
         // Act
-        var response = await passwordless.GetEventLogAsync(new GetEventLogRequest { PageNumber = 1, NumberOfResults = 100 });
+        var response = await passwordless.GetEventLogAsync(
+            new GetEventLogRequest { PageNumber = 1, NumberOfResults = 100 }
+        );
 
         // Assert
         response.Should().NotBeNull();
-        response.TenantId.Should().Be(applicationName);
+        response.TenantId.Should().Be(app.Name);
     }
 }
