@@ -27,8 +27,6 @@ public class TestApi : IAsyncDisposable
 
     private string PublicApiUrl => $"http://{_apiContainer.Hostname}:{_apiContainer.GetMappedPublicPort(ApiPort)}";
 
-    public static string GetAppName() => $"app{Guid.NewGuid():N}";
-
     public TestApi()
     {
         _apiContainer = new ContainerBuilder()
