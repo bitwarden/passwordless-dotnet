@@ -85,7 +85,7 @@ public class TestApi : IAsyncDisposable
 
     public async Task<PasswordlessApplication> CreateAppAsync()
     {
-        var appName = $"app{Guid.NewGuid():N)}";
+        var appName = $"app{Guid.NewGuid():N}";
 
         using var request = new HttpRequestMessage(
             HttpMethod.Post,
@@ -96,7 +96,9 @@ public class TestApi : IAsyncDisposable
             // lang=json
             """
             {
-              "adminEmail": "test@passwordless.dev"
+              "adminEmail": "test@passwordless.dev",
+              "eventLoggingIsEnabled": true,
+              "eventLoggingRetentionPeriod": 7
             }
             """,
             Encoding.UTF8,
@@ -128,38 +130,6 @@ public class TestApi : IAsyncDisposable
     }
 
     public async Task<IPasswordlessClient> CreateClientAsync() => (await CreateAppAsync()).CreateClient();
-
-    public async Task EnableEventLogsAsync(string appName)
-    {
-        using var request = new HttpRequestMessage(
-            HttpMethod.Post,
-            $"{PublicApiUrl}/admin/apps/{appName}/features"
-        );
-
-        request.Content = new StringContent(
-            // lang=json
-            """
-            {
-              "EventLoggingIsEnabled": true,
-              "EventLoggingRetentionPeriod": 7,
-              "MaxUsers": null
-            }
-            """,
-            Encoding.UTF8,
-            "application/json"
-        );
-
-        using var response = await _http.SendAsync(request);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            throw new InvalidOperationException(
-                $"Failed to enable event logging. " +
-                $"Status code: {(int)response.StatusCode}. " +
-                $"Response body: {await response.Content.ReadAsStringAsync()}."
-            );
-        }
-    }
 
     public string GetLogs()
     {
