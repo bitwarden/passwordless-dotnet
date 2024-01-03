@@ -54,8 +54,6 @@
         <script>
         async function addPasskey() {
             
-            console.log("start");
-            
             const addCredentialResponse = await fetch('/passwordless-add-credential', {
                 method: 'POST',
                 headers: {
@@ -64,11 +62,8 @@
                 body: JSON.stringify({ displayName: '@Model.Nickname' })
             });
             
-            console.log("end of add cred");
-            
             // if no error then deserialize and use returned token to create now our passkeys
             if (addCredentialResponse.ok) {
-                console.log("successful add cred");
                 const registrationResponseJson = await addCredentialResponse.json();
                 const token = registrationResponseJson.token;
                 
@@ -77,8 +72,7 @@
                     apiKey: "@PasswordlessOptions.Value.ApiKey",
                     apiUrl: "@PasswordlessOptions.Value.ApiUrl"
                 });
-                const registeredPasskeyResponse = await p.register(token, '@Model.Nickname');
-                console.log("ok register response", registeredPasskeyResponse.ok);
+                await p.register(token, '@Model.Nickname');
             }
         }
         addPasskey();
