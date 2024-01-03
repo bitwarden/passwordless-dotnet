@@ -18,7 +18,7 @@
         <form class="needs-validation" action="" method="POST">
             <div class="mb-3">
                 <label asp-for="Form.Email" class="form-label">Email</label>
-                <input placeholder="janedoe@example.org" type="text" asp-for="Form.Email" class="form-control" id="email">
+                <input placeholder="janedoe@example.org" type="email" asp-for="Form.Email" class="form-control" id="email">
                 <span class="text-danger" asp-validation-for="Form.Email"></span>
             </div>
             <div class="text-danger" asp-validation-summary="ModelOnly"></div>
@@ -26,6 +26,8 @@
                 <button type="submit" class="btn-primary">Login</button>
             </div>
         </form>
+        
+        <a asp-page="/Account/Recovery">If you have lost your passkey, please click here.</a>
     </div>
 </div>
 
