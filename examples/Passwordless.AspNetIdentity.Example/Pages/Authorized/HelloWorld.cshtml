@@ -1,10 +1,18 @@
 ﻿@page
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Microsoft.Extensions.Options
+@using Passwordless.AspNetCore
 @model HelloWorldModel
+@inject IOptions<PasswordlessAspNetCoreOptions> PasswordlessOptions;
 
 @{
     ViewData["Title"] = "Hello World";
 }
 <h1>@ViewData["Title"]</h1>
+
+@{
+    var canAddPasskeys = ViewData["CanAddPasskeys"] != null && (bool)(ViewData["CanAddPasskeys"] ?? false);
+}
 
 @if (HttpContext.User.Identity!.IsAuthenticated)
 {
@@ -27,6 +35,56 @@
             </div>
         </div>
     </div>
+    
+    <form class="row" action="" method="POST">
+        <div class="col-12">
+            <p>Set new passkey</p>
+            <div class="mb-3">
+                <label asp-for="Nickname">Nickname (Optional): </label>
+                <input type="text" asp-for="Nickname" class="form-control" />
+            </div>
+            
+            <button type="submit" class="btn-primary">Add Passkey</button>
+        </div>
+    </form>
+    
+    
+    @if (canAddPasskeys)
+    {
+        <script src="https://cdn.passwordless.dev/dist/1.1.0/umd/passwordless.umd.js"></script>
+        <script>
+        async function addPasskey() {
+            
+            console.log("start");
+            
+            const addCredentialResponse = await fetch('/passwordless-add-credential', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ displayName: '@Model.Nickname' })
+            });
+            
+            console.log("end of add cred");
+            
+            // if no error then deserialize and use returned token to create now our passkeys
+            if (addCredentialResponse.ok) {
+                console.log("successful add cred");
+                const registrationResponseJson = await addCredentialResponse.json();
+                const token = registrationResponseJson.token;
+                
+                // we need to use Client from https://cdn.passwordless.dev/dist/1.1.0/umd/passwordless.umd.js which is imported above.
+                const p = new Passwordless.Client({
+                    apiKey: "@PasswordlessOptions.Value.ApiKey",
+                    apiUrl: "@PasswordlessOptions.Value.ApiUrl"
+                });
+                const registeredPasskeyResponse = await p.register(token, '@Model.Nickname');
+                console.log("ok register response", registeredPasskeyResponse.ok);
+            }
+        }
+        addPasskey();
+        </script>
+    }
 }
 else
 {

@@ -21,7 +21,17 @@ public class HelloWorldModel : PageModel
         AuthenticatedUser = new AuthenticatedUserModel(identity.Name!, email);
     }
 
+    public void OnPost(string? nickname)
+    {
+        if (!ModelState.IsValid) return;
+        _logger.LogInformation("Adding new credential for user {userName}", HttpContext.User.Identity!.Name);
+        ViewData["CanAddPasskeys"] = true;
+        Nickname = nickname ?? HttpContext.User.Identity.Name;
+    }
+
     public AuthenticatedUserModel? AuthenticatedUser { get; private set; }
+
+    public string? Nickname { get; set; }
 }
 
 public record AuthenticatedUserModel(string Username, string Email);
