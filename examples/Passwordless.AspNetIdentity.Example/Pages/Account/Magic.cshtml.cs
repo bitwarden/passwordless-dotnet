@@ -40,13 +40,10 @@ public class Magic : PageModel
 
         var response = await _passwordlessClient.VerifyAuthenticationTokenAsync(token);
 
-        if (response.Success)
-        {
-            await _signInManager.SignInAsync(user, true);
-            Success = true;
-            return LocalRedirect("/Authorized/HelloWorld");
-        }
+        if (!response.Success) return Page();
 
-        return Page();
+        await _signInManager.SignInAsync(user, true);
+        Success = true;
+        return LocalRedirect("/Authorized/HelloWorld");
     }
 }
