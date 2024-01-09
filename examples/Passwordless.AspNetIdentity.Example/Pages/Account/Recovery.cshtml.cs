@@ -24,7 +24,6 @@ public class Recovery : PageModel
 
     public RecoveryForm Form { get; } = new();
 
-
     public Recovery(ILogger<Recovery> logger,
         SignInManager<IdentityUser> signInManager,
         PasswordlessClient passwordlessClient,
@@ -58,8 +57,8 @@ public class Recovery : PageModel
         var urlBuilder = _urlHelperFactory.GetUrlHelper(_actionContextAccessor.ActionContext);
         var url = urlBuilder.PageLink("/Account/Magic") ?? urlBuilder.Content("~/");
 
-        UriBuilder uriBuilder = new(url);
-        NameValueCollection query = HttpUtility.ParseQueryString(uriBuilder.Query);
+        var uriBuilder = new UriBuilder(url);
+        var query = HttpUtility.ParseQueryString(uriBuilder.Query);
         query["token"] = token.Token;
         query["email"] = user.Email;
         uriBuilder.Query = query.ToString();
