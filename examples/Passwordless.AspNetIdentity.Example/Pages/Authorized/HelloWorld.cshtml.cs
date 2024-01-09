@@ -32,7 +32,7 @@ public class HelloWorldModel : PageModel
     public AuthenticatedUserModel? AuthenticatedUser { get; private set; }
 
     public string? Nickname { get; set; }
-    
+
     public bool CanAddPassKeys { get; set; }
 }
 
