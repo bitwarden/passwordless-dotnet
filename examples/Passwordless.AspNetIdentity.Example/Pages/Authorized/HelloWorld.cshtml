@@ -10,10 +10,6 @@
 }
 <h1>@ViewData["Title"]</h1>
 
-@{
-    var canAddPasskeys = ViewData["CanAddPasskeys"] != null && (bool)(ViewData["CanAddPasskeys"] ?? false);
-}
-
 @if (HttpContext.User.Identity!.IsAuthenticated)
 {
     <div class="row">
@@ -48,7 +44,7 @@
     </form>
     
     
-    @if (canAddPasskeys)
+    @if (Model.CanAddPassKeys)
     {
         <script src="https://cdn.passwordless.dev/dist/1.1.0/umd/passwordless.umd.js"></script>
         <script>
