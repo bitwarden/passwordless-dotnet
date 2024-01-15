@@ -1,11 +1,3 @@
 namespace Passwordless.Models;
 
-internal class DeleteUserRequest
-{
-    public DeleteUserRequest(string userId)
-    {
-        UserId = userId;
-    }
-
-    public string UserId { get; }
-}
+internal record DeleteUserRequest(string UserId);

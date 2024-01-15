@@ -8,18 +8,8 @@ using Passwordless.Helpers.Extensions;
 
 namespace Passwordless;
 
-internal class PasswordlessHttpHandler : HttpMessageHandler
+internal class PasswordlessHttpHandler(HttpClient http, bool disposeClient = false) : HttpMessageHandler
 {
-    // Externally provided HTTP Client
-    private readonly HttpClient _http;
-    private readonly bool _disposeClient;
-
-    public PasswordlessHttpHandler(HttpClient http, bool disposeClient = false)
-    {
-        _http = http;
-        _disposeClient = disposeClient;
-    }
-
     protected override async Task<HttpResponseMessage> SendAsync(
         HttpRequestMessage providedRequest,
         CancellationToken cancellationToken)
@@ -28,7 +18,7 @@ internal class PasswordlessHttpHandler : HttpMessageHandler
         // because we're crossing the boundary between two HTTP clients.
         using var request = providedRequest.Clone();
 
-        var response = await _http.SendAsync(
+        var response = await http.SendAsync(
             request,
             HttpCompletionOption.ResponseHeadersRead,
             cancellationToken
@@ -55,7 +45,7 @@ internal class PasswordlessHttpHandler : HttpMessageHandler
 
     protected override void Dispose(bool disposing)
     {
-        if (disposing && _disposeClient)
-            _http.Dispose();
+        if (disposing && disposeClient)
+            http.Dispose();
     }
 }

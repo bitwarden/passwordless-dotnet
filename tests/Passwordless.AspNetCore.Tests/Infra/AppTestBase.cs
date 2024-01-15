@@ -5,17 +5,11 @@ using Xunit.Abstractions;
 namespace Passwordless.AspNetCore.Tests.Infra;
 
 [Collection(TestAppFixture.Collection.Name)]
-public abstract class AppTestBase : IDisposable
+public abstract class AppTestBase(TestAppFixture app, ITestOutputHelper testOutput) : IDisposable
 {
-    protected TestAppFixture App { get; }
+    protected TestAppFixture App { get; } = app;
 
-    protected ITestOutputHelper TestOutput { get; }
-
-    protected AppTestBase(TestAppFixture app, ITestOutputHelper testOutput)
-    {
-        App = app;
-        TestOutput = testOutput;
-    }
+    protected ITestOutputHelper TestOutput { get; } = testOutput;
 
     public void Dispose()
     {

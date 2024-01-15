@@ -42,15 +42,8 @@ services.AddPasswordlessSdk(options =>
 Inject the client into your controller:
 
 ```csharp
-public class HomeController : Controller
+public class HomeController(IPasswordlessClient passwordlessClient) : Controller
 {
-    private readonly IPasswordlessClient _passwordlessClient;
-
-    public HomeController(IPasswordlessClient passwordlessClient)
-    {
-        _passwordlessClient = passwordlessClient;
-    }
-    
     // ...
 }
 ```
@@ -70,12 +63,12 @@ public async Task<IActionResult> GetRegisterToken(string alias)
     var payload = new RegisterOptions(userId, alias)
     {
         // Optional: Link this userid to an alias (e.g. email)
-        Aliases = new HashSet<string> { alias }
+        Aliases = [alias]
     };
     
     try
     {
-        var tokenRegistration = await _passwordlessClient.CreateRegisterTokenAsync(payload);
+        var tokenRegistration = await passwordlessClient.CreateRegisterTokenAsync(payload);
     
         // Return this token to the frontend
         return Ok(tokenRegistration);
@@ -100,7 +93,7 @@ public async Task<IActionResult> VerifyAuthenticationToken(string token)
 {
     try
     {
-        var verifiedUser = await _passwordlessClient.VerifyTokenAsync(token);
+        var verifiedUser = await passwordlessClient.VerifyTokenAsync(token);
 
         // Sign the user in, set a cookie, etc
         return Ok(verifiedUser);

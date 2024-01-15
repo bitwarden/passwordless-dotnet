@@ -1,21 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Passwordless.Example;
 
 [ApiController]
-public class PasswordlessController : Controller
+public class PasswordlessController(IPasswordlessClient passwordlessClient) : Controller
 {
-    private readonly IPasswordlessClient _passwordlessClient;
-
-    public PasswordlessController(IPasswordlessClient passwordlessClient)
-    {
-        _passwordlessClient = passwordlessClient;
-    }
-
     /// <summary>
     ///     Register - Get token from the passwordless API
     ///     The passwordless client side code needs a Token to register a key to a username.
@@ -32,12 +23,12 @@ public class PasswordlessController : Controller
 
         var payload = new RegisterOptions(userId, alias)
         {
-            Aliases = new HashSet<string> { alias }
+            Aliases = [alias]
         };
 
         try
         {
-            var token = await _passwordlessClient.CreateRegisterTokenAsync(payload);
+            var token = await passwordlessClient.CreateRegisterTokenAsync(payload);
             return Ok(token);
         }
         catch (PasswordlessApiException e)
@@ -62,7 +53,7 @@ public class PasswordlessController : Controller
     {
         try
         {
-            var verifiedUser = await _passwordlessClient.VerifyAuthenticationTokenAsync(token);
+            var verifiedUser = await passwordlessClient.VerifyAuthenticationTokenAsync(token);
             return Ok(verifiedUser);
         }
         catch (PasswordlessApiException e)

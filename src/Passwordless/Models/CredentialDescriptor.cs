@@ -2,13 +2,4 @@
 
 namespace Passwordless;
 
-public class CredentialDescriptor
-{
-    public CredentialDescriptor(byte[] id)
-    {
-        Id = id;
-    }
-
-    [JsonConverter(typeof(Base64UrlConverter))]
-    public byte[] Id { get; set; }
-}
+public record CredentialDescriptor([property: JsonConverter(typeof(Base64UrlConverter))] byte[] Id);

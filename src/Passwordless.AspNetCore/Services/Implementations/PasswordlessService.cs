@@ -14,63 +14,38 @@ using static Microsoft.AspNetCore.Http.Results;
 
 namespace Passwordless.AspNetCore.Services.Implementations;
 
-public class PasswordlessService<TUser> : PasswordlessService<TUser, PasswordlessRegisterRequest>
-    where TUser : class, new()
-{
-    /// <summary>
-    /// Initializes an instance of <see cref="PasswordlessService{TUser}" />.
-    /// </summary>
-    public PasswordlessService(
-        IPasswordlessClient passwordlessClient,
-        IUserStore<TUser> userStore,
-        ILogger<PasswordlessService<TUser, PasswordlessRegisterRequest>> logger,
-        IOptions<PasswordlessAspNetCoreOptions> optionsAccessor,
-        IUserClaimsPrincipalFactory<TUser> userClaimsPrincipalFactory,
-        ICustomizeRegisterOptions customizeRegisterOptions,
-        IServiceProvider serviceProvider)
-        : base(passwordlessClient, userStore, logger, optionsAccessor, userClaimsPrincipalFactory, customizeRegisterOptions, serviceProvider)
-    {
-    }
-}
+public class PasswordlessService<TUser>(
+    IPasswordlessClient passwordlessClient,
+    IUserStore<TUser> userStore,
+    ILogger<PasswordlessService<TUser, PasswordlessRegisterRequest>> logger,
+    IOptions<PasswordlessAspNetCoreOptions> optionsAccessor,
+    IUserClaimsPrincipalFactory<TUser> userClaimsPrincipalFactory,
+    ICustomizeRegisterOptions customizeRegisterOptions,
+    IServiceProvider serviceProvider)
+    : PasswordlessService<TUser, PasswordlessRegisterRequest>(passwordlessClient, userStore, logger, optionsAccessor,
+        userClaimsPrincipalFactory, customizeRegisterOptions, serviceProvider)
+    where TUser : class, new();
 
-public class PasswordlessService<TUser, TRegisterRequest>
+public class PasswordlessService<TUser, TRegisterRequest>(
+    IPasswordlessClient passwordlessClient,
+    IUserStore<TUser> userStore,
+    ILogger<PasswordlessService<TUser, TRegisterRequest>> logger,
+    IOptions<PasswordlessAspNetCoreOptions> optionsAccessor,
+    IUserClaimsPrincipalFactory<TUser> userClaimsPrincipalFactory,
+    ICustomizeRegisterOptions customizeRegisterOptions,
+    IServiceProvider serviceProvider)
     : IPasswordlessService<TRegisterRequest>
     where TUser : class, new()
     where TRegisterRequest : PasswordlessRegisterRequest
 {
-    private readonly ILogger<PasswordlessService<TUser, TRegisterRequest>> _logger;
-
-    /// <summary>
-    /// Initializes an instance of <see cref="PasswordlessService{TUser, TRegisterRequest}" />.
-    /// </summary>
-    public PasswordlessService(
-        IPasswordlessClient passwordlessClient,
-        IUserStore<TUser> userStore,
-        ILogger<PasswordlessService<TUser, TRegisterRequest>> logger,
-        IOptions<PasswordlessAspNetCoreOptions> optionsAccessor,
-        IUserClaimsPrincipalFactory<TUser> userClaimsPrincipalFactory,
-        ICustomizeRegisterOptions customizeRegisterOptions,
-        IServiceProvider serviceProvider)
-    {
-        PasswordlessClient = passwordlessClient;
-        UserStore = userStore;
-        _logger = logger;
-        UserClaimsPrincipalFactory = userClaimsPrincipalFactory;
-        CustomizeRegisterOptions = customizeRegisterOptions;
-        Options = optionsAccessor.Value;
-        IdentityOptions = serviceProvider.GetService<IOptions<IdentityOptions>>()?.Value;
-        AuthenticationOptions = serviceProvider.GetService<IOptions<AuthenticationOptions>>()?.Value;
-        UserManager = serviceProvider.GetService<UserManager<TUser>>();
-    }
-
-    protected IPasswordlessClient PasswordlessClient { get; }
-    protected IUserStore<TUser> UserStore { get; }
-    protected IUserClaimsPrincipalFactory<TUser> UserClaimsPrincipalFactory { get; }
-    protected ICustomizeRegisterOptions CustomizeRegisterOptions { get; }
-    protected PasswordlessAspNetCoreOptions Options { get; }
-    protected IdentityOptions? IdentityOptions { get; }
-    protected AuthenticationOptions? AuthenticationOptions { get; }
-    protected UserManager<TUser>? UserManager { get; }
+    protected IPasswordlessClient PasswordlessClient { get; } = passwordlessClient;
+    protected IUserStore<TUser> UserStore { get; } = userStore;
+    protected IUserClaimsPrincipalFactory<TUser> UserClaimsPrincipalFactory { get; } = userClaimsPrincipalFactory;
+    protected ICustomizeRegisterOptions CustomizeRegisterOptions { get; } = customizeRegisterOptions;
+    protected PasswordlessAspNetCoreOptions Options { get; } = optionsAccessor.Value;
+    protected IdentityOptions? IdentityOptions { get; } = serviceProvider.GetService<IOptions<IdentityOptions>>()?.Value;
+    protected AuthenticationOptions? AuthenticationOptions { get; } = serviceProvider.GetService<IOptions<AuthenticationOptions>>()?.Value;
+    protected UserManager<TUser>? UserManager { get; } = serviceProvider.GetService<UserManager<TUser>>();
 
     /// <inheritdoc />
     public virtual async Task<IResult> AddCredentialAsync(
@@ -91,11 +66,11 @@ public class PasswordlessService<TUser, TRegisterRequest>
 
             if (user is null)
             {
-                _logger.LogDebug("Could not find user with id {UserId} while attempting to add credential", userId);
+                logger.LogDebug("Could not find user with id {UserId} while attempting to add credential", userId);
                 return Unauthorized();
             }
 
-            _logger.LogInformation("Found user {UserId} while attempting to add credential", userId);
+            logger.LogInformation("Found user {UserId} while attempting to add credential", userId);
 
             var username = await UserStore.GetUserNameAsync(user, cancellationToken);
 
@@ -136,14 +111,14 @@ public class PasswordlessService<TUser, TRegisterRequest>
             var registerTokenResponse =
                 await PasswordlessClient.CreateRegisterTokenAsync(customizeContext.Options, cancellationToken);
 
-            _logger.LogDebug("Successfully created a register token for user {UserId}", userId);
+            logger.LogDebug("Successfully created a register token for user {UserId}", userId);
 
             return Ok(registerTokenResponse);
         }
         // Route Passwordless API errors to the corresponding result
         catch (PasswordlessApiException ex)
         {
-            _logger.LogDebug(
+            logger.LogDebug(
                 "Passwordless API responded with an error while attempting to add credential: {Error}",
                 ex.Details
             );
@@ -174,7 +149,7 @@ public class PasswordlessService<TUser, TRegisterRequest>
             ?? IdentityOptions?.ClaimsIdentity.UserIdClaimType
             ?? ClaimTypes.NameIdentifier;
 
-        _logger.LogDebug("Will use {ClaimType} as the claim type to search for the user identifier.", userIdClaim);
+        logger.LogDebug("Will use {ClaimType} as the claim type to search for the user identifier.", userIdClaim);
 
         var userId = claimsPrincipal.FindFirstValue(userIdClaim);
 
@@ -197,9 +172,9 @@ public class PasswordlessService<TUser, TRegisterRequest>
             }
 
             var userId = await UserStore.GetUserIdAsync(user, cancellationToken);
-            _logger.LogDebug("Registering user with id: {Id}", userId);
+            logger.LogDebug("Registering user with id: {Id}", userId);
 
-            var aliases = request.Aliases ?? new HashSet<string>();
+            var aliases = request.Aliases ?? [];
 
             if (IdentityOptions?.User.RequireUniqueEmail is true && UserStore is IUserEmailStore<TUser> emailStore)
             {
@@ -207,7 +182,7 @@ public class PasswordlessService<TUser, TRegisterRequest>
                 {
                     return ValidationProblem(new Dictionary<string, string[]>
                     {
-                        { "invalid_email", new[] { "Email cannot be null or empty." } }
+                        { "invalid_email", ["Email cannot be null or empty."] }
                     });
                 }
 
@@ -215,7 +190,7 @@ public class PasswordlessService<TUser, TRegisterRequest>
             }
             else if (!string.IsNullOrEmpty(request.Email))
             {
-                _logger.LogWarning(
+                logger.LogWarning(
                     "An email was provided for {UserId}, but IdentityOptions.User.RequireUniqueEmail was not set to true so the email will not be used as an alias for the passkey.",
                     userId);
             }
@@ -239,7 +214,7 @@ public class PasswordlessService<TUser, TRegisterRequest>
         // Route Passwordless API errors to the corresponding result
         catch (PasswordlessApiException ex)
         {
-            _logger.LogDebug(
+            logger.LogDebug(
                 "Passwordless API responded with an error while attempting to register user: {Error}",
                 ex.Details
             );
@@ -263,12 +238,12 @@ public class PasswordlessService<TUser, TRegisterRequest>
         {
             var verifiedUser = await PasswordlessClient.VerifyAuthenticationTokenAsync(loginRequest.Token, cancellationToken);
 
-            _logger.LogDebug("Attempting to find user in store by id {UserId}.", verifiedUser.UserId);
+            logger.LogDebug("Attempting to find user in store by id {UserId}.", verifiedUser.UserId);
             var user = await UserStore.FindByIdAsync(verifiedUser.UserId, cancellationToken);
 
             if (user is null)
             {
-                _logger.LogDebug("Could not find user.");
+                logger.LogDebug("Could not find user.");
                 return Unauthorized();
             }
 
@@ -279,7 +254,7 @@ public class PasswordlessService<TUser, TRegisterRequest>
             var scheme = Options.SignInScheme
                          ?? AuthenticationOptions?.DefaultSignInScheme;
 
-            _logger.LogInformation("Signing in user with scheme {Scheme} and {NumberOfClaims} claims",
+            logger.LogInformation("Signing in user with scheme {Scheme} and {NumberOfClaims} claims",
                 scheme, claimsPrincipal.Claims.Count());
 
             return SignIn(claimsPrincipal, authenticationScheme: scheme);
@@ -287,7 +262,7 @@ public class PasswordlessService<TUser, TRegisterRequest>
         // Route Passwordless API errors to the corresponding result
         catch (PasswordlessApiException ex)
         {
-            _logger.LogDebug(
+            logger.LogDebug(
                 "Passwordless API responded with an error while attempting to login user: {Error}",
                 ex.Details
             );
@@ -334,7 +309,7 @@ public class PasswordlessService<TUser, TRegisterRequest>
         return new RegisterOptions(userId, userInformation.Username)
         {
             DisplayName = userInformation.DisplayName,
-            Aliases = userInformation.Aliases ?? new HashSet<string>(),
+            Aliases = userInformation.Aliases ?? [],
             Discoverable = Options.Register.Discoverable,
             UserVerification = Options.Register.UserVerification,
             Attestation = Options.Register.Attestation,

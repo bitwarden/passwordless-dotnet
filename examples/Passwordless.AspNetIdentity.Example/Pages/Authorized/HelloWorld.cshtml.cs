@@ -1,19 +1,10 @@
-﻿using System;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
 
 namespace Passwordless.AspNetIdentity.Example.Pages.Authorized;
 
 public class HelloWorldModel : PageModel
 {
-    private readonly ILogger<HelloWorldModel> _logger;
-
-    public HelloWorldModel(ILogger<HelloWorldModel> logger)
-    {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
-
     public void OnGet()
     {
         var identity = HttpContext.User.Identity!;
