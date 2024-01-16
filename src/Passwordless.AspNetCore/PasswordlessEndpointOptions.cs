@@ -4,39 +4,28 @@ using System.Text;
 namespace Passwordless.AspNetCore;
 
 /// <summary>
-/// 
+///
 /// </summary>
 [DebuggerDisplay("{DebuggerToString(),nq}")]
-public class PasswordlessEndpointOptions
+public class PasswordlessEndpointOptions(bool enableRegisterEndpoint = false)
 {
     /// <summary>
-    /// 
-    /// </summary>
-    public PasswordlessEndpointOptions(bool enableRegisterEndpoint = false)
-    {
-        if (enableRegisterEndpoint)
-        {
-            RegisterPath = "/passwordless-register";
-        }
-    }
-
-    /// <summary>
-    /// 
+    ///
     /// </summary>
     public string GroupPrefix { get; set; } = string.Empty;
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
-    public string? RegisterPath { get; set; }
+    public string? RegisterPath { get; set; } = enableRegisterEndpoint ? "/passwordless-register" : null;
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public string? LoginPath { get; set; } = "/passwordless-login";
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public string? AddCredentialPath { get; set; } = "/passwordless-add-credential";
 

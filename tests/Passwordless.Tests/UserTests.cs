@@ -6,13 +6,8 @@ using Xunit.Abstractions;
 
 namespace Passwordless.Tests;
 
-public class UserTests : ApiTestBase
+public class UserTests(TestApiFixture api, ITestOutputHelper testOutput) : ApiTestBase(api, testOutput)
 {
-    public UserTests(TestApiFixture api, ITestOutputHelper testOutput)
-        : base(api, testOutput)
-    {
-    }
-
     [Fact]
     public async Task I_can_list_users_and_get_an_empty_collection_if_there_are_not_any()
     {

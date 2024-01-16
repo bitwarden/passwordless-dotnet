@@ -8,6 +8,7 @@ namespace Passwordless.Models;
 public class ApplicationEvent
 {
     public Guid Id { get; set; }
+
     /// <summary>
     /// When the record was performed. This will be in UTC.
     /// </summary>

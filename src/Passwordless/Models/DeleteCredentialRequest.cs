@@ -1,11 +1,3 @@
 namespace Passwordless.Models;
 
-internal class DeleteCredentialRequest
-{
-    public DeleteCredentialRequest(string credentialId)
-    {
-        CredentialId = credentialId;
-    }
-
-    public string CredentialId { get; }
-}
+internal record DeleteCredentialRequest(string CredentialId);

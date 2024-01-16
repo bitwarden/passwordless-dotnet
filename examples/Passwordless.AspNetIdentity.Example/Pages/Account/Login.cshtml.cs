@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -8,15 +7,8 @@ using Microsoft.Extensions.Logging;
 
 namespace Passwordless.AspNetIdentity.Example.Pages.Account;
 
-public class LoginModel : PageModel
+public class LoginModel(ILogger<LoginModel> logger) : PageModel
 {
-    private readonly ILogger<LoginModel> _logger;
-
-    public LoginModel(ILogger<LoginModel> logger)
-    {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
-
     public IActionResult OnGet()
     {
         if (HttpContext.User.Identity is { IsAuthenticated: true })
@@ -26,11 +18,15 @@ public class LoginModel : PageModel
         return Page();
     }
 
-    public async Task OnPostAsync(LoginForm form, CancellationToken cancellationToken)
+    public Task OnPostAsync(LoginForm form, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid) return;
-        _logger.LogInformation("Logging in user {email}", form.Email);
-        ViewData["CanLogin"] = true;
+        if (ModelState.IsValid)
+        {
+            logger.LogInformation("Logging in user {email}", form.Email);
+            ViewData["CanLogin"] = true;
+        }
+
+        return Task.CompletedTask;
     }
 
     public LoginForm Form { get; } = new();

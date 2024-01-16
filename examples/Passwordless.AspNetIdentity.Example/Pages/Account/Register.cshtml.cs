@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -9,29 +8,27 @@ using Passwordless.AspNetIdentity.Example.Validation;
 
 namespace Passwordless.AspNetIdentity.Example.Pages.Account;
 
-public class RegisterModel : PageModel
+public class RegisterModel(ILogger<PrivacyModel> logger) : PageModel
 {
-    private readonly ILogger<PrivacyModel> _logger;
-
-    public RegisterModel(ILogger<PrivacyModel> logger)
-    {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
-
     public IActionResult OnGet()
     {
         if (HttpContext.User.Identity is { IsAuthenticated: true })
         {
             return LocalRedirect("/");
         }
+
         return Page();
     }
 
-    public async Task OnPostAsync(FormModel form, CancellationToken cancellationToken)
+    public Task OnPostAsync(FormModel form, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid) return;
-        _logger.LogInformation("Registering user {username}", form.Username);
-        ViewData["CanAddPasskeys"] = true;
+        if (ModelState.IsValid)
+        {
+            logger.LogInformation("Registering user {username}", form.Username);
+            ViewData["CanAddPasskeys"] = true;
+        }
+
+        return Task.CompletedTask;
     }
 
     public FormModel Form { get; init; } = new();

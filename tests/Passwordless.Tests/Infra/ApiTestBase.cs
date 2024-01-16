@@ -5,17 +5,11 @@ using Xunit.Abstractions;
 namespace Passwordless.Tests.Infra;
 
 [Collection(TestApiFixture.Collection.Name)]
-public abstract class ApiTestBase : IDisposable
+public abstract class ApiTestBase(TestApiFixture api, ITestOutputHelper testOutput) : IDisposable
 {
-    protected TestApiFixture Api { get; }
+    protected TestApiFixture Api { get; } = api;
 
-    protected ITestOutputHelper TestOutput { get; }
-
-    protected ApiTestBase(TestApiFixture api, ITestOutputHelper testOutput)
-    {
-        Api = api;
-        TestOutput = testOutput;
-    }
+    protected ITestOutputHelper TestOutput { get; } = testOutput;
 
     public void Dispose()
     {
