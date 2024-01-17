@@ -24,6 +24,8 @@ public class Recovery : PageModel
 
     public RecoveryForm Form { get; } = new();
 
+    public string RecoveryMessage { get; set; } = string.Empty;
+
     public Recovery(ILogger<Recovery> logger,
         SignInManager<IdentityUser> signInManager,
         PasswordlessClient passwordlessClient,
@@ -37,13 +39,18 @@ public class Recovery : PageModel
         _actionContextAccessor = actionContextAccessor;
     }
 
-    public async Task OnPostAsync(RecoveryForm form, CancellationToken cancellationToken)
+    public void OnGetSuccessfulRecovery(string message)
     {
-        if (!ModelState.IsValid) return;
+        if (!string.IsNullOrWhiteSpace(message)) RecoveryMessage = message;
+    }
+
+    public async Task<IActionResult> OnPostAsync(RecoveryForm form, CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid) return Page();
 
         var user = await _signInManager.UserManager.FindByEmailAsync(form.Email!);
 
-        if (user == null) return;
+        if (user == null) return Page();
 
         _logger.LogInformation("Sending magic link.");
 
@@ -67,10 +74,13 @@ public class Recovery : PageModel
                        New message:
                        
                        Click the link to recover your account
-                       {uriBuilder}
+                       <a href="{uriBuilder}">Link<a>
+                       {Environment.NewLine}
                        """;
 
         await System.IO.File.AppendAllTextAsync("mail.md", message, cancellationToken);
+
+        return RedirectToPage("Recovery", "SuccessfulRecovery", new { message });
     }
 }
 
