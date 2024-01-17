@@ -1,9 +1,10 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Logging;
 
 namespace Passwordless.AspNetIdentity.Example.Pages.Authorized;
 
-public class HelloWorldModel : PageModel
+public class HelloWorldModel(ILogger<HelloWorldModel> logger) : PageModel
 {
     public void OnGet()
     {
@@ -15,7 +16,7 @@ public class HelloWorldModel : PageModel
     public void OnPost(string? nickname)
     {
         if (!ModelState.IsValid) return;
-        _logger.LogInformation("Adding new credential for user {userName}", HttpContext.User.Identity!.Name);
+        logger.LogInformation("Adding new credential for user {userName}", HttpContext.User.Identity!.Name);
         CanAddPassKeys = true;
         Nickname = nickname ?? HttpContext.User.Identity.Name;
     }
