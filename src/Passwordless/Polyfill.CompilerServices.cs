@@ -2,7 +2,7 @@ namespace System.Runtime.CompilerServices;
 
 #if !NET5_0_OR_GREATER
 // https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.isexternalinit
-internal static class IsExternalInit { }
+internal static class IsExternalInit;
 #endif
 
 #if !NET7_0_OR_GREATER
@@ -14,7 +14,7 @@ internal static class IsExternalInit { }
     | AttributeTargets.Struct,
     Inherited = false
 )]
-internal class RequiredMemberAttribute : Attribute { }
+internal class RequiredMemberAttribute : Attribute;
 
 // https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.compilerfeaturerequiredattribute
 [AttributeUsage(AttributeTargets.All, AllowMultiple = true, Inherited = false)]

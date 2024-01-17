@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Passwordless.AspNetCore.Tests.Infra;
 
-// xUnit can't initialize fixture from another assembly, so we have to wrap it
+// xUnit can't initialize a fixture from another assembly, so we have to wrap it
 public partial class TestAppFixture : IAsyncLifetime
 {
     private readonly TestApi _api = new();

@@ -13,13 +13,8 @@ using Xunit.Abstractions;
 
 namespace Passwordless.AspNetCore.Tests;
 
-public class EndpointTests : AppTestBase
+public class EndpointTests(TestAppFixture app, ITestOutputHelper testOutput) : AppTestBase(app, testOutput)
 {
-    public EndpointTests(TestAppFixture app, ITestOutputHelper testOutput)
-        : base(app, testOutput)
-    {
-    }
-
     [Fact]
     public async Task I_can_define_a_register_endpoint()
     {

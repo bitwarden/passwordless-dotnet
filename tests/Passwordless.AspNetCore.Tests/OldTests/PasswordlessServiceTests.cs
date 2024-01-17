@@ -5,7 +5,6 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
@@ -497,8 +496,8 @@ public class PasswordlessServiceTests
 
     public static IEnumerable<object[]> UnauthenticatedClaimsPrincipals()
     {
-        yield return new[] { new ClaimsPrincipal() }; // Empty claims principal with no identity
-        yield return new[] { CreateClaimsPrincipal(null, authenticationType: null) }; // Claims principal with one identity that is not authenticated
+        yield return [new ClaimsPrincipal()]; // Empty claims principal with no identity
+        yield return [CreateClaimsPrincipal(null, authenticationType: null)]; // Claims principal with one identity that is not authenticated
     }
 
     [Theory]

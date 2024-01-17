@@ -13,37 +13,9 @@ namespace Passwordless;
 
 /// <inheritdoc cref="IPasswordlessClient" />
 [DebuggerDisplay("{DebuggerToString(),nq}")]
-public class PasswordlessClient : IPasswordlessClient, IDisposable
+public class PasswordlessClient(HttpClient http, bool disposeClient, PasswordlessOptions options)
+    : IPasswordlessClient, IDisposable
 {
-    private static readonly string SdkVersion =
-        typeof(PasswordlessClient).Assembly.GetName().Version?.ToString(3) ??
-        // This should never happen, unless the assembly had its metadata trimmed
-        "unknown";
-
-    private readonly HttpClient _http;
-    private readonly PasswordlessOptions _options;
-
-    private PasswordlessClient(HttpClient http, bool disposeClient, PasswordlessOptions options)
-    {
-        _http = new HttpClient(new PasswordlessHttpHandler(http, disposeClient), true)
-        {
-            BaseAddress = new Uri(options.ApiUrl),
-            DefaultRequestHeaders =
-            {
-                {
-                    "ApiSecret",
-                    options.ApiSecret
-                },
-                {
-                    "Client-Version",
-                    $".NET-{SdkVersion}"
-                }
-            }
-        };
-
-        _options = options;
-    }
-
     /// <summary>
     /// Initializes an instance of <see cref="PasswordlessClient" />.
     /// </summary>
@@ -59,6 +31,27 @@ public class PasswordlessClient : IPasswordlessClient, IDisposable
         : this(new HttpClient(), true, options)
     {
     }
+
+    private static readonly string SdkVersion =
+        typeof(PasswordlessClient).Assembly.GetName().Version?.ToString(3) ??
+        // This should never happen, unless the assembly had its metadata trimmed
+        "unknown";
+
+    private readonly HttpClient _http = new(new PasswordlessHttpHandler(http, disposeClient), true)
+    {
+        BaseAddress = new Uri(options.ApiUrl),
+        DefaultRequestHeaders =
+        {
+            {
+                "ApiSecret",
+                options.ApiSecret
+            },
+            {
+                "Client-Version",
+                $".NET-{SdkVersion}"
+            }
+        }
+    };
 
     /// <inheritdoc />
     public async Task<RegisterTokenResponse> CreateRegisterTokenAsync(
@@ -218,16 +211,16 @@ public class PasswordlessClient : IPasswordlessClient, IDisposable
         var sb = new StringBuilder();
 
         sb.Append("ApiUrl = ");
-        sb.Append(_options.ApiUrl);
+        sb.Append(options.ApiUrl);
 
-        if (!string.IsNullOrEmpty(_options.ApiSecret))
+        if (!string.IsNullOrEmpty(options.ApiSecret))
         {
-            if (_options.ApiSecret.Length > 5)
+            if (options.ApiSecret.Length > 5)
             {
                 sb.Append(' ');
                 sb.Append("ApiSecret = ");
                 sb.Append("***");
-                sb.Append(_options.ApiSecret.Substring(_options.ApiSecret.Length - 4));
+                sb.Append(options.ApiSecret.Substring(options.ApiSecret.Length - 4));
             }
         }
         else

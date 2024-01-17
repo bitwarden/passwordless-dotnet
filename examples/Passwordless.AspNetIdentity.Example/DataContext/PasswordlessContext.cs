@@ -4,12 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Passwordless.AspNetIdentity.Example.DataContext;
 
-public class PasswordlessContext : IdentityDbContext<IdentityUser, IdentityRole, string>
+public class PasswordlessContext(DbContextOptions options) :
+    IdentityDbContext<IdentityUser, IdentityRole, string>(options)
 {
-    public PasswordlessContext(DbContextOptions options) : base(options)
-    {
-    }
-
     protected override void OnConfiguring(DbContextOptionsBuilder builder)
     {
         builder.UseSqlite("Data Source=example.db");

@@ -7,13 +7,8 @@ using Xunit.Abstractions;
 
 namespace Passwordless.Tests;
 
-public class TokenTests : ApiTestBase
+public class TokenTests(TestApiFixture api, ITestOutputHelper testOutput) : ApiTestBase(api, testOutput)
 {
-    public TokenTests(TestApiFixture api, ITestOutputHelper testOutput)
-        : base(api, testOutput)
-    {
-    }
-
     [Fact]
     public async Task I_can_create_a_register_token()
     {
