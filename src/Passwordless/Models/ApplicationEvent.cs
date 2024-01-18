@@ -5,37 +5,19 @@ namespace Passwordless.Models;
 /// <summary>
 /// An event that occured using Passwordless library.
 /// </summary>
-public class ApplicationEvent
-{
-    public Guid Id { get; set; }
-
-    /// <summary>
-    /// When the record was performed. This will be in UTC.
-    /// </summary>
-    public DateTime PerformedAt { get; set; }
-
-    /// <summary>
-    /// The type of event <see href="https://github.com/passwordless/passwordless-server/blob/main/src/Common/EventLog/Enums/EventType.cs" />
-    /// </summary>
-    public string EventType { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Description of the event
-    /// </summary>
-    public string Message { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Severity of the event <see href="https://github.com/passwordless/passwordless-server/blob/main/src/Common/EventLog/Enums/Severity.cs"/>
-    /// </summary>
-    public string Severity { get; set; } = string.Empty;
-
-    /// <summary>
-    /// The target of the event. Can be in reference to a user or the application.
-    /// </summary>
-    public string Subject { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Last 4 characters of the api key (public/secret) used to perform the event.
-    /// </summary>
-    public string ApiKeyId { get; set; } = string.Empty;
-}
+/// <param name="Id">Event ID.</param>
+/// <param name="PerformedAt">When the event was performed.</param>
+/// <param name="EventType">The type of event. <see href="https://github.com/passwordless/passwordless-server/blob/main/src/Common/EventLog/Enums/EventType.cs"/></param>
+/// <param name="Message">Description of the event.</param>
+/// <param name="Severity">Severity of the event. <see href="https://github.com/passwordless/passwordless-server/blob/main/src/Common/EventLog/Enums/Severity.cs"/></param>
+/// <param name="Subject">The target of the event. Can be in reference to a user or the application.</param>
+/// <param name="ApiKeyId">Last 4 characters of the api key (public/secret) used to perform the event.</param>
+public record ApplicationEvent(
+    Guid Id,
+    DateTime PerformedAt,
+    string EventType,
+    string Message,
+    string Severity,
+    string Subject,
+    string ApiKeyId
+);
