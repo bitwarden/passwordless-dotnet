@@ -1,5 +1,4 @@
 @page
-@using System.Web
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 @model Passwordless.AspNetIdentity.Example.Pages.Account.Recovery
 
@@ -23,5 +22,5 @@ and a "magic link" will be used to authenticate the intended user.
 
 @if (!string.IsNullOrWhiteSpace(Model.RecoveryMessage))
 {
-    <p>@Html.Raw(HttpUtility.HtmlDecode(Model.RecoveryMessage))</p>
+    <p>@Html.Raw(Model.RecoveryMessage)</p>
 }
