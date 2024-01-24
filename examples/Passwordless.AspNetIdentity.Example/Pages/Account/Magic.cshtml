@@ -1,0 +1,13 @@
+@page
+@using Microsoft.AspNetCore.Authorization
+@model Passwordless.AspNetIdentity.Example.Pages.Account.Magic
+@attribute [AllowAnonymous]
+
+@{
+    ViewBag.Title = "Magic Link";
+}
+
+@if (!Model.Success)
+{
+    <p>Sorry, something went wrong. The token was not valid.</p>
+}

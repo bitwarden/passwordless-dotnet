@@ -1,5 +1,9 @@
 ﻿@page
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Microsoft.Extensions.Options
+@using Passwordless.AspNetCore
 @model HelloWorldModel
+@inject IOptions<PasswordlessAspNetCoreOptions> PasswordlessOptions;
 
 @{
     ViewData["Title"] = "Hello World";
@@ -27,6 +31,48 @@
             </div>
         </div>
     </div>
+    <form class="row my-2" action="" method="POST">
+        <div class="col-12">
+            <h3>Set new passkey</h3>
+            <div class="mb-3">
+                <label asp-for="Nickname">Nickname (Optional): </label>
+                <input type="text" asp-for="Nickname" class="form-control" />
+            </div>
+            
+            <button type="submit" class="btn-primary">Add Passkey</button>
+        </div>
+    </form>
+    
+    
+    @if (Model.CanAddPassKeys)
+    {
+        <script src="https://cdn.passwordless.dev/dist/1.1.0/umd/passwordless.umd.js"></script>
+        <script>
+            async function addPasskey() {
+                const addCredentialResponse = await fetch('/passwordless-add-credential', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ displayName: '@Model.Nickname' })
+                });
+
+                // if no error then deserialize and use returned token to create now our passkeys
+                if (addCredentialResponse.ok) {
+                    const registrationResponseJson = await addCredentialResponse.json();
+                    const token = registrationResponseJson.token;
+
+                    // we need to use Client from https://cdn.passwordless.dev/dist/1.1.0/umd/passwordless.umd.js which is imported above.
+                    const p = new Passwordless.Client({
+                        apiKey: "@PasswordlessOptions.Value.ApiKey",
+                        apiUrl: "@PasswordlessOptions.Value.ApiUrl"
+                    });
+                    await p.register(token, '@Model.Nickname');
+                }
+            }
+            addPasskey();
+        </script>
+    }
 }
 else
 {

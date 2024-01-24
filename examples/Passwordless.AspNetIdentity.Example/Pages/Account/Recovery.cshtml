@@ -1,0 +1,26 @@
+@page
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Passwordless.AspNetIdentity.Example.Pages.Account.Recovery
+
+@{
+    ViewData["Title"] = "Account Recovery";
+}
+<h1>@ViewData["Title"]</h1>
+
+<p>
+If a user loses their passkey, they can request a manually generated verification token and a "magic link" can be created 
+to authenticate them. They can then add a new credential in order to log back in safely. To send a magic link, enter your email
+and a "magic link" will be used to authenticate the intended user.
+</p>
+
+<form method="POST">
+    <label asp-for="Form.Email">Email: </label>
+    <input asp-for="Form.Email" type="email" id="email" placeholder="janedoe@example.org"/>
+    <span class="text-danger" asp-validation-for="Form.Email"></span>
+    <button type="submit" class="btn-primary">Send</button>
+</form>
+
+@if (!string.IsNullOrWhiteSpace(Model.RecoveryMessage))
+{
+    <p>@Html.Raw(Model.RecoveryMessage)</p>
+}

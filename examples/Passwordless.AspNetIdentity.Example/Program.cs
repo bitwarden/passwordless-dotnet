@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,6 +15,8 @@ builder.Services.AddDataContext();
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<PasswordlessContext>()
     .AddPasswordless(builder.Configuration.GetRequiredSection("Passwordless"));
+
+builder.Services.AddTransient<IActionContextAccessor, ActionContextAccessor>();
 
 builder.Services.AddRazorPages(options =>
 {
