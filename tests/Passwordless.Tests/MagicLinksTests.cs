@@ -16,10 +16,10 @@ public class MagicLinksTests(TestApiFixture api, ITestOutputHelper testOutput) :
         // Arrange
         var passwordless = await Api.CreateClientAsync();
         var request = new SendMagicLinkRequest("passwordless@dev.test", "https://www.example.com?token=__TOKEN__", "user");
-        
+
         // Act
         var action = async () => await passwordless.SendMagicLinkAsync(request, CancellationToken.None);
-        
+
         // Assert
         await action.Should().NotThrowAsync();
     }
