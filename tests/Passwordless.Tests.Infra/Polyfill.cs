@@ -4,7 +4,16 @@
 // ReSharper disable InconsistentNaming
 // ReSharper disable PartialTypeWithSinglePart
 
-namespace System.Runtime.CompilerServices;
+namespace System.Runtime.CompilerServices
+{
+    public static class IsExternalInit;
+}
+#endif
 
-public static class IsExternalInit;
+#if NETFRAMEWORK
+namespace System.Diagnostics.CodeAnalysis
+{
+    [AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Class | AttributeTargets.Constructor | AttributeTargets.Event | AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Struct, Inherited = false)]
+    public sealed class ExcludeFromCodeCoverageAttribute : Attribute;
+}
 #endif
