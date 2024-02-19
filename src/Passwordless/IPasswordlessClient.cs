@@ -23,7 +23,7 @@ public interface IPasswordlessClient
     /// This approach can be used to implement a "magic link"-style login and other similar scenarios.
     /// </summary>
     Task<AuthenticationTokenResponse> GenerateAuthenticationTokenAsync(
-        AuthenticationOptions options,
+        AuthenticationOptions authenticationOptions,
         CancellationToken cancellationToken = default
     );
 
