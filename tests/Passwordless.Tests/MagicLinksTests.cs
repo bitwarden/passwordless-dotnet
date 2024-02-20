@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -15,7 +16,7 @@ public class MagicLinksTests(TestApiFixture api, ITestOutputHelper testOutput) :
     {
         // Arrange
         var passwordless = await Api.CreateClientAsync();
-        var request = new SendMagicLinkRequest("passwordless@dev.test", "https://www.example.com?token=__TOKEN__", "user");
+        var request = new SendMagicLinkRequest("passwordless@dev.test", "https://www.example.com?token=$TOKEN", "user", new TimeSpan(0, 15, 0));
 
         // Act
         var action = async () => await passwordless.SendMagicLinkAsync(request, CancellationToken.None);

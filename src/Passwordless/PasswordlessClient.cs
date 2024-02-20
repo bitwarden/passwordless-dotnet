@@ -117,7 +117,13 @@ public class PasswordlessClient(HttpClient http, bool disposeClient, Passwordles
     /// <inheritdoc />
     public async Task SendMagicLinkAsync(SendMagicLinkRequest request, CancellationToken cancellationToken = default)
     {
-        using var response = await _http.PostAsJsonAsync("magic-links/send", request, cancellationToken);
+        using var response = await _http.PostAsJsonAsync("magic-link/send", new
+        {
+            request.UserId,
+            request.EmailAddress,
+            request.UrlTemplate,
+            TimeToLive = request.TimeToLive?.TotalSeconds ?? new TimeSpan(0, 15, 0).TotalSeconds
+        }, cancellationToken);
         response.EnsureSuccessStatusCode();
     }
 
