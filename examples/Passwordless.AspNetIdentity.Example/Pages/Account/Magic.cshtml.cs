@@ -20,7 +20,7 @@ public class Magic : PageModel
 
     public bool Success { get; set; }
 
-    public async Task<ActionResult> OnGet(string token, string email)
+    public async Task<ActionResult> OnGet(string token)
     {
         if (User.Identity is { IsAuthenticated: true }) return RedirectToPage("/Authorized/HelloWorld");
 
@@ -29,18 +29,22 @@ public class Magic : PageModel
             Success = false;
             return Page();
         }
+        
+        var response = await _passwordlessClient.VerifyAuthenticationTokenAsync(token);
 
-        var user = await _signInManager.UserManager.FindByEmailAsync(email);
+        if (!response.Success)
+        {
+            Success = false;
+            return Page();
+        }
+        
+        var user = await _signInManager.UserManager.FindByIdAsync(response.UserId);
 
         if (user == null || !(await _signInManager.CanSignInAsync(user)))
         {
             Success = false;
             return Page();
         }
-
-        var response = await _passwordlessClient.VerifyAuthenticationTokenAsync(token);
-
-        if (!response.Success) return Page();
 
         await _signInManager.SignInAsync(user, true);
         Success = true;
