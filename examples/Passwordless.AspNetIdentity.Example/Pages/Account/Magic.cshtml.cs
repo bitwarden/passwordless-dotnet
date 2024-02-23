@@ -29,7 +29,7 @@ public class Magic : PageModel
             Success = false;
             return Page();
         }
-        
+
         var response = await _passwordlessClient.VerifyAuthenticationTokenAsync(token);
 
         if (!response.Success)
@@ -37,7 +37,7 @@ public class Magic : PageModel
             Success = false;
             return Page();
         }
-        
+
         var user = await _signInManager.UserManager.FindByIdAsync(response.UserId);
 
         if (user == null || !(await _signInManager.CanSignInAsync(user)))
