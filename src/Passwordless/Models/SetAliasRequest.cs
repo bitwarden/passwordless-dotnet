@@ -3,13 +3,7 @@ using System.Linq;
 
 namespace Passwordless.Models;
 
-/// <summary>
-/// Sets aliases for a given user.
-/// </summary>
-/// <param name="UserId">User ID.</param>
-/// <param name="Aliases">List of user aliases to overwrite the current aliases (if any) with.</param>
-/// <param name="Hashing">If you want your aliases to be available in plain text, set the <see cref="bool"/> false.</param>
-public record SetAliasRequest(string UserId, IReadOnlyCollection<string> Aliases, bool Hashing = true)
+public class SetAliasRequest(string userId, HashSet<string> aliases, bool hashing = true)
 {
     /// <summary>
     /// Sets a single alias for a given user, and removes any other aliases that may exist.
@@ -19,9 +13,16 @@ public record SetAliasRequest(string UserId, IReadOnlyCollection<string> Aliases
     {
     }
 
-    public IReadOnlyCollection<string> Aliases { get; } = Aliases == null
+    public string UserId { get; } = userId;
+
+    public IReadOnlyCollection<string> Aliases { get; } = aliases == null
         ? []
-        : new HashSet<string>(Aliases.Where(x => !string.IsNullOrWhiteSpace(x)));
+        : new HashSet<string>(aliases.Where(x => !string.IsNullOrWhiteSpace(x)));
+
+    /// <summary>
+    /// If you want your aliases to be available in plain text, set the <see cref="bool"/> false.
+    /// </summary>
+    public bool Hashing { get; } = hashing;
 
     /// <summary>
     /// Removes all aliases from a user.

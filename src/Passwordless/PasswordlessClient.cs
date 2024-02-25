@@ -112,7 +112,7 @@ public class PasswordlessClient(HttpClient http, bool disposeClient, Passwordles
     public async Task<GetEventLogResponse> GetEventLogAsync(GetEventLogRequest request, CancellationToken cancellationToken = default) =>
         (await _http.GetFromJsonAsync($"events?pageNumber={request.PageNumber}&numberOfResults={request.NumberOfResults}",
             PasswordlessSerializerContext.Default.GetEventLogResponse,
-            cancellationToken))!;
+            cancellationToken)) ?? new GetEventLogResponse();
 
     /// <inheritdoc />
     public async Task<UsersCount> GetUsersCountAsync(CancellationToken cancellationToken = default) =>
