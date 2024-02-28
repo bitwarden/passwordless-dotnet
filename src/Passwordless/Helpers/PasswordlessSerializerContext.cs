@@ -11,7 +11,7 @@ namespace Passwordless.Helpers;
 [JsonSerializable(typeof(RegisterTokenResponse))]
 [JsonSerializable(typeof(RegisterOptions))]
 [JsonSerializable(typeof(AuthenticationTokenResponse))]
-[JsonSerializable(typeof(AuthenticationOptions))]
+[JsonSerializable(typeof(AuthenticationOptionsRequest))]
 [JsonSerializable(typeof(VerifyTokenRequest))]
 [JsonSerializable(typeof(VerifiedUser))]
 [JsonSerializable(typeof(DeleteUserRequest))]

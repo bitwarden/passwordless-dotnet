@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Passwordless.Helpers;
+using Passwordless.Helpers.Extensions;
 using Passwordless.Models;
 
 namespace Passwordless;
@@ -77,8 +78,8 @@ public class PasswordlessClient(HttpClient http, bool disposeClient, Passwordles
         CancellationToken cancellationToken = default)
     {
         using var response = await _http.PostAsJsonAsync("signin/generate-token",
-            authenticationOptions,
-            PasswordlessSerializerContext.Default.AuthenticationOptions,
+            new AuthenticationOptionsRequest(authenticationOptions.UserId, authenticationOptions.TimeToLive?.TotalSeconds.ToInt()),
+            PasswordlessSerializerContext.Default.AuthenticationOptionsRequest,
             cancellationToken
         );
 
