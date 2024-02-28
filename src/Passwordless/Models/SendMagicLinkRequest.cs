@@ -10,3 +10,5 @@ namespace Passwordless.Models;
 /// <param name="UserId">Identifier for the user the email is intended for.</param>
 /// <param name="TimeToLive">Length of time the magic link will be active. Default value will be 15 minutes.</param>
 public record SendMagicLinkRequest(string EmailAddress, string UrlTemplate, string UserId, TimeSpan? TimeToLive);
+
+internal record SendMagicLinkApiRequest(string EmailAddress, string UrlTemplate, string UserId, int? TimeToLive);

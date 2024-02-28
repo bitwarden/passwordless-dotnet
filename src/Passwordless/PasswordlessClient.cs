@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Passwordless.Helpers;
+using Passwordless.Helpers.Extensions;
 using Passwordless.Models;
 
 namespace Passwordless;
@@ -117,13 +118,16 @@ public class PasswordlessClient(HttpClient http, bool disposeClient, Passwordles
     /// <inheritdoc />
     public async Task SendMagicLinkAsync(SendMagicLinkRequest request, CancellationToken cancellationToken = default)
     {
-        using var response = await _http.PostAsJsonAsync("magic-link/send", new
-        {
-            request.UserId,
-            request.EmailAddress,
-            request.UrlTemplate,
-            TimeToLive = request.TimeToLive?.TotalSeconds ?? new TimeSpan(0, 15, 0).TotalSeconds
-        }, cancellationToken);
+        using var response = await _http.PostAsJsonAsync(
+            "magic-link/send", 
+            new SendMagicLinkApiRequest(
+                request.EmailAddress, 
+                request.UrlTemplate, 
+                request.UserId, 
+                request.TimeToLive?.TotalSeconds.ToInt()), 
+            PasswordlessSerializerContext.Default.SendMagicLinkApiRequest, 
+            cancellationToken);
+        
         response.EnsureSuccessStatusCode();
     }
 
