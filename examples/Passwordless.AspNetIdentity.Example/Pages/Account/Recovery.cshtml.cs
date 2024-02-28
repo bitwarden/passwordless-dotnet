@@ -67,7 +67,6 @@ public class Recovery : PageModel
         var uriBuilder = new UriBuilder(url);
         var query = HttpUtility.ParseQueryString(uriBuilder.Query);
         query["token"] = token.Token;
-        query["email"] = user.Email;
         uriBuilder.Query = query.ToString();
 
         var message = $"""
