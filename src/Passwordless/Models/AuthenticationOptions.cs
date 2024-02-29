@@ -9,4 +9,4 @@ namespace Passwordless.Models;
 /// <param name="TimeToLive">Optional. How long a token is valid for. Default value is 15 minutes.</param>
 public record AuthenticationOptions(string UserId, TimeSpan? TimeToLive = null);
 
-internal record AuthenticationOptionsRequest(string UserId, int? TimeToLIve = null);
+internal record AuthenticationOptionsRequest(string UserId, int? TimeToLive = null);
