@@ -20,6 +20,9 @@ namespace Passwordless;
 /// <param name="Device">Device the credential was created on.</param>
 /// <param name="Nickname">Friendly name for credential.</param>
 /// <param name="UserId">Identifier for the user.</param>
+/// <para name="BackupState">Whether the credential is synced (or backed up or not).</para>
+/// <para name="IsBackupEligible">Whether the credential is eligible for backup or syncing.</para>
+/// <para name="IsDiscoverable">Whether the credential is discoverable.</para>
 public record Credential(
     CredentialDescriptor Descriptor,
     byte[] PublicKey,
@@ -34,20 +37,7 @@ public record Credential(
     string Country,
     string Device,
     string Nickname,
-    string UserId)
-{
-    /// <summary>
-    /// Whether the credential is synced (or backed up or not).
-    /// </summary>
-    public bool? BackupState { get; init; }
-
-    /// <summary>
-    /// Whether the credential is eligible for backup or syncing.
-    /// </summary>
-    public bool? IsBackupEligible { get; init; }
-
-    /// <summary>
-    /// Whether the credential is discoverable.
-    /// </summary>
-    public bool? IsDiscoverable { get; init; }
-}
+    string UserId,
+    bool? BackupState = null,
+    bool? IsBackupEligible = null,
+    bool? IsDiscoverable = null);
