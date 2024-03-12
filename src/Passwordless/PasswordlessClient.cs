@@ -74,12 +74,12 @@ public class PasswordlessClient(HttpClient http, bool disposeClient, Passwordles
 
     /// <inheritdoc />
     public async Task<AuthenticationTokenResponse> GenerateAuthenticationTokenAsync(
-        AuthenticationOptions options,
+        AuthenticationOptions authenticationOptions,
         CancellationToken cancellationToken = default)
     {
         using var response = await _http.PostAsJsonAsync("signin/generate-token",
-            options,
-            PasswordlessSerializerContext.Default.AuthenticationOptions,
+            new AuthenticationOptionsRequest(authenticationOptions.UserId, authenticationOptions.TimeToLive?.TotalSeconds.Pipe(Convert.ToInt32)),
+            PasswordlessSerializerContext.Default.AuthenticationOptionsRequest,
             cancellationToken
         );
 
