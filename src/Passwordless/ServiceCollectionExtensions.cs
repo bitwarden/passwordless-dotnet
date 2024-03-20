@@ -1,5 +1,4 @@
 using System;
-using System.Dynamic;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Passwordless;
@@ -66,7 +65,7 @@ public static class ServiceCollectionExtensions
     private static void RegisterDependencies(this IServiceCollection services)
     {
         services.AddHttpClient<IPasswordlessClient, PasswordlessClient>((http, sp) =>
-            new PasswordlessClient(http, sp.GetRequiredService<IOptions<PasswordlessOptions>>().Value)
+            new PasswordlessClient(http, sp.GetRequiredService<IOptionsSnapshot<PasswordlessOptions>>().Value)
         );
 
         // TODO: Get rid of this service, all consumers should use the interface
