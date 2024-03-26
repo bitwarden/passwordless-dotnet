@@ -43,11 +43,20 @@
         </div>
     </form>
     
+    <a asp-page="ElevatedAuthentication">To Elevated Area</a>
+    
+    <a asp-page="SecondContext">To Other Area</a>
+    
+    
     
     @if (Model.CanAddPassKeys)
     {
         <script src="https://cdn.passwordless.dev/dist/1.1.0/umd/passwordless.umd.js"></script>
         <script>
+            const p = new Passwordless.Client({
+               apiKey: "@PasswordlessOptions.Value.ApiKey",
+               apiUrl: "@PasswordlessOptions.Value.ApiUrl"
+           });
             async function addPasskey() {
                 const addCredentialResponse = await fetch('/passwordless-add-credential', {
                     method: 'POST',
@@ -62,11 +71,6 @@
                     const registrationResponseJson = await addCredentialResponse.json();
                     const token = registrationResponseJson.token;
 
-                    // we need to use Client from https://cdn.passwordless.dev/dist/1.1.0/umd/passwordless.umd.js which is imported above.
-                    const p = new Passwordless.Client({
-                        apiKey: "@PasswordlessOptions.Value.ApiKey",
-                        apiUrl: "@PasswordlessOptions.Value.ApiUrl"
-                    });
                     await p.register(token, '@Model.Nickname');
                 }
             }
