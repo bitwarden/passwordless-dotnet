@@ -96,7 +96,8 @@ public class TestApi : IAsyncDisposable
             {
               "adminEmail": "test@passwordless.dev",
               "eventLoggingIsEnabled": true,
-              "eventLoggingRetentionPeriod": 7
+              "eventLoggingRetentionPeriod": 7,
+              "magicLinkEmailMonthlyQuota" : 100
             }
             """,
             Encoding.UTF8,
