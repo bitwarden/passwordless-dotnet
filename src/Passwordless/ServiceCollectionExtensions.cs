@@ -23,14 +23,7 @@ public static class ServiceCollectionExtensions
             .PostConfigure(options => options.ApiUrl ??= PasswordlessOptions.CloudApiUrl)
             .Validate(options => !string.IsNullOrEmpty(options.ApiSecret), "Passwordless: Missing ApiSecret");
 
-        services.AddHttpClient<IPasswordlessClient, PasswordlessClient>((http, sp) =>
-            // Above call to services.AddOptions<...> only registers IOptions<PasswordlessOptions>, not
-            // PasswordlessOptions itself, so we need to resolve it manually.
-            new PasswordlessClient(http, sp.GetRequiredService<IOptions<PasswordlessOptions>>().Value)
-        );
-
-        // TODO: Get rid of this service, all consumers should use the interface
-        services.AddTransient(sp => (PasswordlessClient)sp.GetRequiredService<IPasswordlessClient>());
+        services.RegisterDependencies();
 
         return services;
     }
@@ -40,15 +33,42 @@ public static class ServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection AddPasswordlessSdk(
         this IServiceCollection services,
-        IConfiguration configuration) =>
-        services.AddPasswordlessSdk(o =>
-        {
-            o.ApiUrl = configuration["ApiUrl"] ?? PasswordlessOptions.CloudApiUrl;
+        IConfiguration configuration)
+    {
+        services.AddOptions<PasswordlessOptions>()
+            .Configure(configuration.Bind)
+            .Validate(options => !string.IsNullOrEmpty(options.ApiSecret), "Passwordless: Missing ApiSecret");
 
-            o.ApiSecret =
-                configuration["ApiSecret"] ??
-                throw new InvalidOperationException("Missing 'ApiSecret' configuration value.");
+        services.RegisterDependencies();
 
-            o.ApiKey = configuration["ApiKey"];
-        });
+        return services;
+    }
+
+
+    /// <summary>
+    /// Adds and configures Passwordless-related services.
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="section"></param>
+    /// <returns></returns>
+    public static IServiceCollection AddPasswordlessSdk(
+        this IServiceCollection services,
+        string section)
+    {
+        services.AddOptions<PasswordlessOptions>().BindConfiguration(section);
+
+        services.RegisterDependencies();
+
+        return services;
+    }
+
+    private static void RegisterDependencies(this IServiceCollection services)
+    {
+        services.AddHttpClient<IPasswordlessClient, PasswordlessClient>((http, sp) =>
+            new PasswordlessClient(http, sp.GetRequiredService<IOptionsSnapshot<PasswordlessOptions>>().Value)
+        );
+
+        // TODO: Get rid of this service, all consumers should use the interface
+        services.AddTransient(sp => (PasswordlessClient)sp.GetRequiredService<IPasswordlessClient>());
+    }
 }
