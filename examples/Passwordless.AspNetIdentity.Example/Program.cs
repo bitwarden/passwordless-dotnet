@@ -35,8 +35,8 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 
 builder.Services.AddAuthorizationBuilder()
-    .AddPolicy(ElevationRequirement.PolicyName, policy => policy.AddRequirements([new ElevationRequirement()]))
-    .AddPolicy(SecondContextRequirement.PolicyName, policy => policy.AddRequirements([new SecondContextRequirement()]));
+    .AddPolicy(StepUpPurposes.Elevated, policy => policy.AddRequirements([new StepUpRequirement(StepUpPurposes.Elevated)]))
+    .AddPolicy(StepUpPurposes.SecondContext, policy => policy.AddRequirements([new StepUpRequirement(StepUpPurposes.SecondContext)]));
 
 builder.Services.AddSingleton<IAuthorizationHandler, StepUpAuthorizationHandler>();
 builder.Services.AddTransient<IActionContextAccessor, ActionContextAccessor>();
@@ -114,7 +114,7 @@ static async Task<IResult> StepUp(IOptions<PasswordlessOptions> options, HttpCon
     {
         identity.RemoveClaim(existingStepUpClaim);
     }
-    identity.AddClaim(new Claim(request.Purpose, DateTime.UtcNow.Add(TimeSpan.FromMinutes(2)).ToString(CultureInfo.CurrentCulture)));
+    identity.AddClaim(new Claim(request.Purpose, DateTime.UtcNow.Add(TimeSpan.FromMinutes(1)).ToString(CultureInfo.CurrentCulture)));
 
     stepUpContext.Purpose = string.Empty;
 

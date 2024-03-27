@@ -4,7 +4,7 @@ using Passwordless.AspNetIdentity.Example.Authorization;
 
 namespace Passwordless.AspNetIdentity.Example.Pages.Authorized;
 
-[Authorize(Policy = ElevationRequirement.PolicyName)]
+[Authorize(Policy = StepUpPurposes.Elevated)]
 public class ElevatedAuthentication : PageModel
 {
     public void OnGet()
