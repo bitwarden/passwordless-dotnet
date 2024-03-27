@@ -26,4 +26,5 @@ namespace Passwordless.Helpers;
 [JsonSerializable(typeof(JsonElement))]
 [JsonSerializable(typeof(GetEventLogRequest))]
 [JsonSerializable(typeof(GetEventLogResponse))]
+[JsonSerializable(typeof(SendMagicLinkApiRequest))]
 internal partial class PasswordlessSerializerContext : JsonSerializerContext;
