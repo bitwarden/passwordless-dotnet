@@ -37,7 +37,6 @@ public class EndpointTests(TestAppFixture app, ITestOutputHelper testOutput) : A
         );
 
         using var response = await http.SendAsync(request);
-        var responseText = await response.Content.ReadAsStringAsync();
         var responseJson = await response.Content.ReadFromJsonAsync<JsonElement>();
 
         // Assert
