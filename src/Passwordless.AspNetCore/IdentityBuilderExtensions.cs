@@ -69,7 +69,7 @@ public static class IdentityBuilderExtensions
                 options.ApiKey = aspNetCoreOptions.ApiKey;
             });
 
-        return services;
+        return services.AddShared(userType);
     }
 
     /// <summary>
@@ -98,11 +98,12 @@ public static class IdentityBuilderExtensions
     {
         var optionsBuilder = builder.Services
             .AddOptions<PasswordlessAspNetCoreOptions>()
-            .Bind(configuration);
+            .Bind(configuration)
+            .Configure(o => o.SignInScheme = defaultScheme);
 
         builder.Services.AddPasswordlessSdk(configuration);
 
-        return builder.Services.AddShared(userType ?? builder.UserType, optionsBuilder, IdentityConstants.ApplicationScheme);
+        return builder.Services.AddShared(userType ?? builder.UserType);
     }
 
     /// <summary>
@@ -127,28 +128,22 @@ public static class IdentityBuilderExtensions
         return builder.AddPasswordless(path, typeof(TUserType), null);
     }
 
-    private static IServiceCollection AddPasswordless(this IdentityBuilder builder, string path, Type userType, string? defaultScheme)
+    private static IServiceCollection AddPasswordless(this IdentityBuilder builder, string path, Type? userType, string? defaultScheme)
     {
         var optionsBuilder = builder.Services
             .AddOptions<PasswordlessAspNetCoreOptions>()
-            .BindConfiguration(path);
+            .BindConfiguration(path)
+            .Configure(o => o.SignInScheme = defaultScheme);
 
         builder.Services.AddPasswordlessSdk(path);
 
-        return builder.Services.AddShared(userType ?? builder.UserType, optionsBuilder, IdentityConstants.ApplicationScheme);
+        return builder.Services.AddShared(userType ?? builder.UserType);
     }
 
     private static IServiceCollection AddShared(this IServiceCollection services,
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
-        Type userType,
-        OptionsBuilder<PasswordlessAspNetCoreOptions> optionsBuilder,
-        string? defaultScheme)
+        Type userType)
     {
-        if (!string.IsNullOrEmpty(defaultScheme))
-        {
-            optionsBuilder.Configure(o => o.SignInScheme = defaultScheme);
-        }
-
         services.TryAddScoped(
             typeof(IPasswordlessService<PasswordlessRegisterRequest>),
             typeof(PasswordlessService<>).MakeGenericType(userType));
