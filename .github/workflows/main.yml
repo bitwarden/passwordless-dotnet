@@ -171,63 +171,36 @@ jobs:
           name: packages
           path: "**/*.nupkg"
 
-  # Deploy the NuGet packages to the corresponding registries
+  # Dispatch a separate deployment workflow in a private repository
   deploy:
     needs:
-      # Technically, it's not required for the format job to succeed for us to push the package,
-      # so we may consider removing it as a prerequisite here.
+      - version
       - format
       - test
       - pack
 
-    runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      packages: write
-
-    steps:
-      - name: Download artifacts
-        uses: actions/download-artifact@6b208ae046db98c579e8a3aa621ab581ff575935 # v4.1.1
-        with:
-          name: packages
-
-      - name: Install .NET
-        uses: actions/setup-dotnet@4d6c8fcf3c8f7a60068d26b594648e99df24cee3 # v4.0.0
-
-      # Publish to GitHub package registry every time, whether it's a prerelease
-      # version or a stable release version.
-      - name: Publish packages (GitHub Registry)
-        run: >
-          dotnet nuget push **/*.nupkg
-          --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
-          --api-key ${{ secrets.GITHUB_TOKEN }}
-
-      # Only publish to NuGet on stable releases
-      - name: Publish packages (NuGet Registry)
-        if: ${{ github.event_name == 'release' }}
-        run: >
-          dotnet nuget push **/*.nupkg
-          --source https://api.nuget.org/v3/index.json
-          --api-key ${{ secrets.nuget_api_key }}
-
-  # Notify the Slack channel about the release
-  notify:
-    if: ${{ github.event_name == 'release' }}
-    needs:
-      - version
-      - deploy
+    strategy:
+      matrix:
+        environment:
+          - nuget
+          # - myget
+        exclude:
+          # Exclude NuGet if not triggered by a release event
+          # https://stackoverflow.com/questions/65384420/how-do-i-make-a-github-action-matrix-element-conditional
+          - environment: ${{ github.event_name != 'release' && 'nuget' }}
 
     runs-on: ubuntu-latest
+    permissions: {} # no permissions required
 
     steps:
-      - name: Send Slack message
-        uses: tyrrrz/action-http-request@64c70c67f5ebc54d4c7ea09cbe3553322778afd5 # 1.1.2
-        with:
-          url: ${{ secrets.SLACK_WEBHOOK_URL }}
-          method: POST
-          headers: |
-            Content-Type: application/json; charset=UTF-8
-          body: |
-            {
-              "text": "*Passwordless-dotnet* version `${{ needs.version.outputs.version }}` has been released! 🎉\nDetails: ${{ github.event.release.html_url }}"
-            }
+      - name: Dispatch deployment
+        env:
+          GITHUB_TOKEN: ${{ secrets.DEPLOYMENT_GITHUB_TOKEN }}
+        run: >
+          gh workflow run deploy-passwordless-dotnet
+          --repo bitwarden/passwordless-devops
+          --field repository=${{ github.repository }}
+          --field run-id=${{ github.run_id }}
+          --field artifact=packages
+          --field environment=${{ matrix.environment }}
+          --field version=${{ needs.version.outputs.version }}
