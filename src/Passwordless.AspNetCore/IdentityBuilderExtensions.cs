@@ -69,6 +69,12 @@ public static class IdentityBuilderExtensions
                 options.ApiKey = aspNetCoreOptions.ApiKey;
             });
 
+        services.TryAddScoped(
+            typeof(IPasswordlessService<PasswordlessRegisterRequest>),
+            typeof(PasswordlessService<>).MakeGenericType(userType));
+
+        services.TryAddScoped<ICustomizeRegisterOptions, NoopCustomizeRegisterOptions>();
+
         return services;
     }
 
