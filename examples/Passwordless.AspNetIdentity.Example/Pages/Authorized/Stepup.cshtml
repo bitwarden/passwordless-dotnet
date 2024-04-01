@@ -37,7 +37,7 @@
             });
             
             // step up
-            const stepUpPasskeyResponse = await stepupComplete(credential, beginResponse.session, context, p);
+            const stepUpPasskeyResponse = await stepupComplete(credential, beginResponse.session, p);
             
             const stepUpResponse = await fetch('/stepup', {
                 method: 'POST',
@@ -69,6 +69,7 @@
                     alias: "alias" in signinMethod ? signinMethod.alias : undefined,
                     RPID: p.config.rpid,
                     Origin: p.config.origin,
+                    Purpose: { value: "step-up" }
                 }),
             });
             
@@ -89,10 +90,10 @@
             return {error: {...res, from: "server"}};
         }
         
-        async function stepupComplete(credential, session, context, p) {
+        async function stepupComplete(credential, session, p) {
             const assertionResponse = credential.response;
             
-            const response = await fetch(`${p.config.apiUrl}/stepup`, {
+            const response = await fetch(`${p.config.apiUrl}/signin/complete`, {
                 method: 'POST',
                 headers: {
                     'ApiKey': `${p.config.apiKey}`,
@@ -101,7 +102,6 @@
                 },
                 body: JSON.stringify({
                     session: session,
-                    context: { context: context, timeToLive: 600 },
                     response: {
                         id: credential.id,
                         rawId: arrayBufferToBase64Url(new Uint8Array(credential.rawId)),

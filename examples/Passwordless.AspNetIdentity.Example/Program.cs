@@ -99,7 +99,7 @@ static async Task<IResult> StepUp(IOptions<PasswordlessOptions> options, HttpCon
         DefaultRequestHeaders = { { "ApiSecret", options.Value.ApiSecret } }
     };
 
-    using var response = await http.PostAsJsonAsync("/stepup/verify", new
+    using var response = await http.PostAsJsonAsync("/signin/verify", new
     {
         Token = request.StepUpToken,
         Context = request.Purpose
@@ -114,7 +114,7 @@ static async Task<IResult> StepUp(IOptions<PasswordlessOptions> options, HttpCon
     {
         identity.RemoveClaim(existingStepUpClaim);
     }
-    identity.AddClaim(new Claim(request.Purpose, DateTime.UtcNow.Add(TimeSpan.FromMinutes(1)).ToString(CultureInfo.CurrentCulture)));
+    identity.AddClaim(new Claim(request.Purpose, DateTime.UtcNow.Add(TimeSpan.FromMinutes(5)).ToString(CultureInfo.CurrentCulture)));
 
     stepUpContext.Purpose = string.Empty;
 
@@ -138,4 +138,4 @@ record StepUpToken(
     DateTime ExpiresAt,
     Guid TokenId,
     string Type,
-    string Context) : VerifiedUser(UserId, CredentialId, Success, Timestamp, RpId, Origin, Device, Country, Nickname, ExpiresAt, TokenId, Type);
+    string Purpose) : VerifiedUser(UserId, CredentialId, Success, Timestamp, RpId, Origin, Device, Country, Nickname, ExpiresAt, TokenId, Type);
