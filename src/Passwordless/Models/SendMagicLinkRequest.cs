@@ -1,4 +1,5 @@
 using System;
+using Passwordless.Helpers.Extensions;
 
 namespace Passwordless.Models;
 
@@ -9,6 +10,14 @@ namespace Passwordless.Models;
 /// <param name="UrlTemplate">Url template that needs to contain the token template, <token>. The token template will be replaced with a valid signin token to be sent to the verify sign in token endpoint (https://v4.passwsordless.dev/signin/verify).</param>
 /// <param name="UserId">Identifier for the user the email is intended for.</param>
 /// <param name="TimeToLive">Length of time the magic link will be active. Default value will be 15 minutes.</param>
-public record SendMagicLinkRequest(string EmailAddress, string UrlTemplate, string UserId, TimeSpan? TimeToLive);
+public record SendMagicLinkRequest(string EmailAddress, string UrlTemplate, string UserId, TimeSpan? TimeToLive)
+{
+    internal SendMagicLinkApiRequest ToRequest() =>
+        new(
+            this.EmailAddress,
+            this.UrlTemplate,
+            this.UserId,
+            this.TimeToLive?.TotalSeconds.Pipe(Convert.ToInt32));
+};
 
 internal record SendMagicLinkApiRequest(string EmailAddress, string UrlTemplate, string UserId, int? TimeToLive);
