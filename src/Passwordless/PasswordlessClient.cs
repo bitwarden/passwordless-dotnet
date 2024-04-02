@@ -119,12 +119,12 @@ public class PasswordlessClient(HttpClient http, bool disposeClient, Passwordles
     public async Task SendMagicLinkAsync(SendMagicLinkRequest request, CancellationToken cancellationToken = default)
     {
         using var response = await _http.PostAsJsonAsync(
-            "magic-link/send",
+            "magic-links/send",
             new SendMagicLinkApiRequest(
                 request.EmailAddress,
                 request.UrlTemplate,
                 request.UserId,
-                request.TimeToLive?.TotalSeconds.ToInt()),
+                request.TimeToLive?.TotalSeconds.Pipe(Convert.ToInt32)),
             PasswordlessSerializerContext.Default.SendMagicLinkApiRequest,
             cancellationToken);
 
