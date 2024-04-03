@@ -173,6 +173,9 @@ jobs:
 
   # Dispatch a separate deployment workflow in a private repository
   deploy:
+    # Remove this if we end up adding more environments than just NuGet
+    if:  ${{ github.event_name == 'release' }}
+
     needs:
       - version
       - format
