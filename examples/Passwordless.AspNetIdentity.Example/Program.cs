@@ -102,7 +102,7 @@ static async Task<IResult> StepUp(IOptions<PasswordlessOptions> options, HttpCon
     using var response = await http.PostAsJsonAsync("/signin/verify", new
     {
         Token = request.StepUpToken,
-        Context = request.Purpose
+        Purpose = request.Purpose
     });
 
     var token = await response.Content.ReadFromJsonAsync<StepUpToken>();

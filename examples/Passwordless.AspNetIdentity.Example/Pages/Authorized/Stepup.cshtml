@@ -16,7 +16,7 @@
 
 <input type="hidden" asp-for="StepUpVerifyToken" />
 
-<button type="button" onclick="stepup('@Model.RequestedContext')">Proceed</button>
+<button type="button" onclick="stepup('@Model.RequestedContext', redirect)">Proceed</button>
 
 <script src="https://cdn.passwordless.dev/dist/1.1.0/umd/passwordless.umd.js"></script>
 <script>
@@ -25,9 +25,9 @@
            apiUrl: "@PasswordlessOptions.Value.ApiUrl"
        });
         
-        async function stepup(context) {            
+        async function stepup(context, callback) {            
             // sign in begin
-            const beginResponse = await signinBegin({ userId: '@Model.AuthenticatedUser!.Email'}, p);
+            const beginResponse = await signinBegin({ userId: '@Model.AuthenticatedUser!.Email'}, context, p);
             console.log(beginResponse);
             
             // get webauthn
@@ -52,11 +52,15 @@
                     });
             
             if (stepUpResponse.ok) {
-                window.location.href = stepUpResponse.url;
+                callback(stepUpResponse.url);
             }
         }
         
-        async function signinBegin(signinMethod, p) {
+        function redirect(url) {
+            window.location.href = url;
+        }
+        
+        async function signinBegin(signinMethod, context, p) {
             const response = await fetch(`${p.config.apiUrl}/signin/begin`, {
                 method: 'POST',
                 headers: {
@@ -69,7 +73,7 @@
                     alias: "alias" in signinMethod ? signinMethod.alias : undefined,
                     RPID: p.config.rpid,
                     Origin: p.config.origin,
-                    Purpose: { value: "step-up" }
+                    Purpose: context
                 }),
             });
             
