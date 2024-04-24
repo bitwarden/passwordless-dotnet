@@ -116,6 +116,18 @@ public class PasswordlessClient(HttpClient http, bool disposeClient, Passwordles
             cancellationToken))!;
 
     /// <inheritdoc />
+    public async Task SendMagicLinkAsync(SendMagicLinkRequest request, CancellationToken cancellationToken = default)
+    {
+        using var response = await _http.PostAsJsonAsync(
+            "magic-links/send",
+            request.ToRequest(),
+            PasswordlessSerializerContext.Default.SendMagicLinkApiRequest,
+            cancellationToken);
+
+        response.EnsureSuccessStatusCode();
+    }
+
+    /// <inheritdoc />
     public async Task<UsersCount> GetUsersCountAsync(CancellationToken cancellationToken = default) =>
         (await _http.GetFromJsonAsync(
             "users/count",

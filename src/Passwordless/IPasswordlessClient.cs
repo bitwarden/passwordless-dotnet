@@ -110,4 +110,12 @@ public interface IPasswordlessClient
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     Task<GetEventLogResponse> GetEventLogAsync(GetEventLogRequest request, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Sends an email containing a magic link template allowing users to login.
+    /// </summary>
+    /// <param name="request"><see cref="SendMagicLinkRequest"/></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task SendMagicLinkAsync(SendMagicLinkRequest request, CancellationToken cancellationToken = default);
 }
