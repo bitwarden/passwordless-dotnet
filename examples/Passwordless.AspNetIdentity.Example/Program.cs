@@ -46,7 +46,7 @@ builder.Services.AddRazorPages(options =>
     options.Conventions.AuthorizeFolder("/Authorized");
 });
 
-builder.Services.AddSingleton<StepUpContext>();
+builder.Services.AddSingleton<StepUpPurpose>();
 
 var app = builder.Build();
 
@@ -80,7 +80,7 @@ app.MapPost("stepup", StepUp);
 app.Run();
 return;
 
-static IResult AccessRedirect(string returnUrl, HttpContext context, StepUpContext stepUpContext)
+static IResult AccessRedirect(string returnUrl, HttpContext context, StepUpPurpose stepUpContext)
 {
 
     if (context.User.Identity!.IsAuthenticated && !string.IsNullOrWhiteSpace(stepUpContext.Purpose))
@@ -91,7 +91,7 @@ static IResult AccessRedirect(string returnUrl, HttpContext context, StepUpConte
     return Results.Redirect("Account/Login");
 }
 
-static async Task<IResult> StepUp(IOptions<PasswordlessOptions> options, HttpContext context, StepUpContext stepUpContext, [FromBody] StepUpRequest request)
+static async Task<IResult> StepUp(IOptions<PasswordlessOptions> options, HttpContext context, StepUpPurpose stepUpContext, [FromBody] StepUpRequest request)
 {
     var http = new HttpClient
     {

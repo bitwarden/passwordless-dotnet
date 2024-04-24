@@ -11,7 +11,7 @@ public interface IStepUpAuthorizationRequirement : IAuthorizationRequirement
     public string Name { get; }
 }
 
-public class StepUpAuthorizationHandler(StepUpContext stepUpContext) : AuthorizationHandler<IStepUpAuthorizationRequirement>
+public class StepUpAuthorizationHandler(StepUpPurpose stepUpPurpose) : AuthorizationHandler<IStepUpAuthorizationRequirement>
 {
     protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, IStepUpAuthorizationRequirement requirement)
     {
@@ -27,7 +27,7 @@ public class StepUpAuthorizationHandler(StepUpContext stepUpContext) : Authoriza
         }
         else
         {
-            stepUpContext.Purpose = requirement.Name;
+            stepUpPurpose.Purpose = requirement.Name;
             context.Fail();
         }
 

@@ -1,6 +1,6 @@
 namespace Passwordless.AspNetIdentity.Example.Authorization;
 
-public class StepUpContext
+public class StepUpPurpose
 {
     public string Purpose { get; set; } = string.Empty;
 }
