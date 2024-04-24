@@ -26,18 +26,19 @@
                 <button type="submit" class="btn-primary">Login</button>
             </div>
         </form>
-        
+
         <a asp-page="/Account/Recovery">If you have lost your passkey, please click here.</a>
     </div>
 </div>
 
 @if (canLogin)
 {
-    <script src="https://cdn.passwordless.dev/dist/1.1.0/umd/passwordless.umd.js"></script>
-    <script>
-    async function login() {
+    <script type="module">
+        import {Client} from "/js/site.js";
+
+        async function login() {
         const alias = document.getElementById("email").value;
-        const p = new Passwordless.Client(
+        const p = new Client(
             {
                 apiKey: "@PasswordlessOptions.Value.ApiKey",
                 apiUrl: "@PasswordlessOptions.Value.ApiUrl"
@@ -62,5 +63,6 @@
             window.location.href = '/Authorized/HelloWorld';        }
     }
     login();
+    
     </script>
 }
