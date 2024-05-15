@@ -198,7 +198,7 @@ export class Client {
             if (!stepup.signinMethod) {
                 stepup.signinMethod = {discoverable: true};
             }
-            const signin = await this.signinBegin(stepup.signinMethod);
+            const signin = await this.signinBegin(stepup.signinMethod, stepup.purpose);
             if (signin.error) {
                 return signin;
             }
@@ -226,7 +226,7 @@ export class Client {
         }
     }
     
-    async signinBegin(signinMethod) {
+    async signinBegin(signinMethod, purpose) {
         var _a;
         const response = await fetch(`${this.config.apiUrl}/signin/begin`, {
             method: 'POST',
@@ -236,6 +236,7 @@ export class Client {
                 alias: "alias" in signinMethod ? signinMethod.alias : undefined,
                 RPID: this.config.rpid,
                 Origin: this.config.origin,
+                Purpose: purpose
             }),
         });
         const res = await response.json();
