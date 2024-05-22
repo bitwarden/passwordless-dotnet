@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Passwordless;
@@ -31,6 +32,10 @@ public static class ServiceCollectionExtensions
     /// <summary>
     /// Adds and configures Passwordless-related services.
     /// </summary>
+#if NET7_0_OR_GREATER
+    [RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
+    [RequiresUnreferencedCode("This method is incompatible with assembly trimming.")]
+#endif
     public static IServiceCollection AddPasswordlessSdk(
         this IServiceCollection services,
         IConfiguration configuration)
@@ -44,13 +49,16 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-
     /// <summary>
     /// Adds and configures Passwordless-related services.
     /// </summary>
     /// <param name="services"></param>
     /// <param name="section"></param>
     /// <returns></returns>
+#if NET7_0_OR_GREATER
+    [RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
+    [RequiresUnreferencedCode("This method is incompatible with assembly trimming.")]
+#endif
     public static IServiceCollection AddPasswordlessSdk(
         this IServiceCollection services,
         string section)
