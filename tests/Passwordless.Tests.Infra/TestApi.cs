@@ -45,7 +45,12 @@ public class TestApi : IAsyncDisposable
             .WithWaitStrategy(Wait
                 .ForUnixContainer()
                 .UntilHttpRequestIsSucceeded(r => r
-                    .ForPath("/")
+                    .ForPath("/health/http")
+                    .ForPort(ApiPort)
+                    .ForStatusCode(HttpStatusCode.OK)
+                )
+                .UntilHttpRequestIsSucceeded(r => r
+                    .ForPath("/health/storage")
                     .ForPort(ApiPort)
                     .ForStatusCode(HttpStatusCode.OK)
                 )
