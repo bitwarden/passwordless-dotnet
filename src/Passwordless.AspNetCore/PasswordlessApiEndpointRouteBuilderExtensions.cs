@@ -16,7 +16,7 @@ namespace Passwordless.AspNetCore;
 public static class PasswordlessApiEndpointRouteBuilderExtensions
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public static PasswordlessEndpointConventionBuilder MapPasswordless(this IEndpointRouteBuilder endpoints, bool enableRegisterEndpoint = false)
     {
@@ -27,7 +27,7 @@ public static class PasswordlessApiEndpointRouteBuilderExtensions
     }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public static PasswordlessEndpointConventionBuilder MapPasswordless(this IEndpointRouteBuilder endpoints, PasswordlessEndpointOptions endpointOptions)
     {
@@ -35,7 +35,7 @@ public static class PasswordlessApiEndpointRouteBuilderExtensions
     }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public static PasswordlessEndpointConventionBuilder MapPasswordless<TRegisterBody>(this IEndpointRouteBuilder endpoints)
     {
@@ -43,9 +43,9 @@ public static class PasswordlessApiEndpointRouteBuilderExtensions
     }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
-    [RequiresUnreferencedCode()]
+    [RequiresUnreferencedCode("This API may perform reflection on the supplied delegate and its parameters. These types may be trimmed if not directly referenced.")]
     public static PasswordlessEndpointConventionBuilder MapPasswordless<TRegisterBody>(this IEndpointRouteBuilder endpoints, PasswordlessEndpointOptions endpointOptions)
     {
         var routeGroup = endpoints
