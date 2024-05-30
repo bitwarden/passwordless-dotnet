@@ -36,6 +36,7 @@ public static class ServiceCollectionExtensions
     [RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
     [RequiresUnreferencedCode("This method is incompatible with assembly trimming.")]
 #endif
+    [RequiresUnreferencedCode()]
     public static IServiceCollection AddPasswordlessSdk(
         this IServiceCollection services,
         IConfiguration configuration)
@@ -59,6 +60,7 @@ public static class ServiceCollectionExtensions
     [RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
     [RequiresUnreferencedCode("This method is incompatible with assembly trimming.")]
 #endif
+    [RequiresUnreferencedCode()]
     public static IServiceCollection AddPasswordlessSdk(
         this IServiceCollection services,
         string section)
