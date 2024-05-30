@@ -32,11 +32,11 @@ public static class ServiceCollectionExtensions
     /// <summary>
     /// Adds and configures Passwordless-related services.
     /// </summary>
-#if NET7_0_OR_GREATER
-    [RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
-#endif
 #if NET6_0_OR_GREATER
     [RequiresUnreferencedCode("This method is incompatible with assembly trimming.")]
+#endif
+#if NET7_0_OR_GREATER
+    [RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
 #endif
     public static IServiceCollection AddPasswordlessSdk(
         this IServiceCollection services,
@@ -57,11 +57,11 @@ public static class ServiceCollectionExtensions
     /// <param name="services"></param>
     /// <param name="section"></param>
     /// <returns></returns>
-#if NET7_0_OR_GREATER
-    [RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
-#endif
 #if NET6_0_OR_GREATER
     [RequiresUnreferencedCode("This method is incompatible with assembly trimming.")]
+#endif
+#if NET7_0_OR_GREATER
+    [RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
 #endif
     public static IServiceCollection AddPasswordlessSdk(
         this IServiceCollection services,

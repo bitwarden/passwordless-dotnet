@@ -24,6 +24,8 @@ public static class IdentityBuilderExtensions
     /// <param name="services">The <see cref="IServiceCollection" />.</param>
     /// <param name="configure">Configures the <see cref="PasswordlessAspNetCoreOptions" />.</param>
     /// <returns>The <see cref="IServiceCollection" />.</returns>
+    [RequiresUnreferencedCode("This method is incompatible with assembly trimming.")]
+    [RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
     public static IServiceCollection AddPasswordless<TUser>(this IServiceCollection services, Action<PasswordlessAspNetCoreOptions> configure)
         where TUser : class, new()
     {
@@ -36,12 +38,16 @@ public static class IdentityBuilderExtensions
     /// <param name="builder">The current <see cref="IdentityBuilder" /> instance.</param>
     /// <param name="configure">Configures the <see cref="PasswordlessAspNetCoreOptions" />.</param>
     /// <returns>The <see cref="IdentityBuilder" />.</returns>
+    [RequiresUnreferencedCode("This method is incompatible with assembly trimming.")]
+    [RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
     public static IdentityBuilder AddPasswordless(this IdentityBuilder builder, Action<PasswordlessAspNetCoreOptions> configure)
     {
         builder.Services.AddPasswordlessCore(builder.UserType, configure, IdentityConstants.ApplicationScheme);
         return builder;
     }
 
+    [RequiresDynamicCode("Calls Microsoft.Extensions.DependencyInjection.IdentityBuilderExtensions.AddShared(Type, OptionsBuilder<PasswordlessAspNetCoreOptions>, String)")]
+    [RequiresUnreferencedCode("Calls Microsoft.Extensions.DependencyInjection.IdentityBuilderExtensions.AddShared(Type, OptionsBuilder<PasswordlessAspNetCoreOptions>, String)")]
     private static IServiceCollection AddPasswordlessCore(this IServiceCollection services,
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type userType,
         Action<PasswordlessAspNetCoreOptions> configure,
@@ -71,6 +77,8 @@ public static class IdentityBuilderExtensions
     /// <param name="builder">The current <see cref="IdentityBuilder" /> instance.</param>
     /// <param name="configuration">The <see cref="IConfiguration" /> to use to bind to <see cref="PasswordlessAspNetCoreOptions" />. Generally it's own section.</param>
     /// <returns>The <see cref="IdentityBuilder" />.</returns>
+    [RequiresUnreferencedCode("This method is incompatible with assembly trimming.")]
+    [RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
     public static IServiceCollection AddPasswordless(this IdentityBuilder builder, IConfiguration configuration)
     {
         return builder.AddPasswordless(configuration, builder.UserType, IdentityConstants.ApplicationScheme);
@@ -82,13 +90,15 @@ public static class IdentityBuilderExtensions
     /// <param name="builder">The current <see cref="IdentityBuilder" /> instance.</param>
     /// <param name="configuration">The <see cref="IConfiguration" /> to use to bind to <see cref="PasswordlessAspNetCoreOptions" />. Generally it's own section.</param>
     /// <returns>The <see cref="IdentityBuilder" />.</returns>
+    [RequiresUnreferencedCode("This method is incompatible with assembly trimming.")]
+    [RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
     public static IServiceCollection AddPasswordless<TUserType>(this IdentityBuilder builder, IConfiguration configuration)
     {
         return builder.AddPasswordless(configuration, typeof(TUserType), null);
     }
 
-    [RequiresUnreferencedCode("Calls Microsoft.Extensions.DependencyInjection.OptionsBuilderConfigurationExtensions.Bind<TOptions>(IConfiguration)")]
-    [RequiresDynamicCode("Calls Microsoft.Extensions.DependencyInjection.OptionsBuilderConfigurationExtensions.Bind<TOptions>(IConfiguration)")]
+    [RequiresUnreferencedCode("This method is incompatible with assembly trimming.")]
+    [RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
     private static IServiceCollection AddPasswordless(this IdentityBuilder builder, IConfiguration configuration, Type? userType, string? defaultScheme)
     {
         var optionsBuilder = builder.Services
@@ -106,6 +116,8 @@ public static class IdentityBuilderExtensions
     /// <param name="builder">The current <see cref="IdentityBuilder" /> instance.</param>
     /// <param name="path">The configuration path to use to bind to <see cref="PasswordlessAspNetCoreOptions" />.</param>
     /// <returns>The <see cref="IServiceCollection" />.</returns>
+    [RequiresUnreferencedCode("This method is incompatible with assembly trimming.")]
+    [RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
     public static IServiceCollection AddPasswordless(this IdentityBuilder builder, string path)
     {
         return builder.AddPasswordless(path, builder.UserType, IdentityConstants.ApplicationScheme);
@@ -117,13 +129,15 @@ public static class IdentityBuilderExtensions
     /// <param name="builder">The current <see cref="IdentityBuilder" /> instance.</param>
     /// <param name="path">The configuration path to use to bind to <see cref="PasswordlessAspNetCoreOptions" />.</param>
     /// <returns>The <see cref="IServiceCollection" />.</returns>
+    [RequiresUnreferencedCode("This method is incompatible with assembly trimming.")]
+    [RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
     public static IServiceCollection AddPasswordless<TUserType>(this IdentityBuilder builder, string path)
     {
         return builder.AddPasswordless(path, typeof(TUserType), null);
     }
 
-    [RequiresUnreferencedCode("Calls Microsoft.Extensions.DependencyInjection.OptionsBuilderConfigurationExtensions.BindConfiguration<TOptions>(String, Action<BinderOptions>)")]
-    [RequiresDynamicCode("Calls Microsoft.Extensions.DependencyInjection.OptionsBuilderConfigurationExtensions.BindConfiguration<TOptions>(String, Action<BinderOptions>)")]
+    [RequiresUnreferencedCode("This method is incompatible with assembly trimming.")]
+    [RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
     private static IServiceCollection AddPasswordless(this IdentityBuilder builder, string path, Type userType, string? defaultScheme)
     {
         var optionsBuilder = builder.Services
@@ -135,7 +149,8 @@ public static class IdentityBuilderExtensions
         return builder.Services.AddShared(userType ?? builder.UserType, optionsBuilder, IdentityConstants.ApplicationScheme);
     }
 
-    [RequiresDynamicCode("Calls System.Type.MakeGenericType(params Type[])")]
+    [RequiresUnreferencedCode("This method is incompatible with assembly trimming.")]
+    [RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
     private static IServiceCollection AddShared(this IServiceCollection services,
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
         Type userType,

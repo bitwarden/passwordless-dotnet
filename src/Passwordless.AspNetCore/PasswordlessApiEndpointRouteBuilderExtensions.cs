@@ -18,6 +18,8 @@ public static class PasswordlessApiEndpointRouteBuilderExtensions
     /// <summary>
     ///
     /// </summary>
+    [RequiresUnreferencedCode("This method is incompatible with assembly trimming.")]
+    [RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
     public static PasswordlessEndpointConventionBuilder MapPasswordless(this IEndpointRouteBuilder endpoints, bool enableRegisterEndpoint = false)
     {
         // TODO: When a custom register body isn't passed in, we can make a reasonable assumption
@@ -29,6 +31,8 @@ public static class PasswordlessApiEndpointRouteBuilderExtensions
     /// <summary>
     ///
     /// </summary>
+    [RequiresUnreferencedCode("This method is incompatible with assembly trimming.")]
+    [RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
     public static PasswordlessEndpointConventionBuilder MapPasswordless(this IEndpointRouteBuilder endpoints, PasswordlessEndpointOptions endpointOptions)
     {
         return endpoints.MapPasswordless<PasswordlessRegisterRequest>(endpointOptions);
@@ -37,6 +41,8 @@ public static class PasswordlessApiEndpointRouteBuilderExtensions
     /// <summary>
     ///
     /// </summary>
+    [RequiresUnreferencedCode("This method is incompatible with assembly trimming.")]
+    [RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
     public static PasswordlessEndpointConventionBuilder MapPasswordless<TRegisterBody>(this IEndpointRouteBuilder endpoints)
     {
         return endpoints.MapPasswordless<PasswordlessRegisterRequest>(new PasswordlessEndpointOptions(enableRegisterEndpoint: true));
@@ -45,7 +51,8 @@ public static class PasswordlessApiEndpointRouteBuilderExtensions
     /// <summary>
     ///
     /// </summary>
-    [RequiresUnreferencedCode("This API may perform reflection on the supplied delegate and its parameters. These types may be trimmed if not directly referenced.")]
+    [RequiresUnreferencedCode("This method is incompatible with assembly trimming.")]
+    [RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
     public static PasswordlessEndpointConventionBuilder MapPasswordless<TRegisterBody>(this IEndpointRouteBuilder endpoints, PasswordlessEndpointOptions endpointOptions)
     {
         var routeGroup = endpoints
