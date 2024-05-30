@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
@@ -44,6 +45,7 @@ public static class PasswordlessApiEndpointRouteBuilderExtensions
     /// <summary>
     /// 
     /// </summary>
+    [RequiresUnreferencedCode()]
     public static PasswordlessEndpointConventionBuilder MapPasswordless<TRegisterBody>(this IEndpointRouteBuilder endpoints, PasswordlessEndpointOptions endpointOptions)
     {
         var routeGroup = endpoints

@@ -87,6 +87,8 @@ public static class IdentityBuilderExtensions
         return builder.AddPasswordless(configuration, typeof(TUserType), null);
     }
 
+    [RequiresUnreferencedCode("Calls Microsoft.Extensions.DependencyInjection.OptionsBuilderConfigurationExtensions.Bind<TOptions>(IConfiguration)")]
+    [RequiresDynamicCode("Calls Microsoft.Extensions.DependencyInjection.OptionsBuilderConfigurationExtensions.Bind<TOptions>(IConfiguration)")]
     private static IServiceCollection AddPasswordless(this IdentityBuilder builder, IConfiguration configuration, Type? userType, string? defaultScheme)
     {
         var optionsBuilder = builder.Services
@@ -120,6 +122,8 @@ public static class IdentityBuilderExtensions
         return builder.AddPasswordless(path, typeof(TUserType), null);
     }
 
+    [RequiresUnreferencedCode("Calls Microsoft.Extensions.DependencyInjection.OptionsBuilderConfigurationExtensions.BindConfiguration<TOptions>(String, Action<BinderOptions>)")]
+    [RequiresDynamicCode("Calls Microsoft.Extensions.DependencyInjection.OptionsBuilderConfigurationExtensions.BindConfiguration<TOptions>(String, Action<BinderOptions>)")]
     private static IServiceCollection AddPasswordless(this IdentityBuilder builder, string path, Type userType, string? defaultScheme)
     {
         var optionsBuilder = builder.Services
@@ -131,6 +135,7 @@ public static class IdentityBuilderExtensions
         return builder.Services.AddShared(userType ?? builder.UserType, optionsBuilder, IdentityConstants.ApplicationScheme);
     }
 
+    [RequiresDynamicCode("Calls System.Type.MakeGenericType(params Type[])")]
     private static IServiceCollection AddShared(this IServiceCollection services,
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
         Type userType,
