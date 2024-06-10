@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Specialized;
 using System.ComponentModel.DataAnnotations;
+using System.Net.Mail;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
@@ -66,20 +67,12 @@ public class Recovery : PageModel
 
         var uriBuilder = new UriBuilder(url);
         var query = HttpUtility.ParseQueryString(uriBuilder.Query);
-        query["token"] = token.Token;
+        query["token"] = "";
         uriBuilder.Query = query.ToString();
 
-        var message = $"""
-                       New message:
-                       
-                       Click the link to recover your account
-                       <a href="{uriBuilder}">Link<a>
-                       {Environment.NewLine}
-                       """;
+        await _passwordlessClient.SendMagicLinkAsync(new SendMagicLinkRequest(form.Email!, uriBuilder.Uri+"$TOKEN", user.Id, null), cancellationToken);
 
-        await System.IO.File.AppendAllTextAsync("mail.md", message, cancellationToken);
-
-        return RedirectToPage("Recovery", "SuccessfulRecovery", new { message });
+        return RedirectToPage("Recovery", "SuccessfulRecovery", new { message = "message" });
     }
 }
 
