@@ -14,5 +14,6 @@ public record VerifiedUser(
     string Nickname,
     DateTime ExpiresAt,
     Guid TokenId,
-    string Type
+    string Type,
+    string Purpose
 );

@@ -196,6 +196,7 @@ public class PasswordlessServiceTests
             _fixture.Create<string>(),
             _fixture.Create<DateTime>(),
             _fixture.Create<Guid>(),
+            _fixture.Create<string>(),
             _fixture.Create<string>());
         var user = new TestUser
         {
@@ -236,6 +237,7 @@ public class PasswordlessServiceTests
             _fixture.Create<string>(),
             _fixture.Create<DateTime>(),
             _fixture.Create<Guid>(),
+            _fixture.Create<string>(),
             _fixture.Create<string>());
         var user = new TestUser
         {
@@ -278,6 +280,7 @@ public class PasswordlessServiceTests
             _fixture.Create<string>(),
             _fixture.Create<DateTime>(),
             _fixture.Create<Guid>(),
+            _fixture.Create<string>(),
             _fixture.Create<string>());
         var user = new TestUser
         {
@@ -327,6 +330,7 @@ public class PasswordlessServiceTests
             _fixture.Create<string>(),
             _fixture.Create<DateTime>(),
             _fixture.Create<Guid>(),
+            _fixture.Create<string>(),
             _fixture.Create<string>());
         _mockPasswordlessClient
             .Setup(s => s.VerifyAuthenticationTokenAsync("test_token", default))
@@ -353,6 +357,7 @@ public class PasswordlessServiceTests
             _fixture.Create<string>(),
             _fixture.Create<DateTime>(),
             _fixture.Create<Guid>(),
+            _fixture.Create<string>(),
             _fixture.Create<string>());
         var user = new TestUser
         {
