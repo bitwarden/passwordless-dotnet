@@ -138,4 +138,4 @@ record StepUpToken(
     DateTime ExpiresAt,
     Guid TokenId,
     string Type,
-    string Purpose) : VerifiedUser(UserId, CredentialId, Success, Timestamp, RpId, Origin, Device, Country, Nickname, ExpiresAt, TokenId, Type);
+    string Purpose) : VerifiedUser(UserId, CredentialId, Success, Timestamp, RpId, Origin, Device, Country, Nickname, ExpiresAt, TokenId, Type, Purpose);

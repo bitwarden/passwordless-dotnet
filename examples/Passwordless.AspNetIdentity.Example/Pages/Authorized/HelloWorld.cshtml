@@ -42,12 +42,19 @@
             <button type="submit" class="btn-primary">Add Passkey</button>
         </div>
     </form>
+    <div>
+        <h3>Current Claims:</h3>
+        <ul>
+            @foreach (var claim in User.Claims)
+            {
+                <li>@claim.Type : @claim.Value</li>
+            }
+        </ul>
+    </div>
     
     <a asp-page="ElevatedAuthentication">To Elevated Area</a>
     
     <a asp-page="SecondContext">To Other Area</a>
-    
-    
     
     @if (Model.CanAddPassKeys)
     {
