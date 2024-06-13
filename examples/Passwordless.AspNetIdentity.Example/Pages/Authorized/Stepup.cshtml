@@ -19,23 +19,24 @@
             });
 
         // sign in begin
-        await p.stepup({ userId: '@Model.AuthenticatedUser!.Email', purpose: '@Model.RequestedContext'}, async (token) => {
-            const stepUpResponse = await fetch('/stepup', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    stepUpToken: token,
-                    returnUrl: '@Model.ReturnUrl',
-                    purpose: '@Model.RequestedContext'
-                })
-            });
+        await p.stepup({ signinMethod: { userId: '@Model.AuthenticatedUser!.Email' }, purpose: '@Model.RequestedContext'})
+            .then(async data => {
+                const stepUpResponse = await fetch('/stepup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        stepUpToken: data.token,
+                        returnUrl: '@Model.ReturnUrl',
+                        purpose: '@Model.RequestedContext'
+                    })
+                });
 
-            if (stepUpResponse.ok) {
-                window.location.href = stepUpResponse.url;
-            }
-        });
+                if (stepUpResponse.ok) {
+                    window.location.href = stepUpResponse.url;
+                }
+            });
     }
     window.stepup = stepup;
 </script>

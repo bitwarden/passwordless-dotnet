@@ -70,7 +70,7 @@ public class Recovery : PageModel
         query["token"] = "";
         uriBuilder.Query = query.ToString();
 
-        await _passwordlessClient.SendMagicLinkAsync(new SendMagicLinkRequest(form.Email!, uriBuilder.Uri+"$TOKEN", user.Id, null), cancellationToken);
+        await _passwordlessClient.SendMagicLinkAsync(new SendMagicLinkRequest(form.Email!, uriBuilder.Uri + "$TOKEN", user.Id, null), cancellationToken);
 
         return RedirectToPage("Recovery", "SuccessfulRecovery", new { message = "message" });
     }

@@ -58,7 +58,7 @@ public class Magic : PageModel
         {
             await _signInManager.UserManager.AddClaimAsync(user, new Claim(response.Type, DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)));
         }
-        
+
         Success = true;
         return LocalRedirect("/Authorized/HelloWorld");
     }
