@@ -8,11 +8,10 @@
 @{
     ViewData["Title"] = "Step Up";
 }
-
+<script src="~/js/site.js"></script>
 <script type="module">
-    import {Client} from "/js/site.js";
     async function stepup() {
-        const p = new Client(
+        const p = new Passwordless.Client(
             {
                 apiKey: "@PasswordlessOptions.Value.ApiKey",
                 apiUrl: "@PasswordlessOptions.Value.ApiUrl"

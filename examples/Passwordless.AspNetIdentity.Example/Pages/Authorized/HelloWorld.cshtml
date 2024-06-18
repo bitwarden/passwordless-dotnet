@@ -45,9 +45,9 @@
     <div>
         <h3>Current Claims:</h3>
         <ul>
-            @foreach (var claim in User.Claims)
+            @foreach (var claim in Model.Claims)
             {
-                <li>@claim.Type : @claim.Value</li>
+                <li>@claim.ClaimName : @claim.ClaimValue</li>
             }
         </ul>
     </div>
