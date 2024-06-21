@@ -58,9 +58,10 @@
     
     @if (Model.CanAddPassKeys)
     {
-        <script src="https://cdn.passwordless.dev/dist/1.1.0/umd/passwordless.umd.js"></script>
         <script>
-            const p = new Passwordless.Client({
+            import { Client } from "https://cdn.passwordless.dev/dist/1.2.0-beta1/esm/passwordless.mjs";
+            
+            const p = new Client({
                apiKey: "@PasswordlessOptions.Value.ApiKey",
                apiUrl: "@PasswordlessOptions.Value.ApiUrl"
            });

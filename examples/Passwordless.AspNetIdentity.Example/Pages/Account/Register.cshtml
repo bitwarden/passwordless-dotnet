@@ -36,8 +36,9 @@
 
 @if (canAddPasskeys)
 {
-    <script src="https://cdn.passwordless.dev/dist/1.1.0/umd/passwordless.umd.js"></script>
     <script>
+    import { Client } from "https://cdn.passwordless.dev/dist/1.2.0-beta1/esm/passwordless.mjs";
+    
     async function register() {
         const username = document.getElementById("username").value;
         const email = document.getElementById("email").value;
@@ -60,8 +61,8 @@
            const registrationResponseJson = await registrationResponse.json();
            const token = registrationResponseJson.token;
                     
-                    // we need to use Client from https://cdn.passwordless.dev/dist/1.1.0/umd/passwordless.umd.js which is imported above.
-                    const p = new Passwordless.Client(
+                    // we need to use Client from https://cdn.passwordless.dev/dist/1.2.0-beta1/esm/passwordless.mjs which is imported above.
+                    const p = new Client(
                         {
                             apiKey: "@PasswordlessOptions.Value.ApiKey",
                             apiUrl: "@PasswordlessOptions.Value.ApiUrl"
@@ -70,5 +71,6 @@
                 }
     }
     register();
+    
     </script>
 }
