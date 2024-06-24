@@ -35,8 +35,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 
 builder.Services.AddAuthorizationBuilder()
-    .AddPolicy(StepUpPurposes.Elevated, policy => policy.AddRequirements([new StepUpRequirement(StepUpPurposes.Elevated)]))
-    .AddPolicy(StepUpPurposes.SecondContext, policy => policy.AddRequirements([new StepUpRequirement(StepUpPurposes.SecondContext)]));
+    .AddPolicy(StepUpPurposes.StepUp, policy => policy.AddRequirements([new StepUpRequirement(StepUpPurposes.StepUp)]));
 
 builder.Services.AddSingleton<IAuthorizationHandler, StepUpAuthorizationHandler>();
 builder.Services.AddTransient<IActionContextAccessor, ActionContextAccessor>();
