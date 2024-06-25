@@ -102,7 +102,8 @@ public class Recovery : PageModel
 
 public class RecoveryForm
 {
-    [EmailAddress] [Required] 
+    [EmailAddress]
+    [Required]
     public string Email { get; set; } = string.Empty;
 
     [Required]
