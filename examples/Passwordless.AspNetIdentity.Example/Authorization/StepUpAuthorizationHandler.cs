@@ -11,7 +11,7 @@ public interface IStepUpAuthorizationRequirement : IAuthorizationRequirement
     public string Name { get; }
 }
 
-public class StepUpAuthorizationHandler(StepUpPurpose stepUpPurpose) : AuthorizationHandler<IStepUpAuthorizationRequirement>
+public class StepUpAuthorizationHandler(StepUpPurpose stepUpPurpose, TimeProvider timeProvider) : AuthorizationHandler<IStepUpAuthorizationRequirement>
 {
     protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, IStepUpAuthorizationRequirement requirement)
     {
@@ -36,9 +36,9 @@ public class StepUpAuthorizationHandler(StepUpPurpose stepUpPurpose) : Authoriza
 
     private static Predicate<Claim> MatchesClaim(IStepUpAuthorizationRequirement requirement) => claim => claim.Type == requirement.Name;
 
-    private static bool IsExpired(DateTime expiration)
+    private bool IsExpired(DateTime expiration)
     {
-        return expiration > DateTime.UtcNow;
+        return expiration > timeProvider.GetUtcNow().DateTime;
     }
 
     private static DateTime GetExpiration(Claim claim)
