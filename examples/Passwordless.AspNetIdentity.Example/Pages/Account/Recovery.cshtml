@@ -2,6 +2,12 @@
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 @model Passwordless.AspNetIdentity.Example.Pages.Account.Recovery
 
+<style lang="css">
+    .block-element {
+        display: block;
+    }
+</style>
+
 @{
     ViewData["Title"] = "Account Recovery";
 }
@@ -17,7 +23,10 @@ and a "magic link" will be used to authenticate the intended user.
     <label asp-for="Form.Email">Email: </label>
     <input asp-for="Form.Email" type="email" id="email" placeholder="janedoe@example.org"/>
     <span class="text-danger" asp-validation-for="Form.Email"></span>
-    <button type="submit" class="btn-primary">Send</button>
+    <p>Recovery Method:</p>
+    <label class="block-element"><input type="radio" asp-for="Form.RecoveryMethod" value="@Recovery.GeneratedSignIn"/>Generated Sign In Token</label>
+    <label class="block-element"><input type="radio" asp-for="Form.RecoveryMethod" value="@Recovery.MagicLink"/>Magic Link</label>
+    <button type="submit" class="btn-primary block-element">Send</button>
 </form>
 
 @if (!string.IsNullOrWhiteSpace(Model.RecoveryMessage))

@@ -29,6 +29,25 @@ public class PasswordlessServiceTests
     private readonly Mock<IServiceProvider> _mockServiceProvider = new();
     private readonly Fixture _fixture = new();
 
+    public PasswordlessServiceTests()
+    {
+        _fixture.Register(() => new VerifiedUser(
+            Guid.NewGuid().ToString(),
+            _fixture.Create<byte[]>(),
+            true,
+            _fixture.Create<DateTime>(),
+            _fixture.Create<string>(),
+            _fixture.Create<string>(),
+            _fixture.Create<string>(),
+            _fixture.Create<string>(),
+            _fixture.Create<string>(),
+            _fixture.Create<DateTime>(),
+            _fixture.Create<Guid>(),
+            _fixture.Create<string>(),
+            _fixture.Create<string>()));
+    }
+
+
     private PasswordlessService<TestUser> CreateSut()
     {
         var mockOptions = new Mock<IOptions<PasswordlessAspNetCoreOptions>>();
@@ -184,19 +203,8 @@ public class PasswordlessServiceTests
     [Fact]
     public async Task LoginUserAsync_UsesDefaultSchemeIfNoneSpecified()
     {
-        var verifiedUser = new VerifiedUser(
-            Guid.NewGuid().ToString(),
-            _fixture.Create<byte[]>(),
-            true,
-            _fixture.Create<DateTime>(),
-            _fixture.Create<string>(),
-            _fixture.Create<string>(),
-            _fixture.Create<string>(),
-            _fixture.Create<string>(),
-            _fixture.Create<string>(),
-            _fixture.Create<DateTime>(),
-            _fixture.Create<Guid>(),
-            _fixture.Create<string>());
+        var verifiedUser = _fixture.Create<VerifiedUser>();
+
         var user = new TestUser
         {
             Id = Guid.Parse(verifiedUser.UserId),
@@ -224,19 +232,9 @@ public class PasswordlessServiceTests
     [Fact]
     public async Task LoginUserAsync_UsesOurOptionIfSpecified()
     {
-        var verifiedUser = new VerifiedUser(
-            Guid.NewGuid().ToString(),
-            _fixture.Create<byte[]>(),
-            true,
-            _fixture.Create<DateTime>(),
-            _fixture.Create<string>(),
-            _fixture.Create<string>(),
-            _fixture.Create<string>(),
-            _fixture.Create<string>(),
-            _fixture.Create<string>(),
-            _fixture.Create<DateTime>(),
-            _fixture.Create<Guid>(),
-            _fixture.Create<string>());
+
+        var verifiedUser = _fixture.Create<VerifiedUser>();
+
         var user = new TestUser
         {
             Id = Guid.Parse(verifiedUser.UserId),
@@ -266,19 +264,9 @@ public class PasswordlessServiceTests
     [Fact]
     public async Task LoginUserAsync_TriesAuthenticationOptionsIfOursIsNull()
     {
-        var verifiedUser = new VerifiedUser(
-            Guid.NewGuid().ToString(),
-            _fixture.Create<byte[]>(),
-            true,
-            _fixture.Create<DateTime>(),
-            _fixture.Create<string>(),
-            _fixture.Create<string>(),
-            _fixture.Create<string>(),
-            _fixture.Create<string>(),
-            _fixture.Create<string>(),
-            _fixture.Create<DateTime>(),
-            _fixture.Create<Guid>(),
-            _fixture.Create<string>());
+
+        var verifiedUser = _fixture.Create<VerifiedUser>();
+
         var user = new TestUser
         {
             Id = Guid.Parse(verifiedUser.UserId),
@@ -315,19 +303,9 @@ public class PasswordlessServiceTests
     [Fact]
     public async Task LoginUserAsync_UserDoesNotExist_ReturnsUnauthorized()
     {
-        var verifiedUser = new VerifiedUser(
-            Guid.NewGuid().ToString(),
-            _fixture.Create<byte[]>(),
-            true,
-            _fixture.Create<DateTime>(),
-            _fixture.Create<string>(),
-            _fixture.Create<string>(),
-            _fixture.Create<string>(),
-            _fixture.Create<string>(),
-            _fixture.Create<string>(),
-            _fixture.Create<DateTime>(),
-            _fixture.Create<Guid>(),
-            _fixture.Create<string>());
+
+        var verifiedUser = _fixture.Create<VerifiedUser>();
+
         _mockPasswordlessClient
             .Setup(s => s.VerifyAuthenticationTokenAsync("test_token", default))
             .ReturnsAsync(verifiedUser);
@@ -341,19 +319,8 @@ public class PasswordlessServiceTests
     [Fact]
     public async Task AddCredentialAsync_ReturnsRegisterTokenResponse()
     {
-        var verifiedUser = new VerifiedUser(
-            Guid.NewGuid().ToString(),
-            _fixture.Create<byte[]>(),
-            true,
-            _fixture.Create<DateTime>(),
-            _fixture.Create<string>(),
-            _fixture.Create<string>(),
-            _fixture.Create<string>(),
-            _fixture.Create<string>(),
-            _fixture.Create<string>(),
-            _fixture.Create<DateTime>(),
-            _fixture.Create<Guid>(),
-            _fixture.Create<string>());
+        var verifiedUser = _fixture.Create<VerifiedUser>();
+
         var user = new TestUser
         {
             Id = Guid.Parse(verifiedUser.UserId),

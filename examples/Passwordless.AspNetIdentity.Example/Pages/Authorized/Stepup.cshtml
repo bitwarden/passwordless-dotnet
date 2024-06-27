@@ -1,0 +1,55 @@
+@page
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Microsoft.Extensions.Options
+@using Passwordless.AspNetCore
+@model StepUp
+@inject IOptions<PasswordlessAspNetCoreOptions> PasswordlessOptions;
+
+@{
+    ViewData["Title"] = "Step Up";
+}
+<script type="module">
+    import { Client } from "https://cdn.passwordless.dev/dist/1.2.0-beta1/esm/passwordless.mjs";
+    
+    async function stepup() {
+        const p = new Client(
+            {
+                apiKey: "@PasswordlessOptions.Value.ApiKey",
+                apiUrl: "@PasswordlessOptions.Value.ApiUrl"
+            });
+
+        // sign in begin
+        await p.stepup({ signinMethod: { userId: '@Model.AuthenticatedUser!.Email' }, purpose: '@Model.RequestedContext'})
+            .then(async data => {
+                const stepUpResponse = await fetch('/stepup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        stepUpToken: data.token,
+                        returnUrl: '@Model.ReturnUrl',
+                        purpose: '@Model.RequestedContext'
+                    })
+                });
+
+                if (stepUpResponse.ok) {
+                    window.location.href = stepUpResponse.url;
+                }
+            });
+    }
+    window.stepup = stepup;
+
+</script>
+
+<h1>@ViewData["Title"]</h1>
+
+<p>Hello, @User.Identity!.Name</p>
+
+<p>Please enter credentials to perform action.</p>
+
+<input type="hidden" asp-for="StepUpVerifyToken" />
+
+<button type="button" onclick="stepup()">Proceed</button>
+
+<p>This page requires an elevated authorization using the "@Model.RequestedContext" context from step-up.</p>

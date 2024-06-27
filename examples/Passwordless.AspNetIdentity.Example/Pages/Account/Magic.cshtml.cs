@@ -1,4 +1,7 @@
-using System.Threading;
+using System;
+using System.Globalization;
+using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -19,6 +22,8 @@ public class Magic : PageModel
     }
 
     public bool Success { get; set; }
+
+    private static readonly string[] GeneratedTokenTypes = ["magic_link", "generated_signin"];
 
     public async Task<ActionResult> OnGet(string token)
     {
@@ -47,6 +52,13 @@ public class Magic : PageModel
         }
 
         await _signInManager.SignInAsync(user, true);
+
+
+        if (GeneratedTokenTypes.Contains(response.Type))
+        {
+            await _signInManager.UserManager.AddClaimAsync(user, new Claim(response.Type, DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)));
+        }
+
         Success = true;
         return LocalRedirect("/Authorized/HelloWorld");
     }
