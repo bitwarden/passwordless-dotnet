@@ -14,9 +14,30 @@ namespace Passwordless;
 
 /// <inheritdoc cref="IPasswordlessClient" />
 [DebuggerDisplay("{DebuggerToString(),nq}")]
-public class PasswordlessClient(HttpClient http, bool disposeClient, PasswordlessOptions options)
+public class PasswordlessClient(HttpClient http, bool disposeHttp, PasswordlessOptions options)
     : IPasswordlessClient, IDisposable
 {
+    private static readonly string SdkVersion =
+        typeof(PasswordlessClient).Assembly.GetName().Version?.ToString(3) ??
+        // This should never happen, unless the assembly had its metadata trimmed
+        "unknown";
+
+    private readonly HttpClient _http = new(new PasswordlessHttpHandler(http, disposeHttp), true)
+    {
+        BaseAddress = new Uri(options.ApiUrl ?? PasswordlessOptions.CloudApiUrl),
+        DefaultRequestHeaders =
+        {
+            {
+                "ApiSecret",
+                options.ApiSecret
+            },
+            {
+                "Client-Version",
+                $".NET-{SdkVersion}"
+            }
+        }
+    };
+
     /// <summary>
     /// Initializes an instance of <see cref="PasswordlessClient" />.
     /// </summary>
@@ -33,34 +54,28 @@ public class PasswordlessClient(HttpClient http, bool disposeClient, Passwordles
     {
     }
 
-    private static readonly string SdkVersion =
-        typeof(PasswordlessClient).Assembly.GetName().Version?.ToString(3) ??
-        // This should never happen, unless the assembly had its metadata trimmed
-        "unknown";
-
-    private readonly HttpClient _http = new(new PasswordlessHttpHandler(http, disposeClient), true)
+    // We validate the options right before making a request, so that we don't
+    // throw an exception during the service registration.
+    private void ValidateOptions()
     {
-        BaseAddress = new Uri(options.ApiUrl),
-        DefaultRequestHeaders =
+        if (string.IsNullOrWhiteSpace(options.ApiSecret))
         {
-            {
-                "ApiSecret",
-                options.ApiSecret
-            },
-            {
-                "Client-Version",
-                $".NET-{SdkVersion}"
-            }
+            throw new InvalidOperationException(
+                "Missing Passwordless API Secret. " +
+                "Please make sure a valid value is configured."
+            );
         }
-    };
+    }
 
     /// <inheritdoc />
     public async Task<RegisterTokenResponse> CreateRegisterTokenAsync(
-        RegisterOptions options,
+        RegisterOptions registerOptions,
         CancellationToken cancellationToken = default)
     {
+        ValidateOptions();
+
         using var response = await _http.PostAsJsonAsync("register/token",
-            options,
+            registerOptions,
             PasswordlessSerializerContext.Default.RegisterOptions,
             cancellationToken
         );
@@ -77,6 +92,8 @@ public class PasswordlessClient(HttpClient http, bool disposeClient, Passwordles
         AuthenticationOptions authenticationOptions,
         CancellationToken cancellationToken = default)
     {
+        ValidateOptions();
+
         using var response = await _http.PostAsJsonAsync("signin/generate-token",
             new AuthenticationOptionsRequest(authenticationOptions.UserId, authenticationOptions.TimeToLive?.TotalSeconds.Pipe(Convert.ToInt32)),
             PasswordlessSerializerContext.Default.AuthenticationOptionsRequest,
@@ -95,6 +112,8 @@ public class PasswordlessClient(HttpClient http, bool disposeClient, Passwordles
         string authenticationToken,
         CancellationToken cancellationToken = default)
     {
+        ValidateOptions();
+
         using var response = await _http.PostAsJsonAsync("signin/verify",
             new VerifyTokenRequest(authenticationToken),
             PasswordlessSerializerContext.Default.VerifyTokenRequest,
@@ -110,14 +129,22 @@ public class PasswordlessClient(HttpClient http, bool disposeClient, Passwordles
     }
 
     /// <inheritdoc />
-    public async Task<GetEventLogResponse> GetEventLogAsync(GetEventLogRequest request, CancellationToken cancellationToken = default) =>
-        (await _http.GetFromJsonAsync($"events?pageNumber={request.PageNumber}&numberOfResults={request.NumberOfResults}",
+    public async Task<GetEventLogResponse> GetEventLogAsync(GetEventLogRequest request, CancellationToken cancellationToken = default)
+    {
+        ValidateOptions();
+
+        return (await _http.GetFromJsonAsync(
+            $"events?pageNumber={request.PageNumber}&numberOfResults={request.NumberOfResults}",
             PasswordlessSerializerContext.Default.GetEventLogResponse,
-            cancellationToken))!;
+            cancellationToken)
+        )!;
+    }
 
     /// <inheritdoc />
     public async Task SendMagicLinkAsync(SendMagicLinkRequest request, CancellationToken cancellationToken = default)
     {
+        ValidateOptions();
+
         using var response = await _http.PostAsJsonAsync(
             "magic-links/send",
             request.ToRequest(),
@@ -128,16 +155,23 @@ public class PasswordlessClient(HttpClient http, bool disposeClient, Passwordles
     }
 
     /// <inheritdoc />
-    public async Task<UsersCount> GetUsersCountAsync(CancellationToken cancellationToken = default) =>
-        (await _http.GetFromJsonAsync(
+    public async Task<UsersCount> GetUsersCountAsync(CancellationToken cancellationToken = default)
+    {
+        ValidateOptions();
+
+        return (await _http.GetFromJsonAsync(
             "users/count",
             PasswordlessSerializerContext.Default.UsersCount,
-            cancellationToken))!;
+            cancellationToken)
+        )!;
+    }
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<PasswordlessUserSummary>> ListUsersAsync(
         CancellationToken cancellationToken = default)
     {
+        ValidateOptions();
+
         var response = await _http.GetFromJsonAsync(
             "users/list",
             PasswordlessSerializerContext.Default.ListResponsePasswordlessUserSummary,
@@ -152,6 +186,8 @@ public class PasswordlessClient(HttpClient http, bool disposeClient, Passwordles
         string userId,
         CancellationToken cancellationToken = default)
     {
+        ValidateOptions();
+
         using var response = await _http.PostAsJsonAsync("users/delete",
             new DeleteUserRequest(userId),
             PasswordlessSerializerContext.Default.DeleteUserRequest,
@@ -164,6 +200,8 @@ public class PasswordlessClient(HttpClient http, bool disposeClient, Passwordles
         string userId,
         CancellationToken cancellationToken = default)
     {
+        ValidateOptions();
+
         var response = await _http.GetFromJsonAsync(
             $"alias/list?userid={userId}",
             PasswordlessSerializerContext.Default.ListResponseAliasPointer,
@@ -178,6 +216,8 @@ public class PasswordlessClient(HttpClient http, bool disposeClient, Passwordles
         SetAliasRequest request,
         CancellationToken cancellationToken)
     {
+        ValidateOptions();
+
         using var response = await _http.PostAsJsonAsync("alias",
             request,
             PasswordlessSerializerContext.Default.SetAliasRequest,
@@ -192,6 +232,8 @@ public class PasswordlessClient(HttpClient http, bool disposeClient, Passwordles
         string userId,
         CancellationToken cancellationToken = default)
     {
+        ValidateOptions();
+
         var response = await _http.GetFromJsonAsync(
             $"credentials/list?userid={userId}",
             PasswordlessSerializerContext.Default.ListResponseCredential,
@@ -206,6 +248,8 @@ public class PasswordlessClient(HttpClient http, bool disposeClient, Passwordles
         string id,
         CancellationToken cancellationToken = default)
     {
+        ValidateOptions();
+
         using var response = await _http.PostAsJsonAsync("credentials/delete",
             new DeleteCredentialRequest(id),
             PasswordlessSerializerContext.Default.DeleteCredentialRequest,

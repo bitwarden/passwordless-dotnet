@@ -16,7 +16,12 @@ public class MagicLinksTests(TestApiFixture api, ITestOutputHelper testOutput) :
     {
         // Arrange
         var passwordless = await Api.CreateClientAsync();
-        var request = new SendMagicLinkRequest("test@passwordless.dev", "https://www.example.com?token=$TOKEN", "user", new TimeSpan(0, 15, 0));
+
+        var request = new SendMagicLinkRequest(
+            "test@passwordless.dev",
+            "https://www.example.com?token=$TOKEN", "user",
+            new TimeSpan(0, 15, 0)
+        );
 
         // Act
         var action = async () => await passwordless.SendMagicLinkAsync(request, CancellationToken.None);
@@ -30,7 +35,12 @@ public class MagicLinksTests(TestApiFixture api, ITestOutputHelper testOutput) :
     {
         // Arrange
         var passwordless = await Api.CreateClientAsync();
-        var request = new SendMagicLinkRequest("test@passwordless.dev", "https://www.example.com?token=$TOKEN", "user", null);
+
+        var request = new SendMagicLinkRequest(
+            "test@passwordless.dev",
+            "https://www.example.com?token=$TOKEN", "user",
+            null
+        );
 
         // Act
         var action = async () => await passwordless.SendMagicLinkAsync(request, CancellationToken.None);
