@@ -94,7 +94,7 @@ static async Task<IResult> StepUp(IOptions<PasswordlessOptions> options, HttpCon
 {
     var http = new HttpClient
     {
-        BaseAddress = new Uri(options.Value.ApiUrl),
+        BaseAddress = new Uri(options.Value.ApiUrl ?? PasswordlessOptions.CloudApiUrl),
         DefaultRequestHeaders = { { "ApiSecret", options.Value.ApiSecret } }
     };
 
