@@ -19,11 +19,7 @@ public static class ServiceCollectionExtensions
         this IServiceCollection services,
         Action<PasswordlessOptions> configureOptions)
     {
-        services.AddOptions<PasswordlessOptions>()
-            .Configure(configureOptions)
-            .PostConfigure(options => options.ApiUrl ??= PasswordlessOptions.CloudApiUrl)
-            .Validate(options => !string.IsNullOrEmpty(options.ApiSecret), "Passwordless: Missing ApiSecret");
-
+        services.AddOptions<PasswordlessOptions>().Configure(configureOptions);
         services.RegisterDependencies();
 
         return services;
@@ -42,10 +38,7 @@ public static class ServiceCollectionExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.AddOptions<PasswordlessOptions>()
-            .Configure(configuration.Bind)
-            .Validate(options => !string.IsNullOrEmpty(options.ApiSecret), "Passwordless: Missing ApiSecret");
-
+        services.AddOptions<PasswordlessOptions>().Configure(configuration.Bind);
         services.RegisterDependencies();
 
         return services;
@@ -68,7 +61,6 @@ public static class ServiceCollectionExtensions
         string section)
     {
         services.AddOptions<PasswordlessOptions>().BindConfiguration(section);
-
         services.RegisterDependencies();
 
         return services;

@@ -6,7 +6,7 @@ namespace Passwordless;
 public class PasswordlessOptions
 {
     /// <summary>
-    /// Passwordless Cloud Url
+    /// Passwordless Cloud Url.
     /// </summary>
     public const string CloudApiUrl = "https://v4.passwordless.dev";
 
@@ -14,9 +14,9 @@ public class PasswordlessOptions
     /// Gets or sets the url to use for Passwordless operations.
     /// </summary>
     /// <remarks>
-    /// Defaults to <see cref="CloudApiUrl" />.
+    /// If not set, defaults to <see cref="CloudApiUrl" />.
     /// </remarks>
-    public string ApiUrl { get; set; } = CloudApiUrl;
+    public string? ApiUrl { get; set; }
 
     /// <summary>
     /// Gets or sets the secret API key used to authenticate with the Passwordless API.

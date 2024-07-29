@@ -14,7 +14,7 @@ public interface IPasswordlessClient
     /// Creates a register token which will be used by your frontend to negotiate the creation of a WebAuth credential.
     /// </summary>
     Task<RegisterTokenResponse> CreateRegisterTokenAsync(
-        RegisterOptions options,
+        RegisterOptions registerOptions,
         CancellationToken cancellationToken = default
     );
 
