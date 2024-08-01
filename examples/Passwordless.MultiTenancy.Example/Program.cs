@@ -22,10 +22,11 @@ builder.Services.AddOptions<PasswordlessMultiTenancyConfiguration>().BindConfigu
 // Multi-tenancy: Integrate the multi-tenant PasswordlessClient with the HttpClient
 builder.Services.AddHttpClient<IPasswordlessClient, PasswordlessClient>((http, sp) =>
 {
+    
     var httpContextAccessor = sp.GetRequiredService<IHttpContextAccessor>();
     var host = httpContextAccessor.HttpContext!.Request.Host;
 
-    // republicans or democrats tenant
+    // gameofthrones or thewalkingdead tenant
     var tenant = host.Host.Split('.')[0];
 
     var clientBuilder = sp.GetRequiredService<IPasswordlessClientBuilder>();
