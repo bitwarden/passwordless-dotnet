@@ -12,7 +12,7 @@ to identify the tenant. For example:
 We can achieve this by bootstrapping the Passwordless SDK ourselves in `Program.cs` and providing the necessary
 configuration.
 
-For a tenant `thewalkingdead` or `republicants` respectively. You would find the configuration then in your appsettings.json
+For a tenant `thewalkingdead` or `gameofthrones` respectively. You would find the configuration then in your appsettings.json
 file. Similarly, you can use a database or any other configuration source.
 
 ```json
