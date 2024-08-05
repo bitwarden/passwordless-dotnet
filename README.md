@@ -21,6 +21,7 @@ Examples:
 
 - [Passwordless.Example](examples/Passwordless.Example) — basic Passwordless.dev integration inside an ASP.NET app
 - [Passwordless.AspNetIdentity.Example](examples/Passwordless.AspNetIdentity.Example) — Passwordless.dev integration using ASP.NET Identity.
+- [Passwordless.MultiTenancy.Example](examples/Passwordless.AspNetIdentity.Example) — Passwordless.dev integration for multi-tenant applications.
 
 ## Usage
 
