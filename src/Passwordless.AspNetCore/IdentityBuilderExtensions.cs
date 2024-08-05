@@ -173,7 +173,7 @@ public static class IdentityBuilderExtensions
         identity.Services.AddPasswordlessSdk(configuration);
 
         identity.Services.AddPasswordlessIdentity(
-            identity.UserType,
+            typeof(TUserType),
             o => o.Bind(configuration),
             IdentityConstants.ApplicationScheme
         );
