@@ -18,6 +18,36 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// </summary>
 public static class IdentityBuilderExtensions
 {
+    [RequiresUnreferencedCode("This method is incompatible with assembly trimming.")]
+    [RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
+    private static IServiceCollection AddPasswordlessIdentity(
+        this IServiceCollection services,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
+        Type userType,
+        Action<OptionsBuilder<PasswordlessAspNetCoreOptions>> configureOptions,
+        string? defaultScheme)
+    {
+        // Options
+        var optionsBuilder = services.AddOptions<PasswordlessAspNetCoreOptions>();
+        configureOptions(optionsBuilder);
+
+        // Default scheme
+        if (!string.IsNullOrEmpty(defaultScheme))
+        {
+            optionsBuilder.Configure(o => o.SignInScheme = defaultScheme);
+        }
+
+        // Services
+        services.TryAddScoped(
+            typeof(IPasswordlessService<PasswordlessRegisterRequest>),
+            typeof(PasswordlessService<>).MakeGenericType(userType)
+        );
+
+        services.TryAddScoped<ICustomizeRegisterOptions, NoopCustomizeRegisterOptions>();
+
+        return services;
+    }
+
     /// <summary>
     /// Adds the services to support <see cref="PasswordlessApiEndpointRouteBuilderExtensions.MapPasswordless(IEndpointRouteBuilder)" />
     /// </summary>
@@ -26,39 +56,15 @@ public static class IdentityBuilderExtensions
     /// <returns>The <see cref="IServiceCollection" />.</returns>
     [RequiresUnreferencedCode("This method is incompatible with assembly trimming.")]
     [RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
-    public static IServiceCollection AddPasswordless<TUser>(this IServiceCollection services, Action<PasswordlessAspNetCoreOptions> configure)
+    public static IServiceCollection AddPasswordless<TUser>(
+        this IServiceCollection services,
+        Action<PasswordlessAspNetCoreOptions> configure)
         where TUser : class, new()
     {
-        return services.AddPasswordlessCore(typeof(TUser), configure, defaultScheme: null);
-    }
-
-    /// <summary>
-    /// Adds the services to support <see cref="PasswordlessApiEndpointRouteBuilderExtensions.MapPasswordless(IEndpointRouteBuilder)" />
-    /// </summary>
-    /// <param name="builder">The current <see cref="IdentityBuilder" /> instance.</param>
-    /// <param name="configure">Configures the <see cref="PasswordlessAspNetCoreOptions" />.</param>
-    /// <returns>The <see cref="IdentityBuilder" />.</returns>
-    [RequiresUnreferencedCode("This method is incompatible with assembly trimming.")]
-    [RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
-    public static IdentityBuilder AddPasswordless(this IdentityBuilder builder, Action<PasswordlessAspNetCoreOptions> configure)
-    {
-        builder.Services.AddPasswordlessCore(builder.UserType, configure, IdentityConstants.ApplicationScheme);
-        return builder;
-    }
-
-    [RequiresDynamicCode("Calls Microsoft.Extensions.DependencyInjection.IdentityBuilderExtensions.AddShared(Type, OptionsBuilder<PasswordlessAspNetCoreOptions>, String)")]
-    [RequiresUnreferencedCode("Calls Microsoft.Extensions.DependencyInjection.IdentityBuilderExtensions.AddShared(Type, OptionsBuilder<PasswordlessAspNetCoreOptions>, String)")]
-    private static IServiceCollection AddPasswordlessCore(this IServiceCollection services,
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type userType,
-        Action<PasswordlessAspNetCoreOptions> configure,
-        string? defaultScheme)
-    {
-        var optionsBuilder = services.AddOptions<PasswordlessAspNetCoreOptions>().Configure(configure);
-
-        // Add the SDK services but don't configure it there since ASP.NET Core options are a superset of their options.
+        // Don't set up options here because we can't use the provided delegate as it's for a different type
         services.AddPasswordlessSdk(_ => { });
 
-        // Override SDK options to come from ASP.NET Core options
+        // Derive core options from ASP.NET Core options
         services.AddOptions<PasswordlessOptions>()
             .Configure<IOptions<PasswordlessAspNetCoreOptions>>((options, aspNetCoreOptionsAccessor) =>
             {
@@ -68,106 +74,152 @@ public static class IdentityBuilderExtensions
                 options.ApiKey = aspNetCoreOptions.ApiKey;
             });
 
-        return services.AddShared(userType, optionsBuilder, defaultScheme);
+        return services.AddPasswordlessIdentity(typeof(TUser), o => o.Configure(configure), null);
     }
 
     /// <summary>
     /// Adds the services to support <see cref="PasswordlessApiEndpointRouteBuilderExtensions.MapPasswordless(IEndpointRouteBuilder)" />
     /// </summary>
-    /// <param name="builder">The current <see cref="IdentityBuilder" /> instance.</param>
+    [RequiresUnreferencedCode("This method is incompatible with assembly trimming.")]
+    [RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
+    public static IServiceCollection AddPasswordless<TUser>(
+        this IServiceCollection services,
+        IConfiguration configuration)
+        where TUser : class, new()
+    {
+        services.AddPasswordlessSdk(configuration);
+        return services.AddPasswordlessIdentity(typeof(TUser), o => o.Bind(configuration), null);
+    }
+
+    /// <summary>
+    /// Adds the services to support <see cref="PasswordlessApiEndpointRouteBuilderExtensions.MapPasswordless(IEndpointRouteBuilder)" />
+    /// </summary>
+    [RequiresUnreferencedCode("This method is incompatible with assembly trimming.")]
+    [RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
+    public static IServiceCollection AddPasswordless<TUser>(
+        this IServiceCollection services,
+        string configurationSection)
+        where TUser : class, new()
+    {
+        services.AddPasswordlessSdk(configurationSection);
+        return services.AddPasswordlessIdentity(typeof(TUser), o => o.BindConfiguration(configurationSection), null);
+    }
+
+    /// <summary>
+    /// Adds the services to support <see cref="PasswordlessApiEndpointRouteBuilderExtensions.MapPasswordless(IEndpointRouteBuilder)" />
+    /// </summary>
+    /// <param name="identity">The current <see cref="IdentityBuilder" /> instance.</param>
+    /// <param name="configure">Configures the <see cref="PasswordlessAspNetCoreOptions" />.</param>
+    /// <returns>The <see cref="IdentityBuilder" />.</returns>
+    [RequiresUnreferencedCode("This method is incompatible with assembly trimming.")]
+    [RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
+    public static IdentityBuilder AddPasswordless(
+        this IdentityBuilder identity,
+        Action<PasswordlessAspNetCoreOptions> configure)
+    {
+        // Don't set up options here because we can't use the provided delegate as it's for a different type
+        identity.Services.AddPasswordlessSdk(_ => { });
+
+        // Derive core options from ASP.NET Core options
+        identity.Services.AddOptions<PasswordlessOptions>()
+            .Configure<IOptions<PasswordlessAspNetCoreOptions>>((options, aspNetCoreOptionsAccessor) =>
+            {
+                var aspNetCoreOptions = aspNetCoreOptionsAccessor.Value;
+                options.ApiUrl = aspNetCoreOptions.ApiUrl;
+                options.ApiSecret = aspNetCoreOptions.ApiSecret;
+                options.ApiKey = aspNetCoreOptions.ApiKey;
+            });
+
+        identity.Services.AddPasswordlessIdentity(
+            identity.UserType,
+            o => o.Configure(configure),
+            IdentityConstants.ApplicationScheme
+        );
+
+        return identity;
+    }
+
+    /// <summary>
+    /// Adds the services to support <see cref="PasswordlessApiEndpointRouteBuilderExtensions.MapPasswordless(IEndpointRouteBuilder)" />
+    /// </summary>
+    /// <param name="identity">The current <see cref="IdentityBuilder" /> instance.</param>
     /// <param name="configuration">The <see cref="IConfiguration" /> to use to bind to <see cref="PasswordlessAspNetCoreOptions" />. Generally it's own section.</param>
     /// <returns>The <see cref="IdentityBuilder" />.</returns>
     [RequiresUnreferencedCode("This method is incompatible with assembly trimming.")]
     [RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
-    public static IServiceCollection AddPasswordless(this IdentityBuilder builder, IConfiguration configuration)
+    public static IdentityBuilder AddPasswordless(this IdentityBuilder identity, IConfiguration configuration)
     {
-        return builder.AddPasswordless(configuration, builder.UserType, IdentityConstants.ApplicationScheme);
+        identity.Services.AddPasswordlessSdk(configuration);
+
+        identity.Services.AddPasswordlessIdentity(
+            identity.UserType,
+            o => o.Bind(configuration),
+            IdentityConstants.ApplicationScheme
+        );
+
+        return identity;
     }
 
     /// <summary>
     /// Adds the services to support <see cref="PasswordlessApiEndpointRouteBuilderExtensions.MapPasswordless(IEndpointRouteBuilder)" />
     /// </summary>
-    /// <param name="builder">The current <see cref="IdentityBuilder" /> instance.</param>
+    /// <param name="identity">The current <see cref="IdentityBuilder" /> instance.</param>
     /// <param name="configuration">The <see cref="IConfiguration" /> to use to bind to <see cref="PasswordlessAspNetCoreOptions" />. Generally it's own section.</param>
     /// <returns>The <see cref="IdentityBuilder" />.</returns>
     [RequiresUnreferencedCode("This method is incompatible with assembly trimming.")]
     [RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
-    public static IServiceCollection AddPasswordless<TUserType>(this IdentityBuilder builder, IConfiguration configuration)
+    public static IdentityBuilder AddPasswordless<TUserType>(this IdentityBuilder identity, IConfiguration configuration)
     {
-        return builder.AddPasswordless(configuration, typeof(TUserType), null);
-    }
+        identity.Services.AddPasswordlessSdk(configuration);
 
-    [RequiresUnreferencedCode("This method is incompatible with assembly trimming.")]
-    [RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
-    private static IServiceCollection AddPasswordless(this IdentityBuilder builder, IConfiguration configuration, Type? userType, string? defaultScheme)
-    {
-        var optionsBuilder = builder.Services
-            .AddOptions<PasswordlessAspNetCoreOptions>()
-            .Bind(configuration);
+        identity.Services.AddPasswordlessIdentity(
+            identity.UserType,
+            o => o.Bind(configuration),
+            IdentityConstants.ApplicationScheme
+        );
 
-        builder.Services.AddPasswordlessSdk(configuration);
-
-        return builder.Services.AddShared(userType ?? builder.UserType, optionsBuilder, IdentityConstants.ApplicationScheme);
+        return identity;
     }
 
     /// <summary>
     /// Adds the services to support <see cref="PasswordlessApiEndpointRouteBuilderExtensions.MapPasswordless(IEndpointRouteBuilder)" />
     /// </summary>
-    /// <param name="builder">The current <see cref="IdentityBuilder" /> instance.</param>
-    /// <param name="path">The configuration path to use to bind to <see cref="PasswordlessAspNetCoreOptions" />.</param>
+    /// <param name="identity">The current <see cref="IdentityBuilder" /> instance.</param>
+    /// <param name="configurationSection">The configuration path to use to bind to <see cref="PasswordlessAspNetCoreOptions" />.</param>
     /// <returns>The <see cref="IServiceCollection" />.</returns>
     [RequiresUnreferencedCode("This method is incompatible with assembly trimming.")]
     [RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
-    public static IServiceCollection AddPasswordless(this IdentityBuilder builder, string path)
+    public static IdentityBuilder AddPasswordless(this IdentityBuilder identity, string configurationSection)
     {
-        return builder.AddPasswordless(path, builder.UserType, IdentityConstants.ApplicationScheme);
+        identity.Services.AddPasswordlessSdk(configurationSection);
+
+        identity.Services.AddPasswordlessIdentity(
+            identity.UserType,
+            o => o.BindConfiguration(configurationSection),
+            IdentityConstants.ApplicationScheme
+        );
+
+        return identity;
     }
 
     /// <summary>
     /// Adds the services to support <see cref="PasswordlessApiEndpointRouteBuilderExtensions.MapPasswordless(IEndpointRouteBuilder)" />
     /// </summary>
-    /// <param name="builder">The current <see cref="IdentityBuilder" /> instance.</param>
-    /// <param name="path">The configuration path to use to bind to <see cref="PasswordlessAspNetCoreOptions" />.</param>
+    /// <param name="identity">The current <see cref="IdentityBuilder" /> instance.</param>
+    /// <param name="configurationSection">The configuration path to use to bind to <see cref="PasswordlessAspNetCoreOptions" />.</param>
     /// <returns>The <see cref="IServiceCollection" />.</returns>
     [RequiresUnreferencedCode("This method is incompatible with assembly trimming.")]
     [RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
-    public static IServiceCollection AddPasswordless<TUserType>(this IdentityBuilder builder, string path)
+    public static IdentityBuilder AddPasswordless<TUserType>(this IdentityBuilder identity, string configurationSection)
     {
-        return builder.AddPasswordless(path, typeof(TUserType), null);
-    }
+        identity.Services.AddPasswordlessSdk(configurationSection);
 
-    [RequiresUnreferencedCode("This method is incompatible with assembly trimming.")]
-    [RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
-    private static IServiceCollection AddPasswordless(this IdentityBuilder builder, string path, Type userType, string? defaultScheme)
-    {
-        var optionsBuilder = builder.Services
-            .AddOptions<PasswordlessAspNetCoreOptions>()
-            .BindConfiguration(path);
+        identity.Services.AddPasswordlessIdentity(
+            typeof(TUserType),
+            o => o.BindConfiguration(configurationSection),
+            IdentityConstants.ApplicationScheme
+        );
 
-        builder.Services.AddPasswordlessSdk(path);
-
-        return builder.Services.AddShared(userType ?? builder.UserType, optionsBuilder, IdentityConstants.ApplicationScheme);
-    }
-
-    [RequiresUnreferencedCode("This method is incompatible with assembly trimming.")]
-    [RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
-    private static IServiceCollection AddShared(this IServiceCollection services,
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
-        Type userType,
-        OptionsBuilder<PasswordlessAspNetCoreOptions> optionsBuilder,
-        string? defaultScheme)
-    {
-        if (!string.IsNullOrEmpty(defaultScheme))
-        {
-            optionsBuilder.Configure(o => o.SignInScheme = defaultScheme);
-        }
-
-        services.TryAddScoped(
-            typeof(IPasswordlessService<PasswordlessRegisterRequest>),
-            typeof(PasswordlessService<>).MakeGenericType(userType));
-
-        services.TryAddScoped<ICustomizeRegisterOptions, NoopCustomizeRegisterOptions>();
-
-        return services;
+        return identity;
     }
 }
