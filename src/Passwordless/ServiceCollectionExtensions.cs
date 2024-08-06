@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Passwordless;
@@ -12,67 +11,62 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// </summary>
 public static class ServiceCollectionExtensions
 {
-    /// <summary>
-    /// Adds and configures Passwordless-related services.
-    /// </summary>
-    public static IServiceCollection AddPasswordlessSdk(
+    private static IServiceCollection AddPasswordlessSdk(
         this IServiceCollection services,
-        Action<PasswordlessOptions> configureOptions)
+        Action<OptionsBuilder<PasswordlessOptions>> configureOptions)
     {
-        services.AddOptions<PasswordlessOptions>().Configure(configureOptions);
-        services.RegisterDependencies();
+        // Options
+        configureOptions(
+            services.AddOptions<PasswordlessOptions>()
+        );
 
-        return services;
-    }
-
-    /// <summary>
-    /// Adds and configures Passwordless-related services.
-    /// </summary>
-#if NET6_0_OR_GREATER
-    [RequiresUnreferencedCode("This method is incompatible with assembly trimming.")]
-#endif
-#if NET7_0_OR_GREATER
-    [RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
-#endif
-    public static IServiceCollection AddPasswordlessSdk(
-        this IServiceCollection services,
-        IConfiguration configuration)
-    {
-        services.AddOptions<PasswordlessOptions>().Configure(configuration.Bind);
-        services.RegisterDependencies();
-
-        return services;
-    }
-
-    /// <summary>
-    /// Adds and configures Passwordless-related services.
-    /// </summary>
-    /// <param name="services"></param>
-    /// <param name="section"></param>
-    /// <returns></returns>
-#if NET6_0_OR_GREATER
-    [RequiresUnreferencedCode("This method is incompatible with assembly trimming.")]
-#endif
-#if NET7_0_OR_GREATER
-    [RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
-#endif
-    public static IServiceCollection AddPasswordlessSdk(
-        this IServiceCollection services,
-        string section)
-    {
-        services.AddOptions<PasswordlessOptions>().BindConfiguration(section);
-        services.RegisterDependencies();
-
-        return services;
-    }
-
-    private static void RegisterDependencies(this IServiceCollection services)
-    {
+        // Client
         services.AddHttpClient<IPasswordlessClient, PasswordlessClient>((http, sp) =>
             new PasswordlessClient(http, sp.GetRequiredService<IOptionsSnapshot<PasswordlessOptions>>().Value)
         );
 
         // TODO: Get rid of this service, all consumers should use the interface
         services.AddTransient(sp => (PasswordlessClient)sp.GetRequiredService<IPasswordlessClient>());
+
+        return services;
     }
+
+    /// <summary>
+    /// Adds and configures Passwordless-related services.
+    /// </summary>
+    public static IServiceCollection AddPasswordlessSdk(
+        this IServiceCollection services,
+        Action<PasswordlessOptions> configureOptions) =>
+        services.AddPasswordlessSdk(o => o.Configure(configureOptions));
+
+    /// <summary>
+    /// Adds and configures Passwordless-related services.
+    /// </summary>
+#if NET6_0_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("This method is incompatible with assembly trimming.")]
+#endif
+#if NET7_0_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
+#endif
+    public static IServiceCollection AddPasswordlessSdk(
+        this IServiceCollection services,
+        IConfiguration configuration) =>
+        services.AddPasswordlessSdk(o => o.Bind(configuration));
+
+    /// <summary>
+    /// Adds and configures Passwordless-related services.
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="configurationSection"></param>
+    /// <returns></returns>
+#if NET6_0_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("This method is incompatible with assembly trimming.")]
+#endif
+#if NET7_0_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.RequiresDynamicCode("This method is incompatible with native AOT compilation.")]
+#endif
+    public static IServiceCollection AddPasswordlessSdk(
+        this IServiceCollection services,
+        string configurationSection) =>
+        services.AddPasswordlessSdk(o => o.BindConfiguration(configurationSection));
 }
