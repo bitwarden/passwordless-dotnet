@@ -34,25 +34,34 @@ public record RegisterOptions(string UserId, string Username)
     public bool? Discoverable { get; init; }
 
     /// <summary>
-    /// Allows choosing preference for requiring User Verification
-    /// (biometrics, pin code etc) when authenticating Can be "preferred" (default), "required" or "discouraged".
+    /// Allows choosing preference for requiring User Verification (biometrics, pin code etc) when authenticating.
+    /// Can be "preferred" (default), "required" or "discouraged".
     /// </summary>
     public string? UserVerification { get; init; }
 
     /// <summary>
-    /// Timestamp (UTC) when the registration token should expire. By default, current time + 120 seconds.
+    /// Timestamp (UTC) when the registration token should expire.
+    /// By default, current time + 120 seconds.
     /// </summary>
     public DateTime? ExpiresAt { get; init; }
 
     /// <summary>
-    /// A array of aliases for the userId, such as an email or username. Used to initiate a
+    /// An array of aliases for the userId, such as an email or username. Used to initiate a
     /// signin on the client side with the signinWithAlias() method. An alias must be unique to the userId.
     /// Defaults to an empty array [].
     /// </summary>
     public HashSet<string> Aliases { get; init; } = [];
 
     /// <summary>
-    /// Whether aliases should be hashed before being stored. Defaults to true.
+    /// Whether aliases should be hashed before being stored.
+    /// Defaults to true.
     /// </summary>
     public bool? AliasHashing { get; init; }
+
+    /// <summary>
+    /// Hints used to communicate to the user agent about how the request may be best completed.
+    /// Can be "security-key", "client-device", "hybrid".
+    /// Defaults to an empty array [].
+    /// </summary>
+    public IReadOnlyList<string> Hints { get; init; } = [];
 }
