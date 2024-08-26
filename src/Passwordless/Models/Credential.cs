@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 
 namespace Passwordless;
 
@@ -32,7 +33,7 @@ public record Credential(
     DateTime CreatedAt,
     Guid AaGuid,
     DateTime LastUsedAt,
-    string RpId,
+    [property: JsonPropertyName("rpid")] string RpId,
     string Origin,
     string Country,
     string Device,
