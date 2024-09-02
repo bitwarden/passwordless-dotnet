@@ -40,8 +40,6 @@ public class TestApi : IAsyncDisposable
             .WithEnvironment("ASPNETCORE_HTTP_PORTS", ApiPort.ToString(CultureInfo.InvariantCulture))
             // We need the management key to create apps
             .WithEnvironment("PasswordlessManagement__ManagementKey", ManagementKey)
-            // Set the mail sink file path to a known value
-            .WithEnvironment("Mail__File__Path", "mail.md")
             .WithPortBinding(ApiPort, true)
             // Wait until the API is launched, has performed migrations, and is ready to accept requests
             .WithWaitStrategy(Wait
