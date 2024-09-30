@@ -18,5 +18,6 @@
       "matchManagers": ["nuget"],
       "matchUpdateTypes": ["minor", "patch"]
     }
-  ]
+  ],
+  "ignoreDeps": ["dotnet-sdk"]
 }
