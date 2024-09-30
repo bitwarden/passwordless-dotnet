@@ -120,7 +120,7 @@ jobs:
           --no-build
           --configuration Release
           ${{ runner.os == 'Windows' && '-p:IncludeNetCoreAppTargets=false' || '' }}
-          --logger "GitHubActions;summary.includePassedTests=true;summary.includeSkippedTests=true"
+          --logger "summary.includePassedTests=true;summary.includeSkippedTests=true"
           --collect:"XPlat Code Coverage"
           --
           RunConfiguration.CollectSourceInformation=true
