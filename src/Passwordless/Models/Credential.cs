@@ -20,7 +20,6 @@ namespace Passwordless;
 /// <param name="Country">Optional country credential was created in.</param>
 /// <param name="Device">Device the credential was created on.</param>
 /// <param name="Nickname">Friendly name for credential.</param>
-/// <param name="AuthenticatorDisplayName">Human-palatable description of the credential's managing authenticator.</param>
 /// <param name="UserId">Identifier for the user.</param>
 /// <para name="BackupState">Whether the credential is synced (or backed up or not).</para>
 /// <para name="IsBackupEligible">Whether the credential is eligible for backup or syncing.</para>
@@ -39,7 +38,6 @@ public record Credential(
     string Country,
     string Device,
     string Nickname,
-    string? AuthenticatorDisplayName,
     string UserId,
     bool? BackupState = null,
     bool? IsBackupEligible = null,
