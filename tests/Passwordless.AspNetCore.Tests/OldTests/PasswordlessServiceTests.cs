@@ -86,7 +86,7 @@ public class PasswordlessServiceTests
         var okResult = Assert.IsAssignableFrom<Ok<RegisterTokenResponse>>(result);
         Assert.Equal(expectedResponse, okResult.Value);
 
-        Assert.Single(_testUserStore.InnerStore.Where(kvp => kvp.Value.Username == "test_username"));
+        Assert.Single(_testUserStore.InnerStore, kvp => kvp.Value.Username == "test_username");
     }
 
     [Fact]
