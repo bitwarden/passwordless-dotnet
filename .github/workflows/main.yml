@@ -1,4 +1,4 @@
-name: main
+name: Main
 
 on:
   push:
@@ -40,7 +40,8 @@ env:
 jobs:
   # Determine version
   version:
-    runs-on: ubuntu-latest
+    name: Determine Version
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       id-token: write
@@ -69,7 +70,8 @@ jobs:
 
   # Check formatting
   format:
-    runs-on: ubuntu-latest
+    name: Check Formatting
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
 
@@ -85,11 +87,12 @@ jobs:
 
   # Run tests
   test:
+    name: Run Tests
     strategy:
       fail-fast: false
       matrix:
         os:
-          - ubuntu-latest
+          - ubuntu-24.04
           # Windows runners don't support Linux Docker containers (needed for tests),
           # so we currently cannot run tests on Windows.
           # - windows-latest
@@ -132,8 +135,9 @@ jobs:
 
   # Pack the output into NuGet packages
   pack:
+    name: Pack
     needs: version
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       actions: write
       contents: read
@@ -172,6 +176,7 @@ jobs:
 
   # Dispatch a separate deployment workflow in a private repository
   deploy:
+    name: Deploy
     # Remove this if we end up adding more environments than just NuGet
     if:  ${{ github.event_name == 'release' }}
 
@@ -191,7 +196,7 @@ jobs:
           # https://stackoverflow.com/questions/65384420/how-do-i-make-a-github-action-matrix-element-conditional
           - environment: ${{ github.event_name != 'release' && 'nuget' }}
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions: {} # no permissions required
 
     steps:
