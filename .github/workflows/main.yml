@@ -1,4 +1,4 @@
-name: main
+name: Main
 
 on:
   push:
@@ -40,9 +40,11 @@ env:
 jobs:
   # Determine version
   version:
-    runs-on: ubuntu-latest
+    name: Determine Version
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
+      id-token: write
 
     steps:
       - name: Determine stable version
@@ -68,7 +70,8 @@ jobs:
 
   # Check formatting
   format:
-    runs-on: ubuntu-latest
+    name: Check Formatting
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
 
@@ -84,11 +87,12 @@ jobs:
 
   # Run tests
   test:
+    name: Run Tests
     strategy:
       fail-fast: false
       matrix:
         os:
-          - ubuntu-latest
+          - ubuntu-24.04
           # Windows runners don't support Linux Docker containers (needed for tests),
           # so we currently cannot run tests on Windows.
           # - windows-latest
@@ -131,8 +135,9 @@ jobs:
 
   # Pack the output into NuGet packages
   pack:
+    name: Pack
     needs: version
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       actions: write
       contents: read
@@ -171,6 +176,7 @@ jobs:
 
   # Dispatch a separate deployment workflow in a private repository
   deploy:
+    name: Deploy
     # Remove this if we end up adding more environments than just NuGet
     if:  ${{ github.event_name == 'release' }}
 
@@ -190,14 +196,16 @@ jobs:
           # https://stackoverflow.com/questions/65384420/how-do-i-make-a-github-action-matrix-element-conditional
           - environment: ${{ github.event_name != 'release' && 'nuget' }}
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions: {} # no permissions required
 
     steps:
-      - name: Log in to Azure - CI subscription
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve GitHub PAT secrets
         id: retrieve-secret-pat
@@ -205,6 +213,9 @@ jobs:
         with:
           keyvault: "bitwarden-ci"
           secrets: "github-pat-bitwarden-devops-bot-repo-scope"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Dispatch deployment
         env:
