@@ -141,7 +141,7 @@ jobs:
           DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
 
       - name: Upload coverage
-        uses: codecov/codecov-action@1e68e06f1dbfde0e4cefc87efeba9e4643565303 # v5.1.2
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
 
   # Pack the output into NuGet packages
   pack:
